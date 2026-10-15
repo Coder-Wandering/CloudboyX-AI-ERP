@@ -1,0 +1,205 @@
+{
+  "accounts": [
+    {
+      "id": "acc-cash",
+      "code": "1010",
+      "name": "Cash",
+      "type": "asset",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-ar",
+      "code": "1200",
+      "name": "Accounts Receivable",
+      "type": "asset",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-revenue",
+      "code": "4010",
+      "name": "Sales Revenue",
+      "type": "revenue",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-tax",
+      "code": "2200",
+      "name": "Sales Tax Payable",
+      "type": "liability",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-shipping",
+      "code": "4020",
+      "name": "Shipping Revenue",
+      "type": "revenue",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-inventory",
+      "code": "1400",
+      "name": "Inventory / Corporate Assets",
+      "type": "asset",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-po-commitment",
+      "code": "1900",
+      "name": "Procurement Commitments",
+      "type": "asset",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-po-reserve",
+      "code": "2400",
+      "name": "Accrued Purchase Commitments",
+      "type": "liability",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-accrued-ap",
+      "code": "2150",
+      "name": "Goods Received Not Invoiced (Accrued AP)",
+      "type": "liability",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    },
+    {
+      "id": "acc-ap",
+      "code": "2100",
+      "name": "Accounts Payable",
+      "type": "liability",
+      "created_at": "2026-10-12T10:15:40.825Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx-mk0dt9r",
+      "source_system": "shopify",
+      "source_id": "SH-84920",
+      "description": "Normalized sales transaction [Source: SHOPIFY #SH-84920] - Customer: alice.miller@icloud.com | SKU: VNTG-TEE-BLK, DENIM-JKT-L",
+      "posted_at": "2026-10-08T10:16:04.507Z",
+      "created_at": "2026-10-12T10:16:04.507Z",
+      "sql_generated": "-- PostgreSQL Transaction Posting block\nBEGIN;\n\nINSERT INTO transactions (id, source_system, source_id, description, posted_at, created_at, sql_generated)\nVALUES ('tx-mk0dt9r', 'shopify', 'SH-84920', 'Normalized sales transaction [Source: SHOPIFY #SH-84920] - Customer: alice.miller@icloud.com | SKU: VNTG-TEE-BLK, DENIM-JKT-L', '2026-10-08T10:16:04.507Z', '2026-10-12T10:16:04.507Z', '');\n\n-- Debit: Increase financial Asset (Cash)\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-zwinb2g', 'tx-mk0dt9r', (SELECT id FROM accounts WHERE code = '1010'), 20520, 0, '2026-10-12T10:16:04.507Z');\n\n-- Credit: Record Sales revenue\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-qix9m86', 'tx-mk0dt9r', (SELECT id FROM accounts WHERE code = '4010'), 0, 19000, '2026-10-12T10:16:04.507Z');\n\n-- Credit: Record Liability output tax code\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-kbokopm', 'tx-mk0dt9r', (SELECT id FROM accounts WHERE code = '2200'), 0, 1520, '2026-10-12T10:16:04.507Z');\n\nCOMMIT;\n",
+      "customer_email": "alice.miller@icloud.com",
+      "sku": "VNTG-TEE-BLK, DENIM-JKT-L"
+    },
+    {
+      "id": "tx-0w5g89v",
+      "source_system": "legacy_csv",
+      "source_id": "REC-30911",
+      "description": "Normalized sales transaction [Source: LEGACY_CSV #REC-30911] - Customer: b2b-purchaser@industrial.corp | SKU: STEEL-RIVET-100",
+      "posted_at": "2026-10-10T10:16:04.507Z",
+      "created_at": "2026-10-12T10:16:04.507Z",
+      "sql_generated": "-- PostgreSQL Transaction Posting block\nBEGIN;\n\nINSERT INTO transactions (id, source_system, source_id, description, posted_at, created_at, sql_generated)\nVALUES ('tx-0w5g89v', 'legacy_csv', 'REC-30911', 'Normalized sales transaction [Source: LEGACY_CSV #REC-30911] - Customer: b2b-purchaser@industrial.corp | SKU: STEEL-RIVET-100', '2026-10-10T10:16:04.507Z', '2026-10-12T10:16:04.507Z', '');\n\n-- Debit: Increase financial Asset (Accounts Receivable)\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-5pes03x', 'tx-0w5g89v', (SELECT id FROM accounts WHERE code = '1200'), 40000, 0, '2026-10-12T10:16:04.507Z');\n\n-- Credit: Record Sales revenue\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-sv77emd', 'tx-0w5g89v', (SELECT id FROM accounts WHERE code = '4010'), 0, 40000, '2026-10-12T10:16:04.507Z');\n\nCOMMIT;\n",
+      "customer_email": "b2b-purchaser@industrial.corp",
+      "sku": "STEEL-RIVET-100"
+    },
+    {
+      "id": "tx-31dxojt",
+      "source_system": "edi",
+      "source_id": "EDIPO-904128",
+      "description": "Normalized sales transaction [Source: EDI #EDIPO-904128] - Customer: edi-partner@b2b.system | SKU: BULK-PALLET-A",
+      "posted_at": "2026-10-11T10:16:04.507Z",
+      "created_at": "2026-10-12T10:16:04.507Z",
+      "sql_generated": "-- PostgreSQL Transaction Posting block\nBEGIN;\n\nINSERT INTO transactions (id, source_system, source_id, description, posted_at, created_at, sql_generated)\nVALUES ('tx-31dxojt', 'edi', 'EDIPO-904128', 'Normalized sales transaction [Source: EDI #EDIPO-904128] - Customer: edi-partner@b2b.system | SKU: BULK-PALLET-A', '2026-10-11T10:16:04.507Z', '2026-10-12T10:16:04.507Z', '');\n\n-- Debit: Increase financial Asset (Accounts Receivable)\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-xh3cymq', 'tx-31dxojt', (SELECT id FROM accounts WHERE code = '1200'), 75000, 0, '2026-10-12T10:16:04.507Z');\n\n-- Credit: Record Sales revenue\nINSERT INTO journal_entries (id, transaction_id, account_id, debit_amount, credit_amount, created_at)\nVALUES ('je-e8c47y9', 'tx-31dxojt', (SELECT id FROM accounts WHERE code = '4010'), 0, 75000, '2026-10-12T10:16:04.507Z');\n\nCOMMIT;\n",
+      "customer_email": "edi-partner@b2b.system",
+      "sku": "BULK-PALLET-A"
+    }
+  ],
+  "journal_entries": [
+    {
+      "id": "je-zwinb2g",
+      "transaction_id": "tx-mk0dt9r",
+      "account_id": "acc-cash",
+      "debit_amount": 20520,
+      "credit_amount": 0,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    },
+    {
+      "id": "je-qix9m86",
+      "transaction_id": "tx-mk0dt9r",
+      "account_id": "acc-revenue",
+      "debit_amount": 0,
+      "credit_amount": 19000,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    },
+    {
+      "id": "je-kbokopm",
+      "transaction_id": "tx-mk0dt9r",
+      "account_id": "acc-tax",
+      "debit_amount": 0,
+      "credit_amount": 1520,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    },
+    {
+      "id": "je-5pes03x",
+      "transaction_id": "tx-0w5g89v",
+      "account_id": "acc-ar",
+      "debit_amount": 40000,
+      "credit_amount": 0,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    },
+    {
+      "id": "je-sv77emd",
+      "transaction_id": "tx-0w5g89v",
+      "account_id": "acc-revenue",
+      "debit_amount": 0,
+      "credit_amount": 40000,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    },
+    {
+      "id": "je-xh3cymq",
+      "transaction_id": "tx-31dxojt",
+      "account_id": "acc-ar",
+      "debit_amount": 75000,
+      "credit_amount": 0,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    },
+    {
+      "id": "je-e8c47y9",
+      "transaction_id": "tx-31dxojt",
+      "account_id": "acc-revenue",
+      "debit_amount": 0,
+      "credit_amount": 75000,
+      "created_at": "2026-10-12T10:16:04.507Z"
+    }
+  ],
+  "resellers": [
+    {
+      "id": "resell-1",
+      "name": "Acme Distribution",
+      "domain": "acme-reselling.com",
+      "status": "Authorized",
+      "rate_limit": 500,
+      "orders_count": 142,
+      "last_active": "2026-10-12T08:16:04.507Z"
+    },
+    {
+      "id": "resell-2",
+      "name": "Global Apex Prime",
+      "domain": "apex-import.co.uk",
+      "status": "Authorized",
+      "rate_limit": 1000,
+      "orders_count": 87,
+      "last_active": "2026-10-12T10:11:04.507Z"
+    },
+    {
+      "id": "resell-3",
+      "name": "Shadow Wholesale Inc.",
+      "domain": "shadow-bulk.net",
+      "status": "Pending",
+      "rate_limit": 100,
+      "orders_count": 0,
+      "last_active": "Never"
+    },
+    {
+      "id": "resell-4",
+      "name": "Calypso Retail Node",
+      "domain": "calypso-shop.org",
+      "status": "Revoked",
+      "rate_limit": 250,
+      "orders_count": 12,
+      "last_active": "2026-10-02T10:16:04.507Z"
+    }
+  ]
+}

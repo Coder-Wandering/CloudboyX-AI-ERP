@@ -1,0 +1,8 @@
+{
+  "name": "CloudboyX Gateway",
+  "description": "An interactive playground that translates incoming sales feeds (Shopify, CSV, EDI, AI-assisted) into a Canonical Schema, then executes double-entry SQL transaction posting.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
