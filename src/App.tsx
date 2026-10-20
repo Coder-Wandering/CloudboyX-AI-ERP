@@ -702,6 +702,7 @@ export default function App() {
   const [isQrModalOpen, setIsQrModalOpen] = useState<boolean>(false);
   const [isScanningCamera, setIsScanningCamera] = useState<boolean>(false);
   const [showScannerInstructions, setShowScannerInstructions] = useState<boolean>(false);
+  const [showScanningInstructionsModal, setShowScanningInstructionsModal] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [zoomCapabilities, setZoomCapabilities] = useState<{ min: number; max: number; step: number } | null>(null);
@@ -760,6 +761,37 @@ export default function App() {
   const [journalEntries, setJournalEntries] = useState<any[]>([]);
   const [auditBalanced, setAuditBalanced] = useState<boolean>(true);
   const [postToCash, setPostToCash] = useState<boolean>(true);
+
+  // Active daemon threads for Thread Isolator & Job Diagnostics
+  const [daemonThreads, setDaemonThreads] = useState([
+    { id: 'TH-01', name: 'ERP Ingest Gateway', status: 'Healthy', latency: '4ms', priority: 'HIGH' },
+    { id: 'TH-02', name: 'Cloudboy X Reseller Router', status: 'Healthy', latency: '12ms', priority: 'HIGH' },
+    { id: 'TH-03', name: 'Firestore "Firestone" Broker', status: 'Stalled', latency: 'TIMEOUT', priority: 'MEDIUM' },
+    { id: 'TH-04', name: 'ML S&OP Cash Forecaster', status: 'Healthy', latency: '412ms', priority: 'LOW' },
+    { id: 'TH-05', name: 'ML GAAP Fraud Auditor', status: 'Healthy', latency: '1.2s', priority: 'LOW' }
+  ]);
+
+  // Current thread log output stream for Thread Isolator & Job Diagnostics
+  const [threadLogs, setThreadLogs] = useState<string[]>([
+    `[${new Date(Date.now() - 45000).toISOString()}] [SYS-BOOT] Thread Isolator & Job Diagnostics IPC broker online on port 3000.`,
+    `[${new Date(Date.now() - 38000).toISOString()}] [TH-01] [ERP Ingest Gateway] Ingestion pipeline synced with Canonical schema. Active poll rate: 4ms.`,
+    `[${new Date(Date.now() - 31000).toISOString()}] [TH-02] [Cloudboy X Reseller Router] Webhook listeners active on /api/reseller. Latency: 12ms.`,
+    `[${new Date(Date.now() - 25000).toISOString()}] [TH-03] [WARN] [Firestore "Firestone" Broker] Thread keepalive stalled (TIMEOUT). Awaiting isolation directive.`,
+    `[${new Date(Date.now() - 18000).toISOString()}] [TH-04] [ML S&OP Cash Forecaster] Batch matrix cash calculation completed (412ms).`,
+    `[${new Date(Date.now() - 12000).toISOString()}] [TH-05] [ML GAAP Fraud Auditor] Double-entry audit balance parity confirmed (0 discrepancy).`,
+    `[${new Date(Date.now() - 5000).toISOString()}] [HEARTBEAT] IPC thread broker ping verified across all 5 worker daemons.`
+  ]);
+
+  // Modal confirmation dialog state for Thread Log export
+  const [threadExportModal, setThreadExportModal] = useState<{
+    isOpen: boolean;
+    fileName: string;
+    timestamp: string;
+    eventsCount: number;
+    daemonsCount: number;
+    fileSizeBytes: number;
+    fileContent: string;
+  } | null>(null);
 
   // Screen operational alert state
   const [ledgerMessage, setLedgerMessage] = useState<{ text: string; type: 'success' | 'err' } | null>(null);
@@ -3194,6 +3226,45 @@ export default function App() {
     setIsQrModalOpen(false);
   };
 
+  // Launch camera QR scanner directly from the Scanning Instructions modal tips
+  const handleLaunchCameraScannerFromTips = async () => {
+    setShowScanningInstructionsModal(false);
+    if (!qrCodeDataUrl) {
+      if (normalizedOrder) {
+        await generateCanonicalQrCode();
+      } else {
+        try {
+          const samplePayload = {
+            sys: "SHOPIFY",
+            id: "ORD-9901-CANONICAL",
+            email: "scanner.test@cloudboyx.io",
+            total: 249.50,
+            tax: 21.20,
+            items: [
+              { sku: "CBX-GL-ALARM-NODE", qty: 2, prc: 124.75 }
+            ]
+          };
+          const jsonStr = JSON.stringify(samplePayload);
+          const dataUrl = await QRCode.toDataURL(jsonStr, { 
+            width: 320, 
+            margin: 2,
+            color: { 
+              dark: '#ffffff',
+              light: '#0f172a'
+            }
+          });
+          setQrCodeDataUrl(dataUrl);
+        } catch (err) {
+          console.error("Failed generating fallback scan code:", err);
+        }
+      }
+    }
+    setIsQrModalOpen(true);
+    setTimeout(async () => {
+      await startCameraScan();
+    }, 200);
+  };
+
   useEffect(() => {
     return () => {
       stopCameraScan();
@@ -3888,6 +3959,123 @@ export default function App() {
         text: `IIF Export failed: ${err.message}`,
         type: "err"
       });
+    }
+  };
+
+  // Export current thread log output as a plain text file for debugging purposes
+  const handleExportThreadLogs = () => {
+    try {
+      const now = new Date();
+      const timestamp = now.toISOString();
+      const localTimeString = now.toLocaleString();
+      const divider = "================================================================================";
+      const subDivider = "--------------------------------------------------------------------------------";
+
+      const threadSnapshot = daemonThreads.map(th => 
+        `  • [${th.id}] ${th.name.padEnd(30)} | Status: ${th.status.padEnd(10)} | Latency: ${th.latency.padEnd(8)} | Priority: ${th.priority}`
+      ).join("\r\n");
+
+      const logLines = threadLogs.map((log, idx) => `[LOG #${String(idx + 1).padStart(3, '0')}] ${log}`).join("\r\n");
+
+      const fileContent = [
+        divider,
+        "CLOUDBOY X - THREAD ISOLATOR & JOB DIAGNOSTICS LOG REPORT",
+        divider,
+        `Exported At        : ${timestamp} (${localTimeString})`,
+        `Diagnostic Engine  : Thread Isolator & Job Diagnostics IPC Broker`,
+        `Port / Protocol    : TCP Port 3000 / Reverse Proxy Express Daemon`,
+        `Active Daemons     : ${daemonThreads.length} Core Worker Threads`,
+        `Log Records Count  : ${threadLogs.length} Events`,
+        `System Status      : ${daemonThreads.filter(t => t.status === 'Healthy').length} Healthy / ${daemonThreads.filter(t => t.status !== 'Healthy').length} Stalled`,
+        divider,
+        "",
+        "ACTIVE DAEMON PIPELINE SNAPSHOT:",
+        subDivider,
+        threadSnapshot,
+        "",
+        subDivider,
+        "CURRENT THREAD LOG OUTPUT STREAM (DEBUGGING DUMP):",
+        subDivider,
+        logLines,
+        "",
+        divider,
+        "END OF THREAD LOG EXPORT DUMP - CLOUDBOY X DIAGNOSTICS",
+        divider
+      ].join("\r\n");
+
+      const fileName = `cloudboyx-thread-diagnostics-${timestamp.replace(/[:.]/g, '-')}.txt`;
+      const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', url);
+      downloadAnchor.setAttribute('download', fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      document.body.removeChild(downloadAnchor);
+      URL.revokeObjectURL(url);
+
+      // Open Modal confirmation dialog informing user that the file has been successfully generated & is downloading
+      setThreadExportModal({
+        isOpen: true,
+        fileName: fileName,
+        timestamp: localTimeString,
+        eventsCount: threadLogs.length,
+        daemonsCount: daemonThreads.length,
+        fileSizeBytes: blob.size,
+        fileContent: fileContent
+      });
+
+      // Push a dedicated floating toast notification
+      const toastId = `thread-export-${Date.now()}`;
+      setActiveToasts(prev => [
+        ...prev,
+        {
+          id: toastId,
+          title: "LOG FILE GENERATED",
+          accountName: "Thread Isolator",
+          message: `Thread diagnostic log (${threadLogs.length} events) has been successfully generated and is starting to download (${fileName}).`,
+          severity: 'info',
+          timestamp: new Date().toLocaleTimeString()
+        }
+      ]);
+
+      // Automatically clear toast after 8 seconds
+      setTimeout(() => {
+        setActiveToasts(prev => prev.filter(t => t.id !== toastId));
+      }, 8000);
+
+      setLedgerMessage({
+        text: `📥 Exported thread log output as plain text file (${threadLogs.length} entries) for debugging!`,
+        type: 'success'
+      });
+    } catch (err: any) {
+      console.error("Failed to export thread log:", err);
+      setLedgerMessage({
+        text: `Thread log export failed: ${err.message || 'Unknown error'}`,
+        type: 'err'
+      });
+    }
+  };
+
+  // Helper to re-download file from confirmation dialog if needed
+  const handleDownloadSavedThreadLog = (content: string, fileName: string) => {
+    try {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', url);
+      downloadAnchor.setAttribute('download', fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      document.body.removeChild(downloadAnchor);
+      URL.revokeObjectURL(url);
+
+      setLedgerMessage({
+        text: `📥 Re-download initiated for ${fileName}!`,
+        type: 'success'
+      });
+    } catch (err: any) {
+      console.error("Failed to re-download file:", err);
     }
   };
  
@@ -6051,18 +6239,28 @@ export default function App() {
                 className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left font-sans"
               >
                 {/* Left Column: Diagnostics, Thread Isolators & Socket Operations */}
-                <div className="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between min-h-[480px]">
+                <div className="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between min-h-[520px]">
                   <div>
-                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-pulse"></span>
                         <span className="text-xs font-bold text-slate-800 uppercase tracking-widest font-mono">
                           Thread Isolator & Job Diagnostics
                         </span>
                       </div>
-                      <span className="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase">
-                        Broker: Active
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={handleExportThreadLogs}
+                          className="px-2.5 py-1 bg-white hover:bg-indigo-50 border border-slate-300 hover:border-indigo-300 text-slate-700 hover:text-indigo-700 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                          title="Export current thread log output as a plain text file (.txt) for debugging purposes"
+                        >
+                          <Download className="w-3 h-3 text-indigo-600" />
+                          <span>Export Log (.txt)</span>
+                        </button>
+                        <span className="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase">
+                          Broker: Active
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-xs text-slate-600 leading-relaxed mb-4 font-sans">
@@ -6071,17 +6269,16 @@ export default function App() {
 
                     {/* Live Thread List */}
                     <div className="space-y-2 mb-4">
-                      <span className="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider block">
-                        Active Daemon Pipelines (5 Core)
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider block">
+                          Active Daemon Pipelines ({daemonThreads.length} Core)
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-500">
+                          {daemonThreads.filter(t => t.status === 'Healthy').length} Healthy • {daemonThreads.filter(t => t.status !== 'Healthy').length} Stalled
+                        </span>
+                      </div>
 
-                      {[
-                        { id: 'TH-01', name: 'ERP Ingest Gateway', status: 'Healthy', latency: '4ms', priority: 'HIGH' },
-                        { id: 'TH-02', name: 'Cloudboy X Reseller Router', status: 'Healthy', latency: '12ms', priority: 'HIGH' },
-                        { id: 'TH-03', name: 'Firestore "Firestone" Broker', status: 'Stalled', latency: 'TIMEOUT', priority: 'MEDIUM' },
-                        { id: 'TH-04', name: 'ML S&OP Cash Forecaster', status: 'Healthy', latency: '412ms', priority: 'LOW' },
-                        { id: 'TH-05', name: 'ML GAAP Fraud Auditor', status: 'Healthy', latency: '1.2s', priority: 'LOW' }
-                      ].map((th) => (
+                      {daemonThreads.map((th) => (
                         <div key={th.id} className="bg-white border border-slate-200 p-2.5 rounded-xl shadow-xs flex items-center justify-between text-xs">
                           <div>
                             <div className="flex items-center gap-1 text-[11px] font-mono">
@@ -6103,9 +6300,12 @@ export default function App() {
                             {/* Isolate and Reroute button */}
                             <button
                               onClick={() => {
+                                setDaemonThreads(prev => prev.map(item => item.id === th.id ? { ...item, status: 'Healthy', latency: '2ms' } : item));
+                                const logEntry = `[${new Date().toISOString()}] [ISOLATION] Daemon isolation triggered for ${th.id} [${th.name}]. Rerouted loops to secondary local thread sandbox. Latency 2ms. Connection restored!`;
+                                setThreadLogs(prev => [...prev, logEntry]);
                                 setLedgerMessage({ text: `Daemon isolation triggered successfully for ${th.id} [${th.name}]. Rerouting loops to secondary local thread sandbox. Connection restored!`, type: 'success' });
                               }}
-                              className="px-2 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded text-[9px] font-bold transition-all cursor-pointer font-mono"
+                              className="px-2 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded text-[9px] font-bold transition-all cursor-pointer font-mono active:scale-95"
                               title="Isolate thread loops"
                             >
                               Isolate
@@ -6114,11 +6314,87 @@ export default function App() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Current Thread Log Output Terminal */}
+                    <div className="mb-4 bg-slate-950 border border-slate-900 rounded-xl p-3 text-left">
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-850">
+                        <div className="flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5 text-indigo-400" />
+                          <span className="text-[10px] font-mono font-bold uppercase text-slate-200 tracking-wider">
+                            Current Thread Log Output
+                          </span>
+                          <span className="text-[8px] font-mono px-1.5 py-0.2 rounded bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 font-bold">
+                            {threadLogs.length} events
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8.5px] font-mono text-emerald-400 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Live
+                          </span>
+                          <button
+                            onClick={handleExportThreadLogs}
+                            className="text-[8.5px] font-mono text-indigo-300 hover:text-white flex items-center gap-1 bg-indigo-950/70 hover:bg-indigo-900 px-1.5 py-0.5 rounded border border-indigo-500/30 transition-colors cursor-pointer"
+                            title="Export current thread log output as a plain text file"
+                          >
+                            <Download className="w-2.5 h-2.5" />
+                            <span>Export .txt</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 max-h-[120px] overflow-y-auto pr-1 font-mono text-[9px] select-text scrollbar-thin">
+                        {threadLogs.map((log, idx) => {
+                          const isWarn = log.includes('[WARN]');
+                          const isAction = log.includes('[ISOLATION]');
+                          const isPurge = log.includes('[PURGE]');
+                          return (
+                            <div key={idx} className="leading-tight flex items-start gap-1 text-slate-300 py-0.5 border-l border-slate-850 pl-1.5">
+                              <span className="text-slate-600 select-none">&gt;&gt;</span>
+                              <span className={`break-all ${
+                                isWarn ? 'text-amber-300 font-semibold' :
+                                isAction ? 'text-indigo-300 font-semibold' :
+                                isPurge ? 'text-emerald-400 font-semibold' :
+                                'text-slate-400'
+                              }`}>
+                                {log}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="border-t border-slate-200 pt-3">
+                  <div className="border-t border-slate-200 pt-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleExportThreadLogs}
+                        className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-99"
+                        title="Export current thread log output as a plain text file for debugging purposes"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Export Thread Log (.txt)
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setThreadLogs([
+                            `[${new Date().toISOString()}] [SYS-CLEAR] Thread log buffer cleared by administrator. Diagnostics daemon listening on port 3000.`
+                          ]);
+                          setLedgerMessage({ text: "Cleared thread log buffer.", type: "success" });
+                        }}
+                        className="px-3 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl text-xs font-mono font-bold transition-colors cursor-pointer"
+                        title="Clear thread log buffer"
+                      >
+                        Clear
+                      </button>
+                    </div>
+
                     <button
                       onClick={() => {
+                        const newLog = `[${new Date().toISOString()}] [PURGE] Purged all stalled socket connections and cleared Express micro-cache. Memory usage reduced by 241MB.`;
+                        setThreadLogs(prev => [...prev, newLog]);
                         setLedgerMessage({ text: 'Purged all stalled socket connections and cleared Express micro-cache. Memory usage reduced by 241MB.', type: 'success' });
                       }}
                       className="w-full py-1.5 bg-slate-950 hover:bg-slate-800 text-white rounded-lg text-xs font-mono font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
@@ -6344,6 +6620,21 @@ export default function App() {
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  id="scanner-instructions-helper-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowScanningInstructionsModal(true);
+                  }}
+                  className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                  title="View quick tips for optimizing camera QR code scanning"
+                  aria-haspopup="dialog"
+                  aria-expanded={showScanningInstructionsModal}
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-indigo-200" />
+                  <span>Scanning Instructions</span>
+                </button>
                 <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
                   {isThresholdInfoOpen ? "Collapse Architecture Guide" : "Expand Architecture Guide"}
                 </span>
@@ -6406,6 +6697,40 @@ export default function App() {
                           If a limit is breached, the rule switches to <span className="text-rose-300 font-mono font-bold">Risk Violation</span>, broadcasting instant visual escalation and flagging potential GAAP or cash shortfall anomalies.
                         </p>
                       </div>
+                    </div>
+
+                    {/* Interactive 'Scanning Instructions' Helper Action Card */}
+                    <div className="p-3.5 rounded-xl bg-gradient-to-r from-indigo-950/70 via-slate-900 to-indigo-950/60 border border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <span className="p-2 bg-indigo-500/20 border border-indigo-500/40 rounded-xl text-indigo-300 shrink-0 mt-0.5">
+                          <QrCode className="w-4 h-4" />
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-white block">
+                              Need Help Scanning Physical Invoices or Orders?
+                            </span>
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">
+                              Optimization Guide
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-normal mt-0.5">
+                            Improve barcode detection rates with recommendations on distance, plane angles, low-light flash, optical contrast filters, and focus zoom.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        id="scanner-instructions-action-card-btn"
+                        onClick={() => setShowScanningInstructionsModal(true)}
+                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-md active:scale-95 whitespace-nowrap"
+                        title="Open Quick Tips & Scanning Instructions Overlay"
+                        aria-haspopup="dialog"
+                        aria-expanded={showScanningInstructionsModal}
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>Scanning Instructions</span>
+                      </button>
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-[11px] border-t border-slate-800/80 text-slate-400">
@@ -9585,6 +9910,15 @@ export default function App() {
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
+                    onClick={() => setShowScanningInstructionsModal(true)}
+                    className="px-2 py-1 text-[9px] font-mono font-bold rounded-lg border border-indigo-500/30 bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 transition-all flex items-center gap-1 cursor-pointer"
+                    title="Open Camera QR Code Scanning Tips & Instructions"
+                  >
+                    <HelpCircle className="w-3 h-3 text-indigo-400" />
+                    <span>Tips</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setShowScanHistory(prev => !prev)}
                     className={`px-2 py-1 text-[9px] font-mono font-bold rounded-lg border transition-all flex items-center gap-1 cursor-pointer ${
                       showScanHistory 
@@ -10082,6 +10416,343 @@ export default function App() {
                 >
                   Close Scan Deck
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 📥 THREAD ISOLATOR LOG EXPORT CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {threadExportModal && (
+          <div 
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            onClick={() => setThreadExportModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl flex flex-col text-left overflow-hidden text-slate-100"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="thread-export-dialog-title"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950 text-white">
+                <div className="flex items-center gap-2.5">
+                  <span className="p-1.5 bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 rounded-xl shrink-0 flex items-center justify-center">
+                    <FileText className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h3 id="thread-export-dialog-title" className="text-xs font-bold font-mono tracking-tight uppercase">
+                      Log File Generated
+                    </h3>
+                    <p className="text-[9.5px] text-emerald-400 font-sans mt-0.5 flex items-center gap-1 font-semibold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      Download Starting Automatically
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setThreadExportModal(null)}
+                  className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  aria-label="Close export dialog"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 space-y-4 bg-slate-900/60 font-sans">
+                <div className="flex items-start gap-3.5 p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30">
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 shrink-0 mt-0.5">
+                    <Download className="w-5 h-5 animate-bounce" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs font-bold text-white font-sans">
+                      Diagnostic Report Ready
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed mt-0.5">
+                      The current Thread Isolator & Job Diagnostics log has been successfully compiled into a plain text (<code className="font-mono text-emerald-300">.txt</code>) file. Your browser has initiated the download automatically.
+                    </p>
+                  </div>
+                </div>
+
+                {/* File Metadata Details Card */}
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs font-mono">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-850 pb-2">
+                    <span className="text-[10px] uppercase text-slate-400">File Name</span>
+                    <span className="text-indigo-300 font-bold text-[10.5px] truncate max-w-[220px]" title={threadExportModal.fileName}>
+                      {threadExportModal.fileName}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-850 pb-2">
+                    <span className="text-[10px] uppercase text-slate-400">Format & Encoding</span>
+                    <span className="text-slate-200 text-[10.5px]">Plain Text (.txt) / UTF-8</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-850 pb-2">
+                    <span className="text-[10px] uppercase text-slate-400">Log Scope</span>
+                    <span className="text-slate-200 text-[10.5px]">
+                      {threadExportModal.eventsCount} events • {threadExportModal.daemonsCount} core daemons
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-850 pb-2">
+                    <span className="text-[10px] uppercase text-slate-400">Approx Size</span>
+                    <span className="text-slate-200 text-[10.5px]">
+                      {(threadExportModal.fileSizeBytes / 1024).toFixed(1)} KB
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 pt-0.5">
+                    <span className="text-[10px] uppercase text-slate-400">Download Status</span>
+                    <span className="text-emerald-400 font-bold text-[10.5px] flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" /> Starting download...
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                  💡 <strong>Tip:</strong> If the download didn't start automatically or was blocked by browser security settings, click &quot;Re-download File&quot; below.
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="px-5 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadSavedThreadLog(threadExportModal.fileContent, threadExportModal.fileName)}
+                  className="px-3.5 py-2 rounded-xl border border-indigo-500/30 bg-indigo-950/70 hover:bg-indigo-900 text-indigo-300 text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Re-download File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setThreadExportModal(null)}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-mono font-bold transition-all cursor-pointer shadow-md active:scale-95"
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 📖 CAMERA QR CODE SCANNING QUICK TIPS & INSTRUCTIONS MODAL OVERLAY */}
+      <AnimatePresence>
+        {showScanningInstructionsModal && (
+          <div 
+            id="camera-scanning-quick-tips-modal"
+            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowScanningInstructionsModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 24 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-900 border border-indigo-900/50 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col text-left overflow-hidden text-slate-100 my-auto"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="scanning-instructions-modal-title"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4.5 border-b border-indigo-900/40 bg-gradient-to-r from-slate-950 via-indigo-950/50 to-slate-950 text-white">
+                <div className="flex items-center gap-3">
+                  <span className="p-2 bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 rounded-xl shrink-0 flex items-center justify-center shadow-inner">
+                    <QrCode className="w-5 h-5 text-indigo-400" />
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 id="scanning-instructions-modal-title" className="text-sm font-bold font-mono tracking-tight uppercase text-white">
+                        Camera QR Code Scanning Optimization
+                      </h3>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
+                        Quick Tips &amp; Calibration
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                      Expert recommendations to achieve sub-second optical detection and eliminate parsing failures
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowScanningInstructionsModal(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  aria-label="Close scanning instructions modal"
+                >
+                  <X className="w-4.5 h-4.5" />
+                </button>
+              </div>
+
+              {/* Quick Calibration Bar */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3.5 bg-slate-950/70 border-b border-slate-800/80 text-center font-mono">
+                <div className="bg-slate-900/80 border border-slate-800 p-2 rounded-xl">
+                  <span className="text-[9px] text-slate-400 block uppercase font-bold">Ideal Distance</span>
+                  <span className="text-xs font-bold text-emerald-400 mt-0.5 block">15 – 30 cm</span>
+                  <span className="text-[8px] text-slate-500 font-sans">6 to 12 inches</span>
+                </div>
+                <div className="bg-slate-900/80 border border-slate-800 p-2 rounded-xl">
+                  <span className="text-[9px] text-slate-400 block uppercase font-bold">Scanning Angle</span>
+                  <span className="text-xs font-bold text-cyan-400 mt-0.5 block">0° Parallel</span>
+                  <span className="text-[8px] text-slate-500 font-sans">Perpendicular to code</span>
+                </div>
+                <div className="bg-slate-900/80 border border-slate-800 p-2 rounded-xl">
+                  <span className="text-[9px] text-slate-400 block uppercase font-bold">Lighting Mode</span>
+                  <span className="text-xs font-bold text-amber-400 mt-0.5 block">Diffused / Flash</span>
+                  <span className="text-[8px] text-slate-500 font-sans">No reflective glare</span>
+                </div>
+                <div className="bg-slate-900/80 border border-slate-800 p-2 rounded-xl">
+                  <span className="text-[9px] text-slate-400 block uppercase font-bold">Zoom Preset</span>
+                  <span className="text-xs font-bold text-indigo-400 mt-0.5 block">2.0x Telephoto</span>
+                  <span className="text-[8px] text-slate-500 font-sans">For dense matrices</span>
+                </div>
+              </div>
+
+              {/* Body: Tips Grid */}
+              <div className="p-5 sm:p-6 space-y-4 max-h-[62vh] overflow-y-auto font-sans text-xs">
+                {/* 6 High-impact tips in 2-column grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Tip 1: Distance & Angle */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold">
+                        1
+                      </span>
+                      <span className="font-bold text-slate-200 text-[12px] font-mono">Distance &amp; Plane Alignment</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Hold the camera lens strictly parallel (facing directly flat) to the physical invoice or shipping label. Keep a distance between <strong>15–30 cm (6–12 in)</strong>. Avoid steep angles (&gt;15°) or tilted perspectives that distort barcode finder patterns.
+                    </p>
+                  </div>
+
+                  {/* Tip 2: Lighting & Glare */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">
+                        2
+                      </span>
+                      <span className="font-bold text-slate-200 text-[12px] font-mono">Anti-Glare &amp; Flashlight Control</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Avoid direct overhead LED spotlights reflecting off glossy packaging, thermal paper, or plastic sleeves. If scanning in a dim warehouse or stockroom, tap the <strong>Toggle Flashlight</strong> button located directly under the scanner viewfinder.
+                    </p>
+                  </div>
+
+                  {/* Tip 3: Zoom vs Macro Defocus */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-mono text-[10px] font-bold">
+                        3
+                      </span>
+                      <span className="font-bold text-slate-200 text-[12px] font-mono">Focus Zoom Adjuster (2.0x Preset)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Never push your camera extremely close (&lt;10 cm), as standard mobile lenses cannot focus at macro range and blur the QR grid. Instead, use the <strong>Focus Zoom Adjuster</strong> slider or tap the <strong>2.0x (Tele)</strong> quick preset to enlarge smaller codes crisply.
+                    </p>
+                  </div>
+
+                  {/* Tip 4: Optical Contrast Filters */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 font-mono text-[10px] font-bold">
+                        4
+                      </span>
+                      <span className="font-bold text-slate-200 text-[12px] font-mono">High-Contrast Optical Filters</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      If scanning faded thermal paper or colored backgrounds, tap the <strong>Filter</strong> button to switch to <strong>Grayscale</strong> (black/white edge enhancement) or <strong>Thermal</strong> (inverted spectrum) to heighten matrix edge detection.
+                    </p>
+                  </div>
+
+                  {/* Tip 5: Reticle Alignment */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-bold">
+                        5
+                      </span>
+                      <span className="font-bold text-slate-200 text-[12px] font-mono">Holographic Reticle Centering</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Align the QR code within the square neon green target corners. Hold your device steady for <strong>200–300ms</strong> while the green animated laser sweep analyzes the payload. A confirmation beep and flash indicate success.
+                    </p>
+                  </div>
+
+                  {/* Tip 6: Damaged Codes & OCR Ingestion */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-[10px] font-bold">
+                        6
+                      </span>
+                      <span className="font-bold text-slate-200 text-[12px] font-mono">Damaged Code Recovery &amp; Fallbacks</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      If the physical barcode is physically torn or heavily smudged, smooth out folds, or switch to the <strong>OCR Invoice Ingestion</strong> panel to process the order from a document image or manual reference entry.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Best Practice vs Common Mistakes Card */}
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/90 space-y-3">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 block">
+                    Quick Reference: Dos and Don&apos;ts
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                    <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/20 text-emerald-300 space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold font-mono">
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Recommended Practice</span>
+                      </div>
+                      <ul className="list-disc list-inside space-y-0.5 text-slate-300 text-[10.5px]">
+                        <li>Keep the label flat and steady.</li>
+                        <li>Maintain 20 cm distance with 2.0x zoom.</li>
+                        <li>Use Grayscale filter for faded thermal printouts.</li>
+                      </ul>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-500/20 text-rose-300 space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold font-mono">
+                        <X className="w-3.5 h-3.5 text-rose-400" />
+                        <span>Common Mistakes</span>
+                      </div>
+                      <ul className="list-disc list-inside space-y-0.5 text-slate-300 text-[10.5px]">
+                        <li>Scanning at 45° steep angles.</li>
+                        <li>Holding lens too close (&lt;8 cm) causing blur.</li>
+                        <li>Allowing bright ceiling bulbs to produce white glare spots.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-[11px] text-slate-400 flex items-center gap-1.5 font-mono">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Real-time optical scanner is synchronized with General Ledger Thresholds</span>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={handleLaunchCameraScannerFromTips}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Launch Camera Scanner</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowScanningInstructionsModal(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer"
+                  >
+                    Close Guide
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

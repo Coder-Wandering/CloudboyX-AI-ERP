@@ -26,7 +26,8 @@ import {
   CloudLightning,
   CornerDownRight,
   ShieldAlert,
-  Loader2
+  Loader2,
+  Download
 } from 'lucide-react';
 
 interface DiagnosticsPanelProps {
@@ -333,6 +334,62 @@ export default function DiagnosticsPanel({ onRefreshStats, onPostMessage }: Diag
     }
   };
 
+  // Export current thread log output as a plain text file for debugging purposes
+  const handleExportTerminalLogs = () => {
+    try {
+      const now = new Date();
+      const timestamp = now.toISOString();
+      const localTimeString = now.toLocaleString();
+      const divider = "================================================================================";
+      const subDivider = "--------------------------------------------------------------------------------";
+
+      const jobsSummary = jobs.map(j => 
+        `  • [${j.threadId}] ${j.name.padEnd(30)} | Status: ${j.status.padEnd(10)} | Latency: ${String(j.speedMs).padEnd(8)} | Target: ${j.routeTarget}`
+      ).join("\r\n");
+
+      const logLines = terminalLogs.map((l, idx) => `[LOG #${String(idx + 1).padStart(3, '0')}] ${l}`).join("\r\n");
+
+      const fileContent = [
+        divider,
+        "CLOUDBOY X - OPERATIONAL BACKGROUND THREAD ISOLATOR & DIAGNOSTICS LOG",
+        divider,
+        `Exported At        : ${timestamp} (${localTimeString})`,
+        `Host / IPC Port    : 0.0.0.0:3000 / Express Reverse Proxy`,
+        `Network Latency    : ${currentLatency}ms (Status: ${connectionLive ? 'ONLINE' : 'LINK DETACHED'})`,
+        `Database Integrity : ${dbStatus.toUpperCase()}`,
+        `Monitored Threads  : ${jobs.length} Active Background Daemons`,
+        divider,
+        "",
+        "OPERATIONAL THREAD SANDBOX POOL SNAPSHOT:",
+        subDivider,
+        jobsSummary,
+        "",
+        subDivider,
+        "CONNECTION SOCKETS & THREAD LOG STREAM (DEBUGGING DUMP):",
+        subDivider,
+        logLines,
+        "",
+        divider,
+        "END OF THREAD LOG EXPORT DUMP - CLOUDBOY X DIAGNOSTICS",
+        divider
+      ].join("\r\n");
+
+      const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', url);
+      downloadAnchor.setAttribute('download', `cloudboyx-thread-diagnostics-${timestamp.replace(/[:.]/g, '-')}.txt`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      document.body.removeChild(downloadAnchor);
+      URL.revokeObjectURL(url);
+
+      onPostMessage("📥 Exported thread diagnostics log as plain text (.txt)!", "success");
+    } catch (e: any) {
+      onPostMessage("Failed to export thread log: " + e?.message, "err");
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn text-left">
       
@@ -482,7 +539,15 @@ export default function DiagnosticsPanel({ onRefreshStats, onPostMessage }: Diag
                 <Terminal className="w-4.5 h-4.5 text-rose-500 animate-pulse" />
                 <h4 className="text-xs font-bold font-mono text-slate-200 uppercase tracking-widest">Active Connection Sockets Log</h4>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExportTerminalLogs}
+                  className="px-2.5 py-1 text-[9px] font-mono font-bold bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-white rounded-lg border border-indigo-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Export current thread log output as a plain text file (.txt)"
+                >
+                  <Download className="w-3 h-3 text-indigo-400" />
+                  <span>Export .txt</span>
+                </button>
                 <span className="text-[9px] font-mono text-slate-500">HTTP STREAM: ACTIVE</span>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               </div>
@@ -505,7 +570,7 @@ export default function DiagnosticsPanel({ onRefreshStats, onPostMessage }: Diag
               <div ref={terminalEndRef}></div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleFlushSocketPool}
                 disabled={isFlushing}
@@ -522,6 +587,15 @@ export default function DiagnosticsPanel({ onRefreshStats, onPostMessage }: Diag
                     FLUSH HTTP STALLS & UNBLOCK LOOPS
                   </>
                 )}
+              </button>
+
+              <button
+                onClick={handleExportTerminalLogs}
+                className="px-4 py-3 bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-500/40 text-indigo-300 hover:text-white rounded-xl text-xs font-bold font-mono tracking-wider cursor-pointer transition-colors active:scale-99 transition-transform flex items-center justify-center gap-2 shadow"
+                title="Export current thread log output as a plain text file (.txt) for debugging purposes"
+              >
+                <Download className="w-4 h-4 text-indigo-400" />
+                EXPORT LOGS (.TXT)
               </button>
 
               <button
