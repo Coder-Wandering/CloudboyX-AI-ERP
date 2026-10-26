@@ -10,13 +10,13 @@ interface CorporateBrandLogoProps {
 
 /**
  * Official Corporate Brand Logo.
- * Renders the authentic hexagonal mountain peaks logo on a crisp white background badge.
+ * Renders the authentic CloudboyX logo with transparent background.
  */
 export const CorporateBrandLogo: React.FC<CorporateBrandLogoProps> = ({ 
   className = "w-10 h-10", 
   variant = 'full',
   id = "brand-official-logo",
-  alt = "Official Brand Logo"
+  alt = "Official CloudboyX Logo"
 }) => {
   const [imgSrc, setImgSrc] = useState<string>(BRAND_LOGO_SRC);
 

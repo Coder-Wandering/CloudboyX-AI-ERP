@@ -4,7 +4,7 @@
  */
 
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Database, 
@@ -64,7 +64,9 @@ import {
   Star,
   Eye,
   EyeOff,
-  History
+  History,
+  Sun,
+  Moon
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
@@ -79,7 +81,9 @@ import CloudboyXPortal from './components/CloudboyXPortal';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
 import ProcurementPortal from './components/ProcurementPortal';
 import MultiEntityOverview from './components/MultiEntityOverview';
+import MegaNavbar from './components/MegaNavbar';
 import { CorporateBrandLogo } from './components/CorporateBrandLogo';
+import { MarketingLandingPage } from './components/MarketingLandingPage';
 
 export { CorporateBrandLogo };
 
@@ -206,6 +210,55 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 };
 
 export default function App() {
+  // Top-level site routing: Standalone Marketing Website vs Enterprise Operations Suite
+  const [appMode, setAppMode] = useState<'marketing' | 'suite'>(() => {
+    try {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      if (path.includes('/suite') || path.includes('/app') || hash.includes('suite') || hash.includes('app') || params.get('mode') === 'suite') {
+        return 'suite';
+      }
+      const saved = localStorage.getItem('cloudboyx_site_mode');
+      if (saved === 'suite') return 'suite';
+      return 'marketing';
+    } catch {
+      return 'marketing';
+    }
+  });
+
+  // Keep browser URL hash & state synchronized
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('suite') || hash.includes('app')) {
+        setAppMode('suite');
+      } else if (hash === '' || hash.includes('marketing') || hash.includes('home')) {
+        setAppMode('marketing');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const navigateToSuite = () => {
+    setAppMode('suite');
+    try {
+      localStorage.setItem('cloudboyx_site_mode', 'suite');
+      window.location.hash = 'suite';
+    } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToMarketing = () => {
+    setAppMode('marketing');
+    try {
+      localStorage.setItem('cloudboyx_site_mode', 'marketing');
+      window.location.hash = '';
+    } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Feed source channels state
   const [activeTab, setActiveTab] = useState<'shopify' | 'legacy_csv' | 'edi' | 'ai_mapped'>('shopify');
   const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity'>('erp');
@@ -696,6 +749,32 @@ export default function App() {
   // Normalization results state
   const [normalizedOrder, setNormalizedOrder] = useState<CanonicalOrder | null>(null);
   const [translationError, setTranslationError] = useState<string | null>(null);
+
+  // 🌙 Global Dark Mode State (persisted to localStorage)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('theme_preference') || localStorage.getItem('cloudboyx_theme');
+      if (stored) return stored === 'dark';
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
+  });
+
+  // Synchronize dynamic dark class to document root and persist preference
+  useEffect(() => {
+    try {
+      localStorage.setItem('theme_preference', isDarkMode ? 'dark' : 'light');
+      localStorage.setItem('cloudboyx_theme', isDarkMode ? 'dark' : 'light');
+    } catch (e) {
+      console.warn('Failed saving theme preference to localStorage:', e);
+    }
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
   const [outputViewMode, setOutputViewMode] = useState<'visual' | 'json'>('visual');
   const [isCapturingPng, setIsCapturingPng] = useState<boolean>(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
@@ -830,6 +909,20 @@ export default function App() {
   const [newRuleOrCondition, setNewRuleOrCondition] = useState<'less_than' | 'greater_than'>('greater_than');
   const [newRuleOrThreshold, setNewRuleOrThreshold] = useState<string>('');
 
+  // ✏️ Edit Rule Modal State (allows selecting an existing rule from the table and modifying its parameters)
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
+  const [editRuleAccount, setEditRuleAccount] = useState<string>('acc-cash');
+  const [editRuleCondition, setEditRuleCondition] = useState<'less_than' | 'greater_than'>('less_than');
+  const [editRuleThreshold, setEditRuleThreshold] = useState<string>('');
+  const [editRuleSeverity, setEditRuleSeverity] = useState<'info' | 'warning' | 'danger'>('warning');
+  const [editRuleIsActive, setEditRuleIsActive] = useState<boolean>(true);
+
+  // Compound 'OR' condition state in Edit Modal
+  const [editRuleHasOr, setEditRuleHasOr] = useState<boolean>(false);
+  const [editRuleOrAccount, setEditRuleOrAccount] = useState<string>('acc-ar');
+  const [editRuleOrCondition, setEditRuleOrCondition] = useState<'less_than' | 'greater_than'>('greater_than');
+  const [editRuleOrThreshold, setEditRuleOrThreshold] = useState<string>('');
+
   // Sync Rules state to LocalStorage
   useEffect(() => {
     localStorage.setItem('erp_alert_rules_v2', JSON.stringify(alertRules));
@@ -938,6 +1031,8 @@ export default function App() {
   }, [accounts, alertRules]);
 
   const getAccountDetailCode = (id: string) => {
+    const matched = accounts.find(a => a.id === id);
+    if (matched && matched.code) return String(matched.code);
     switch(id) {
       case 'acc-cash': return '1010';
       case 'acc-ar': return '1200';
@@ -948,13 +1043,131 @@ export default function App() {
   };
 
   const getAccountName = (id: string) => {
+    const matched = accounts.find(a => a.id === id);
+    if (matched && matched.name) return matched.name;
     switch(id) {
       case 'acc-cash': return 'Cash';
       case 'acc-ar': return 'Accounts Receivable';
       case 'acc-revenue': return 'Sales Revenue';
       case 'acc-tax': return 'Sales Tax Payable';
-      default: return 'Unknown';
+      default: return 'General Ledger Account';
     }
+  };
+
+  // Open Edit Rule Modal with data from selected alert rule
+  const handleOpenEditRuleModal = (rule: any) => {
+    if (!rule) return;
+    setEditingRuleId(rule.id);
+    setEditRuleAccount(rule.accountId || 'acc-cash');
+    setEditRuleCondition(rule.condition || 'less_than');
+    setEditRuleThreshold(rule.threshold !== undefined ? String(rule.threshold) : '');
+    setEditRuleSeverity(rule.severity || 'warning');
+    setEditRuleIsActive(rule.isActive !== undefined ? rule.isActive : true);
+
+    setEditRuleHasOr(Boolean(rule.hasOrCondition));
+    setEditRuleOrAccount(rule.orAccountId || 'acc-ar');
+    setEditRuleOrCondition(rule.orCondition || 'greater_than');
+    setEditRuleOrThreshold(rule.orThreshold !== undefined ? String(rule.orThreshold) : '');
+  };
+
+  // Switch to another existing rule from within the Edit Modal
+  const handleSelectRuleInEditModal = (ruleId: string) => {
+    const target = alertRules.find(r => r.id === ruleId);
+    if (target) {
+      handleOpenEditRuleModal(target);
+    }
+  };
+
+  // Reset Edit Rule form to current rule's saved state
+  const handleResetEditRuleForm = () => {
+    const current = alertRules.find(r => r.id === editingRuleId);
+    if (current) {
+      handleOpenEditRuleModal(current);
+    }
+  };
+
+  // Save modified alert rule parameters
+  const handleSaveEditRule = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!editingRuleId) return;
+
+    const thresholdVal = parseFloat(editRuleThreshold);
+    if (isNaN(thresholdVal) || thresholdVal < 0) {
+      setActiveToasts(prev => [
+        ...prev,
+        {
+          id: `toast-err-${Date.now()}`,
+          title: "Invalid Threshold",
+          message: "Please enter a valid numeric threshold amount ($0 or greater).",
+          severity: "danger",
+          timestamp: new Date().toLocaleTimeString()
+        }
+      ]);
+      return;
+    }
+
+    let orThresholdVal: number | undefined = undefined;
+    if (editRuleHasOr) {
+      orThresholdVal = parseFloat(editRuleOrThreshold);
+      if (isNaN(orThresholdVal) || orThresholdVal < 0) {
+        setActiveToasts(prev => [
+          ...prev,
+          {
+            id: `toast-err-${Date.now()}`,
+            title: "Invalid Compound Threshold",
+            message: "Please enter a valid numeric secondary OR threshold amount.",
+            severity: "danger",
+            timestamp: new Date().toLocaleTimeString()
+          }
+        ]);
+        return;
+      }
+    }
+
+    const primaryAccName = getAccountName(editRuleAccount);
+    const orAccName = editRuleHasOr ? getAccountName(editRuleOrAccount) : undefined;
+
+    setAlertRules(prev => prev.map(rule => {
+      if (rule.id !== editingRuleId) return rule;
+
+      const updatedRule: any = {
+        ...rule,
+        accountId: editRuleAccount,
+        accountName: primaryAccName,
+        condition: editRuleCondition,
+        threshold: thresholdVal,
+        severity: editRuleSeverity,
+        isActive: editRuleIsActive,
+        hasOrCondition: editRuleHasOr
+      };
+
+      if (editRuleHasOr) {
+        updatedRule.orAccountId = editRuleOrAccount;
+        updatedRule.orAccountName = orAccName;
+        updatedRule.orCondition = editRuleOrCondition;
+        updatedRule.orThreshold = orThresholdVal;
+      } else {
+        delete updatedRule.orAccountId;
+        delete updatedRule.orAccountName;
+        delete updatedRule.orCondition;
+        delete updatedRule.orThreshold;
+      }
+
+      return updatedRule;
+    }));
+
+    setActiveToasts(prev => [
+      ...prev,
+      {
+        id: `toast-rule-updated-${Date.now()}`,
+        title: "Alert Rule Saved",
+        message: `Guardrail parameters for ${primaryAccName} (${editRuleCondition === 'less_than' ? '<' : '>'} $${thresholdVal.toLocaleString()}) updated successfully.`,
+        severity: "info",
+        timestamp: new Date().toLocaleTimeString()
+      }
+    ]);
+
+    setEditingRuleId(null);
   };
 
   // Ledger records table sorting states
@@ -4613,121 +4826,65 @@ export default function App() {
     );
   };
 
+  // Standalone Public Marketing Site
+  if (appMode === 'marketing') {
+    return (
+      <MarketingLandingPage
+        onLaunchApp={navigateToSuite}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+      />
+    );
+  }
+
   return (
     <ClickToEditContext.Provider value={{ isClickToEditActive, setActiveEditorField, lockedFields, isAdminMode, onPostMessage: (text, type) => setLedgerMessage({ text, type }) }}>
-      <div className="min-h-screen bg-[#fafaf9] text-[#1c1917] font-sans antialiased pb-20">
+      <div className={`min-h-screen font-sans antialiased pb-20 transition-colors duration-200 ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#fafaf9] text-[#1c1917]'}`}>
       
-      {/* Banner/Header Workspace */}
-      <header className="bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] text-white shadow-md border-b border-[#0096c7]/40">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 sm:gap-4">
-            <div className="p-0.5 bg-white border border-white/90 rounded-xl shadow-md flex items-center justify-center shrink-0 w-[80px] h-[80px] sm:w-[88px] sm:h-[88px] overflow-hidden">
-              <CorporateBrandLogo className="w-full h-full object-contain" id="header-brand-logo" />
-            </div>
-            <div>
-              <ClickToEditWrapper fieldKey="appTitle" fieldLabel="Application Title text">
-                <h1 id="app-title" className="text-2xl font-bold tracking-tight flex items-center gap-1 text-white">
-                  {renderEditableText('appTitle', 'text-2xl font-bold tracking-tight text-white')}
-                </h1>
-              </ClickToEditWrapper>
-              <div className="mt-1">
-                <ClickToEditWrapper fieldKey="appSubtitle" fieldLabel="Application Subtitle Text">
-                  <p className="text-xs text-[#caf0f8] font-mono">
-                    {renderEditableText('appSubtitle', 'text-xs text-[#caf0f8] font-mono')}
-                  </p>
-                </ClickToEditWrapper>
+      {/* Anchored / Sticky Header & Mega Menu Navigation Suite */}
+      <div id="anchored-header-container" className="sticky top-0 z-40 w-full shadow-lg transition-all">
+        {/* Banner/Header Workspace */}
+        <header className="bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] text-white border-b border-[#0096c7]/40">
+          <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div 
+                className="flex items-center justify-center shrink-0 h-12 sm:h-14 md:h-16 w-auto select-none cursor-pointer" 
+                id="header-brand-logo"
+                onClick={navigateToMarketing}
+                title="Click to visit standalone public marketing website"
+              >
+                <CorporateBrandLogo className="h-full w-auto max-w-[180px] sm:max-w-[210px] object-contain drop-shadow-md" />
               </div>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button
-              id="open-admin-console-btn"
-              onClick={() => {
-                setIsAdminConsoleOpen(true);
-                addAuditEvent('rebrand', 'System Console Opened', 'User clicked the quick admin console floating trigger.');
-              }}
-              className="px-4 py-2 bg-gradient-to-r from-[#0096c7] to-[#00b4d8] hover:from-[#0077b6] hover:to-[#0096c7] active:scale-95 text-xs font-mono font-bold text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer border border-[#48cae4]/50"
-            >
-              <Sliders className="w-4 h-4 shrink-0 text-white" />
-              ⚙️ Admin Control Panel
-            </button>
-          </div>
-        </div>
-      </header>
 
-      {/* Module Navigation Tabs */}
-      <div id="module-navigation-bar" className="bg-[#03045e] border-0 border-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-6 overflow-x-auto no-scrollbar">
-            <button
-              id="tab-view-erp"
-              onClick={() => setMainView('erp')}
-              className={`pb-4 pt-4 text-xs font-bold font-mono uppercase tracking-wider cursor-pointer border-b-4 transition-all whitespace-nowrap ${
-                mainView === 'erp'
-                  ? 'border-[#00b4d8] text-[#caf0f8] font-extrabold'
-                  : 'border-transparent text-[#90e0ef]/70 hover:text-white hover:border-[#0077b6]'
-              }`}
-            >
-              📋 ERP Ledger translation gateway
-            </button>
-            <button
-              id="tab-view-cloudboy-x"
-              onClick={() => setMainView('cloudboy_x')}
-              className={`pb-4 pt-4 text-xs font-bold font-mono uppercase tracking-wider cursor-pointer border-b-4 transition-all whitespace-nowrap ${
-                mainView === 'cloudboy_x'
-                  ? 'border-[#00b4d8] text-[#caf0f8] font-extrabold'
-                  : 'border-transparent text-[#90e0ef]/70 hover:text-white hover:border-[#0077b6]'
-              }`}
-            >
-              ⚡ Cloudboy X Transitional Flow
-            </button>
-            <button
-              id="tab-view-diagnostics"
-              onClick={() => setMainView('troubleshooting')}
-              className={`pb-4 pt-4 text-xs font-bold font-mono uppercase tracking-wider cursor-pointer border-b-4 transition-all whitespace-nowrap ${
-                mainView === 'troubleshooting'
-                  ? 'border-[#00b4d8] text-[#caf0f8] font-extrabold'
-                  : 'border-transparent text-[#90e0ef]/70 hover:text-white hover:border-[#0077b6]'
-              }`}
-            >
-              🛠️ Diagnostics & Job Isolator
-            </button>
-            <button
-              id="tab-view-admin"
-              onClick={() => setMainView('admin')}
-              className={`pb-4 pt-4 text-xs font-bold font-mono uppercase tracking-wider cursor-pointer border-b-4 transition-all whitespace-nowrap ${
-                mainView === 'admin'
-                  ? 'border-[#00b4d8] text-[#caf0f8] font-extrabold'
-                  : 'border-transparent text-[#90e0ef]/70 hover:text-white hover:border-[#0077b6]'
-              }`}
-            >
-              🛡️ System Admin Console
-            </button>
-            <button
-              id="tab-view-procurement"
-              onClick={() => setMainView('procurement')}
-              className={`pb-4 pt-4 text-xs font-bold font-mono uppercase tracking-wider cursor-pointer border-b-4 transition-all whitespace-nowrap ${
-                mainView === 'procurement'
-                  ? 'border-[#00b4d8] text-[#caf0f8] font-extrabold'
-                  : 'border-transparent text-[#90e0ef]/70 hover:text-white hover:border-[#0077b6]'
-              }`}
-            >
-              📥 Procurement Room
-            </button>
-            <button
-              id="tab-view-multientity"
-              onClick={() => setMainView('multientity')}
-              className={`pb-4 pt-4 text-xs font-bold font-mono uppercase tracking-wider cursor-pointer border-b-4 transition-all whitespace-nowrap ${
-                mainView === 'multientity'
-                  ? 'border-[#00b4d8] text-[#caf0f8] font-extrabold'
-                  : 'border-transparent text-[#90e0ef]/70 hover:text-white hover:border-[#0077b6]'
-              }`}
-            >
-              🌐 Multi-Entity GAAP Overview
-            </button>
+            {/* Exit to Public Marketing Website Button */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                id="header-exit-to-marketing-btn"
+                onClick={navigateToMarketing}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-cyan-200 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                title="Exit to the public CloudboyX marketing website"
+              >
+                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-cyan-300" />
+                <span>Public Website</span>
+              </button>
+            </div>
           </div>
-        </div>
+        </header>
+
+        {/* Mega Menu Navigation Bar with All Header Controls */}
+        <MegaNavbar
+          mainView={mainView}
+          setMainView={setMainView}
+          isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
+          setIsAdminConsoleOpen={setIsAdminConsoleOpen}
+          addAuditEvent={addAuditEvent}
+          handleResetLedger={handleResetLedger}
+          onTriggerBotPrompt={handleTriggerBotPrompt}
+          onExitToMarketing={navigateToMarketing}
+        />
       </div>
 
       {/* Main Grid Interface */}
@@ -6598,35 +6755,35 @@ export default function App() {
 
           {/* Collapsible Info Box: Automatic Scanner & General Ledger Thresholds Integration */}
           <div id="scanner-gl-thresholds-info-box" className="mb-6 bg-slate-950/80 border border-indigo-900/40 rounded-xl overflow-hidden shadow-inner">
-            <button
-              id="toggle-scanner-gl-info-btn"
-              type="button"
-              onClick={() => setIsThresholdInfoOpen(prev => !prev)}
-              className="w-full px-4 py-3 bg-indigo-950/30 hover:bg-indigo-950/50 transition-colors flex items-center justify-between gap-3 text-left cursor-pointer border-b border-indigo-900/30"
-              aria-expanded={isThresholdInfoOpen}
-              aria-controls="scanner-threshold-info-content"
+            <div
+              className="w-full px-4 py-3 bg-indigo-950/30 hover:bg-indigo-950/50 transition-colors flex items-center justify-between gap-3 text-left border-b border-indigo-900/30 flex-wrap sm:flex-nowrap"
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="p-1 bg-indigo-500/20 border border-indigo-500/40 rounded text-indigo-300 shrink-0">
+              <button
+                id="toggle-scanner-gl-info-btn"
+                type="button"
+                onClick={() => setIsThresholdInfoOpen(prev => !prev)}
+                className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group text-left"
+                aria-expanded={isThresholdInfoOpen}
+                aria-controls="scanner-threshold-info-content"
+              >
+                <span className="p-1 bg-indigo-500/20 border border-indigo-500/40 rounded text-indigo-300 shrink-0 group-hover:bg-indigo-500/30 transition-colors">
                   <Info className="w-4 h-4" />
                 </span>
                 <div className="truncate">
-                  <span className="text-xs font-bold text-white tracking-wide">
+                  <span className="text-xs font-bold text-white tracking-wide group-hover:text-indigo-200 transition-colors">
                     How Automatic Scanner Integration Works with Ledger Thresholds
                   </span>
                   <span className="hidden sm:inline-block ml-2 text-[11px] text-indigo-300/80 font-mono">
                     (Real-Time Ingestion • Autonomous Guard Node Synchronization)
                   </span>
                 </div>
-              </div>
+              </button>
+
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
                   id="scanner-instructions-helper-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowScanningInstructionsModal(true);
-                  }}
+                  onClick={() => setShowScanningInstructionsModal(true)}
                   className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
                   title="View quick tips for optimizing camera QR code scanning"
                   aria-haspopup="dialog"
@@ -6635,12 +6792,18 @@ export default function App() {
                   <HelpCircle className="w-3.5 h-3.5 text-indigo-200" />
                   <span>Scanning Instructions</span>
                 </button>
-                <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
-                  {isThresholdInfoOpen ? "Collapse Architecture Guide" : "Expand Architecture Guide"}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-indigo-400 transition-transform duration-200 ${isThresholdInfoOpen ? "rotate-180" : ""}`} />
+                <button
+                  type="button"
+                  onClick={() => setIsThresholdInfoOpen(prev => !prev)}
+                  className="px-2 py-1 text-[10px] font-mono text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 rounded flex items-center gap-1.5 transition-colors cursor-pointer"
+                  aria-expanded={isThresholdInfoOpen}
+                  aria-controls="scanner-threshold-info-content"
+                >
+                  <span>{isThresholdInfoOpen ? "Collapse Architecture Guide" : "Expand Architecture Guide"}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-indigo-400 transition-transform duration-200 ${isThresholdInfoOpen ? "rotate-180" : ""}`} />
+                </button>
               </div>
-            </button>
+            </div>
 
             <AnimatePresence initial={false}>
               {isThresholdInfoOpen && (
@@ -6752,14 +6915,28 @@ export default function App() {
             
             {/* Left Box: Active Guard Rules Table */}
             <div className="lg:col-span-8 space-y-4">
-              <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
                 <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                   <Activity className="w-4 h-4 text-indigo-400" />
                   Currently Armed General Ledger Guardrails
                 </h4>
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
-                  {alertRules.length} Defined Rules
-                </span>
+                <div className="flex items-center gap-2">
+                  {alertRules.length > 0 && (
+                    <button
+                      type="button"
+                      id="header-edit-alert-rules-btn"
+                      onClick={() => handleOpenEditRuleModal(alertRules[0])}
+                      className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-300 hover:text-white border border-indigo-500/40 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                      title="Open interactive modal to select and edit alert rules"
+                    >
+                      <Pencil className="w-3 h-3 text-indigo-400" />
+                      <span>Edit Rules</span>
+                    </button>
+                  )}
+                  <span className="text-[10px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
+                    {alertRules.length} Defined Rules
+                  </span>
+                </div>
               </div>
 
               {alertRules.length === 0 ? (
@@ -7025,6 +7202,19 @@ export default function App() {
                               {/* Actions */}
                               <td className="py-3.5 px-3.5 pr-4 text-right whitespace-nowrap align-middle">
                                 <div className="inline-flex items-center gap-1.5">
+                                  {/* Edit Button: selects rule and opens interactive edit modal */}
+                                  <button
+                                    type="button"
+                                    id={`edit-rule-btn-${rule.id}`}
+                                    onClick={() => handleOpenEditRuleModal(rule)}
+                                    className="px-2 py-1 bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-500/40 hover:border-indigo-400 text-indigo-300 hover:text-white rounded-lg transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1 text-[10.5px] font-mono font-bold"
+                                    title="Edit Alert Rule: Modify account, condition (< or >), and threshold values"
+                                    aria-label={`Edit ${rule.accountName} Alert Rule`}
+                                  >
+                                    <Pencil className="w-3 h-3 text-indigo-400" />
+                                    <span>Edit</span>
+                                  </button>
+
                                   {/* Toggle active / inactive switch */}
                                   <button
                                     type="button"
@@ -10754,6 +10944,438 @@ export default function App() {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 🛡️ EDIT ALERT RULE INTERACTIVE MODAL */}
+      <AnimatePresence>
+        {editingRuleId && (
+          <div 
+            id="edit-alert-rule-modal"
+            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setEditingRuleId(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.93, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.93, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-900 border border-indigo-900/60 w-full max-w-xl rounded-2xl shadow-2xl flex flex-col text-left overflow-hidden text-slate-100 my-auto"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="edit-alert-rule-modal-title"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4.5 border-b border-indigo-900/40 bg-gradient-to-r from-slate-950 via-indigo-950/50 to-slate-950 text-white">
+                <div className="flex items-center gap-3">
+                  <span className="p-2 bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 rounded-xl shrink-0 flex items-center justify-center shadow-inner">
+                    <Pencil className="w-4 h-4 text-indigo-400" />
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 id="edit-alert-rule-modal-title" className="text-sm font-bold font-mono tracking-tight uppercase text-white">
+                        Edit Alert Rule &amp; Guardrail
+                      </h3>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
+                        Interactive Config
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                      Select any existing alert rule to modify its account, trigger condition, and threshold limit
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingRuleId(null)}
+                  className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  aria-label="Close edit rule modal"
+                >
+                  <X className="w-4.5 h-4.5" />
+                </button>
+              </div>
+
+              {/* Form Body */}
+              <form onSubmit={handleSaveEditRule} className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto font-sans text-xs">
+                {/* 1. Rule Selector Dropdown (Allows switching between existing alert rules inside modal) */}
+                <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="modal-select-alert-rule" className="block text-slate-300 font-mono text-[10.5px] uppercase font-bold tracking-wider">
+                      Selected Existing Alert Rule
+                    </label>
+                    <span className="text-[9px] font-mono text-indigo-400 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-500/20">
+                      {alertRules.length} Defined Rules
+                    </span>
+                  </div>
+                  <select
+                    id="modal-select-alert-rule"
+                    value={editingRuleId}
+                    onChange={(e) => handleSelectRuleInEditModal(e.target.value)}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-indigo-500 cursor-pointer shadow-inner"
+                  >
+                    {alertRules.map(r => (
+                      <option key={r.id} value={r.id}>
+                        {r.accountName} ({r.condition === 'less_than' ? '<' : '>'} ${Number(r.threshold).toLocaleString()}) {r.hasOrCondition ? `OR ${r.orAccountName} (${r.orCondition === 'less_than' ? '<' : '>'} $${Number(r.orThreshold).toLocaleString()})` : ''} — [{r.severity.toUpperCase()} • {r.isActive ? 'Active' : 'Disabled'}]
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Target Account Selection */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="edit-rule-account-select" className="block text-slate-300 font-mono text-[10.5px] uppercase font-bold tracking-wider">
+                      Target General Ledger Account
+                    </label>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      Live Balance: <span className="text-white font-bold">${((accounts.find(a => a.id === editRuleAccount)?.netBalance || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    </span>
+                  </div>
+                  <select
+                    id="edit-rule-account-select"
+                    value={editRuleAccount}
+                    onChange={(e) => setEditRuleAccount(e.target.value)}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  >
+                    {(accounts && accounts.length > 0 ? accounts : [
+                      { id: 'acc-cash', code: '1010', name: 'Cash', netBalance: 45000000 },
+                      { id: 'acc-ar', code: '1200', name: 'Accounts Receivable', netBalance: 1500000 },
+                      { id: 'acc-revenue', code: '4010', name: 'Sales Revenue', netBalance: 32000000 },
+                      { id: 'acc-tax', code: '2200', name: 'Sales Tax Payable', netBalance: 2400000 }
+                    ]).map(acc => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.name} (Code {acc.code || getAccountDetailCode(acc.id)}) — Live Bal: ${(Number(acc.netBalance || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 3. Condition and Threshold in 2 Columns */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Condition Buttons */}
+                  <div className="space-y-1.5">
+                    <label className="block text-slate-300 font-mono text-[10.5px] uppercase font-bold tracking-wider">
+                      Trigger Condition
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 font-mono">
+                      <button
+                        type="button"
+                        id="edit-rule-condition-lt"
+                        onClick={() => setEditRuleCondition('less_than')}
+                        className={`p-2.5 rounded-xl border text-center transition-all font-mono text-xs cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
+                          editRuleCondition === 'less_than'
+                            ? 'bg-indigo-600/30 border-indigo-500 text-white font-bold shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        <span className="text-sm font-bold text-indigo-400">&lt;</span>
+                        <span>Less than (&lt;)</span>
+                        <span className="text-[9px] text-slate-400 font-normal">Liquidity Floor</span>
+                      </button>
+                      <button
+                        type="button"
+                        id="edit-rule-condition-gt"
+                        onClick={() => setEditRuleCondition('greater_than')}
+                        className={`p-2.5 rounded-xl border text-center transition-all font-mono text-xs cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
+                          editRuleCondition === 'greater_than'
+                            ? 'bg-indigo-600/30 border-indigo-500 text-white font-bold shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        <span className="text-sm font-bold text-indigo-400">&gt;</span>
+                        <span>Greater than (&gt;)</span>
+                        <span className="text-[9px] text-slate-400 font-normal">Exposure Cap</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Threshold Limit Value Input */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="edit-rule-threshold-input" className="block text-slate-300 font-mono text-[10.5px] uppercase font-bold tracking-wider">
+                        Threshold Limit (USD)
+                      </label>
+                      <span className="text-[9px] font-mono text-slate-400">Required</span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs font-bold">$</span>
+                      <input
+                        id="edit-rule-threshold-input"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={editRuleThreshold}
+                        onChange={(e) => setEditRuleThreshold(e.target.value)}
+                        placeholder="e.g. 450000"
+                        className="w-full pl-7 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-indigo-500 shadow-inner"
+                        required
+                      />
+                    </div>
+                    {/* Quick increment buttons */}
+                    <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                      <span className="text-[9px] font-mono text-slate-500">Presets:</span>
+                      {['10000', '50000', '150000', '250000', '500000'].map(val => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setEditRuleThreshold(val)}
+                          className={`px-2 py-0.5 border rounded text-[9.5px] font-mono transition-colors cursor-pointer ${
+                            editRuleThreshold === val 
+                              ? 'bg-indigo-600/30 border-indigo-500 text-indigo-200 font-bold' 
+                              : 'bg-slate-950 hover:bg-slate-850 border-slate-800 text-slate-400 hover:text-indigo-300'
+                          }`}
+                        >
+                          ${Number(val) >= 1000 ? `${Number(val) / 1000}k` : val}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Compound OR Clause Section */}
+                <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={editRuleHasOr}
+                        onChange={(e) => setEditRuleHasOr(e.target.checked)}
+                        className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span className="text-[11px] font-mono font-bold text-slate-200">
+                        Enable Compound &apos;OR&apos; Condition (Dual Account Rule)
+                      </span>
+                    </label>
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                      OR Logic
+                    </span>
+                  </div>
+
+                  {editRuleHasOr && (
+                    <div className="space-y-3 pt-2 border-t border-slate-850">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-slate-400 font-mono text-[10px] uppercase mb-1">Secondary Account</label>
+                          <select
+                            value={editRuleOrAccount}
+                            onChange={(e) => setEditRuleOrAccount(e.target.value)}
+                            className="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
+                          >
+                            {(accounts && accounts.length > 0 ? accounts : [
+                              { id: 'acc-cash', code: '1010', name: 'Cash' },
+                              { id: 'acc-ar', code: '1200', name: 'Accounts Receivable' },
+                              { id: 'acc-revenue', code: '4010', name: 'Sales Revenue' },
+                              { id: 'acc-tax', code: '2200', name: 'Sales Tax Payable' }
+                            ]).map(acc => (
+                              <option key={acc.id} value={acc.id}>
+                                {acc.name} (Code {acc.code || getAccountDetailCode(acc.id)})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-slate-400 font-mono text-[10px] uppercase mb-1">Secondary Threshold ($)</label>
+                          <div className="relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">$</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="any"
+                              value={editRuleOrThreshold}
+                              onChange={(e) => setEditRuleOrThreshold(e.target.value)}
+                              placeholder="e.g. 200000"
+                              className="w-full pl-6 pr-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-slate-400">Trigger Secondary when balance is:</span>
+                        <div className="flex items-center gap-1 font-mono">
+                          <button
+                            type="button"
+                            onClick={() => setEditRuleOrCondition('less_than')}
+                            className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer ${
+                              editRuleOrCondition === 'less_than'
+                                ? 'bg-indigo-600/30 border-indigo-500 text-white font-bold'
+                                : 'bg-slate-900 border-slate-800 text-slate-400'
+                            }`}
+                          >
+                            &lt; Less than
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditRuleOrCondition('greater_than')}
+                            className={`px-2.5 py-1 rounded-lg border text-xs cursor-pointer ${
+                              editRuleOrCondition === 'greater_than'
+                                ? 'bg-indigo-600/30 border-indigo-500 text-white font-bold'
+                                : 'bg-slate-900 border-slate-800 text-slate-400'
+                            }`}
+                          >
+                            &gt; Greater than
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 5. Severity & Active Status */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <label className="block text-slate-300 font-mono text-[10.5px] uppercase font-bold tracking-wider">
+                      Severity Urgency
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5 font-mono text-xs">
+                      {(['info', 'warning', 'danger'] as const).map(sev => (
+                        <button
+                          key={sev}
+                          type="button"
+                          onClick={() => setEditRuleSeverity(sev)}
+                          className={`py-2 rounded-xl border text-center transition-all cursor-pointer font-bold uppercase text-[10px] ${
+                            editRuleSeverity === sev
+                              ? sev === 'danger'
+                                ? 'bg-rose-500/25 border-rose-500 text-rose-300 shadow-sm'
+                                : sev === 'warning'
+                                  ? 'bg-amber-500/25 border-amber-500 text-amber-300 shadow-sm'
+                                  : 'bg-indigo-500/25 border-indigo-500 text-indigo-300 shadow-sm'
+                              : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'
+                          }`}
+                        >
+                          {sev}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-slate-300 font-mono text-[10.5px] uppercase font-bold tracking-wider">
+                      Guardrail Node Status
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setEditRuleIsActive(true)}
+                        className={`p-2 rounded-xl border text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold ${
+                          editRuleIsActive
+                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'
+                        }`}
+                      >
+                        <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Armed (Active)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditRuleIsActive(false)}
+                        className={`p-2 rounded-xl border text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold ${
+                          !editRuleIsActive
+                            ? 'bg-slate-800 border-slate-700 text-slate-300 shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'
+                        }`}
+                      >
+                        <ShieldOff className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Disabled</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Live Simulation / Evaluation Preview Card */}
+                {(() => {
+                  const primaryBal = (accounts.find(a => a.id === editRuleAccount)?.netBalance || 0) / 100;
+                  const parsedThreshold = parseFloat(editRuleThreshold) || 0;
+                  const isPrimaryViolated = editRuleCondition === 'less_than' ? primaryBal < parsedThreshold : primaryBal > parsedThreshold;
+
+                  const orBal = editRuleHasOr ? ((accounts.find(a => a.id === editRuleOrAccount)?.netBalance || 0) / 100) : 0;
+                  const parsedOrThreshold = parseFloat(editRuleOrThreshold) || 0;
+                  const isOrViolated = editRuleHasOr ? (editRuleOrCondition === 'less_than' ? orBal < parsedOrThreshold : orBal > parsedOrThreshold) : false;
+
+                  const willBeViolated = editRuleIsActive && (editRuleHasOr ? (isPrimaryViolated || isOrViolated) : isPrimaryViolated);
+
+                  return (
+                    <div className={`p-3.5 rounded-xl border transition-all ${
+                      !editRuleIsActive
+                        ? 'bg-slate-950/60 border-slate-800 text-slate-400'
+                        : willBeViolated
+                          ? 'bg-rose-950/30 border-rose-500/40 text-rose-200'
+                          : 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200'
+                    }`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          {!editRuleIsActive ? (
+                            <ShieldOff className="w-4 h-4 text-slate-500" />
+                          ) : willBeViolated ? (
+                            <AlertCircle className="w-4 h-4 text-rose-400 animate-pulse" />
+                          ) : (
+                            <CheckCircle className="w-4 h-4 text-emerald-400" />
+                          )}
+                          <span className="font-mono font-bold uppercase text-[11px] tracking-wide">
+                            Live GL Impact Simulation: {!editRuleIsActive ? 'RULE DISABLED' : willBeViolated ? 'RISK ALERT WILL BE TRIGGERED' : 'OPERATING SAFELY / COMPLIANT'}
+                          </span>
+                        </div>
+                        <span className={`text-[9.5px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
+                          !editRuleIsActive
+                            ? 'bg-slate-900 text-slate-400'
+                            : willBeViolated
+                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        }`}>
+                          {!editRuleIsActive ? 'Inactive' : willBeViolated ? 'Violated' : 'Safe'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-sans mt-1.5 opacity-90 leading-relaxed">
+                        {editRuleIsActive ? (
+                          willBeViolated ? (
+                            <>
+                              Current live balance in <strong>{getAccountName(editRuleAccount)}</strong> is <strong>${primaryBal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong>, which breaches the target condition (<strong>{editRuleCondition === 'less_than' ? '<' : '>'} ${parsedThreshold.toLocaleString()}</strong>). Immediate visual escalation will broadcast on all ledger nodes.
+                            </>
+                          ) : (
+                            <>
+                              Current live balance in <strong>{getAccountName(editRuleAccount)}</strong> is <strong>${primaryBal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong>, safely respecting the <strong>{editRuleCondition === 'less_than' ? '<' : '>'} ${parsedThreshold.toLocaleString()}</strong> guardrail boundary.
+                            </>
+                          )
+                        ) : (
+                          <>This rule is currently set to Disabled and will not evaluate or generate automated alerts on ledger bookings.</>
+                        )}
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                {/* Footer Buttons */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-2.5 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleResetEditRuleForm}
+                    className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                    <span>Revert to Saved</span>
+                  </button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setEditingRuleId(null)}
+                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-bold transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      id="save-edit-rule-btn"
+                      className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-mono font-bold transition-all cursor-pointer shadow-md active:scale-95 flex items-center gap-1.5"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Save Changes</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

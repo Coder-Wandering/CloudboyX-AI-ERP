@@ -1,0 +1,19 @@
+{
+  "short_name": "CloudboyX",
+  "name": "CloudboyX Gateway & ERP Suite",
+  "description": "Universal Transactional Gateway & Double-Entry General Ledger Suite",
+  "icons": [
+    {
+      "src": "/assets/aistudio/4000cb__1__92a1d8de.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/?mode=suite",
+  "background_color": "#03045e",
+  "theme_color": "#0077b6",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/"
+}
