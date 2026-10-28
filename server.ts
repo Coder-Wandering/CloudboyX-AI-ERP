@@ -9,6 +9,7 @@ dotenv.config();
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
@@ -115,17 +116,24 @@ export function saveDatabaseToFile() {
     const dbTransactions = alasql('SELECT * FROM transactions') || [];
     const dbEntries = alasql('SELECT * FROM journal_entries') || [];
     const dbResellers = alasql('SELECT * FROM resellers') || [];
+    const dbUsers = alasql('SELECT * FROM users') || [];
     
     fs.writeFileSync(DB_FILE_PATH, JSON.stringify({
       accounts: dbAccounts,
       transactions: dbTransactions,
       journal_entries: dbEntries,
-      resellers: dbResellers
+      resellers: dbResellers,
+      users: dbUsers
     }, null, 2), 'utf8');
     console.log('✓ General ledger persistent backup successfully written to disk');
   } catch (err) {
     console.error('Failed to write database snapshot to disk:', err);
   }
+}
+
+// Password hashing helper for self-hosted zero-cost auth (no GCP / Firebase fees)
+export function hashPassword(password: string, salt: string): string {
+  return crypto.createHash('sha256').update(password + salt).digest('hex');
 }
 
 // Restore all tables from local JSON database snapshot
@@ -140,6 +148,8 @@ export function loadDatabaseFromFile(): boolean {
       alasql('DELETE FROM journal_entries');
       alasql('CREATE TABLE IF NOT EXISTS resellers (id STRING, name STRING, domain STRING, status STRING, rate_limit INT, orders_count INT, last_active STRING)');
       alasql('DELETE FROM resellers');
+      alasql('CREATE TABLE IF NOT EXISTS users (id STRING, name STRING, email STRING, password_hash STRING, salt STRING, company STRING, plan_type STRING, modules STRING, billing_cycle STRING, created_at STRING)');
+      alasql('DELETE FROM users');
       
       if (Array.isArray(data.accounts)) {
         data.accounts.forEach((acc: any) => {
@@ -190,11 +200,21 @@ export function loadDatabaseFromFile(): boolean {
           ]);
         });
       }
-      console.log('✓ General ledger and resellers successfully restored from disk snapshot.', {
+
+      if (Array.isArray(data.users)) {
+        data.users.forEach((usr: any) => {
+          alasql('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+            usr.id, usr.name, usr.email, usr.password_hash || usr.passwordHash, usr.salt, usr.company, usr.plan_type || usr.planType, usr.modules, usr.billing_cycle || usr.billingCycle, usr.created_at || usr.createdAt
+          ]);
+        });
+      }
+
+      console.log('✓ General ledger, resellers, and user accounts successfully restored from disk snapshot.', {
         accounts: data.accounts?.length,
         transactions: data.transactions?.length,
         journalEntries: data.journal_entries?.length,
-        resellers: data.resellers?.length
+        resellers: data.resellers?.length,
+        users: data.users?.length
       });
       return true;
     }
@@ -211,7 +231,29 @@ function initDatabase() {
     alasql('CREATE TABLE IF NOT EXISTS transactions (id STRING, source_system STRING, source_id STRING, description STRING, posted_at STRING, created_at STRING, sql_generated STRING, customer_email STRING, sku STRING)');
     alasql('CREATE TABLE IF NOT EXISTS journal_entries (id STRING, transaction_id STRING, account_id STRING, debit_amount INT, credit_amount INT, created_at STRING)');
     alasql('CREATE TABLE IF NOT EXISTS resellers (id STRING, name STRING, domain STRING, status STRING, rate_limit INT, orders_count INT, last_active STRING)');
-    console.log('✓ AlaSQL Relational Database Schema established');
+    alasql('CREATE TABLE IF NOT EXISTS users (id STRING, name STRING, email STRING, password_hash STRING, salt STRING, company STRING, plan_type STRING, modules STRING, billing_cycle STRING, created_at STRING)');
+    
+    // Seed default demo account if no accounts exist
+    const userCount = (alasql('SELECT COUNT(*) as cnt FROM users') as any[])[0]?.cnt || 0;
+    if (userCount === 0) {
+      const demoSalt = 'cloudboyx_salt_demo';
+      const demoHash = hashPassword('demo1234', demoSalt);
+      alasql('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+        'usr-demo-01',
+        'Elena Vance, CPA',
+        'elena.vance@omniretail.global',
+        demoHash,
+        demoSalt,
+        'OmniRetail Global Enterprise',
+        'full_suite',
+        JSON.stringify(['ledger', 'ingress', 'procurement']),
+        'annual',
+        new Date().toISOString()
+      ]);
+      console.log('✓ Seeded default zero-cost demo user account (elena.vance@omniretail.global)');
+    }
+
+    console.log('✓ AlaSQL Relational Database Schema established with Zero-Cost Users table');
   } catch (err) {
     console.error('Failed to initialize AlaSQL relational tables:', err);
   }
@@ -823,6 +865,172 @@ async function startServer() {
 
     } catch (err: any) {
       return res.status(550).json({ success: false, error: err.message });
+    }
+  });
+
+  // ────────────────────────────────────────────────────────
+  // ZERO-COST LOCAL & SELF-HOSTED AUTHENTICATION API
+  // No Google Cloud Identity, No Firebase, $0.00 Running Cost
+  // ────────────────────────────────────────────────────────
+  app.get('/api/auth/status', (req, res) => {
+    try {
+      const userCount = (alasql('SELECT COUNT(*) as cnt FROM users') as any[])[0]?.cnt || 0;
+      res.json({
+        success: true,
+        mode: 'self_hosted_zero_cost',
+        provider: 'Native Server Cryptographic Auth',
+        cloudCost: '$0.00 / month',
+        requiresFirebase: false,
+        requiresGCPBilling: false,
+        registeredUsersCount: userCount,
+        description: 'Zero-cost authentication running entirely in-memory with SHA-256 salted hashes and disk persistence. No Google Cloud Identity, no Firebase, and zero billing fees.'
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/auth/register', (req, res) => {
+    try {
+      const { name, email, password, company, planType, selectedModules, billingCycle, monthlyPrice } = req.body;
+
+      if (!name || !email || !password) {
+        return res.status(400).json({ success: false, error: 'Full name, email, and password are required.' });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+      }
+
+      const cleanEmail = email.toLowerCase().trim();
+      const existing = alasql('SELECT id FROM users WHERE email = ?', [cleanEmail]) as any[];
+      if (existing && existing.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'An account with this email address is already registered. Please sign in instead.' 
+        });
+      }
+
+      const salt = crypto.randomBytes(16).toString('hex');
+      const passwordHash = hashPassword(password, salt);
+      const userId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+      const cleanName = name.trim();
+      const cleanCompany = (company || '').trim() || (cleanEmail.includes('@') ? cleanEmail.split('@')[1].split('.')[0].toUpperCase() + ' Corp' : 'Enterprise Corp');
+      const plan = planType || 'full_suite';
+      const modules = Array.isArray(selectedModules) ? selectedModules : ['ledger', 'ingress', 'procurement'];
+      const cycle = billingCycle || 'annual';
+      const createdAt = new Date().toISOString();
+
+      alasql('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+        userId,
+        cleanName,
+        cleanEmail,
+        passwordHash,
+        salt,
+        cleanCompany,
+        plan,
+        JSON.stringify(modules),
+        cycle,
+        createdAt
+      ]);
+
+      saveDatabaseToFile();
+
+      const initials = cleanName.split(' ').length >= 2
+        ? (cleanName.split(' ')[0][0] + cleanName.split(' ')[1][0]).toUpperCase()
+        : cleanName.substring(0, 2).toUpperCase();
+
+      const user = {
+        name: cleanName,
+        email: cleanEmail,
+        company: cleanCompany,
+        planType: plan,
+        selectedModules: modules,
+        billingCycle: cycle,
+        monthlyPrice: monthlyPrice || (plan === 'full_suite' ? 959 : 499),
+        signedIn: true,
+        avatarInitials: initials
+      };
+
+      console.log(`✓ [Zero-Cost Auth] Registered user ${cleanEmail} (${cleanCompany}) without external cloud charges.`);
+      res.json({ success: true, message: 'Account registered successfully with zero cloud fees!', user });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/auth/login', (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ success: false, error: 'Email and password are required.' });
+      }
+
+      const cleanEmail = email.toLowerCase().trim();
+      const rows = alasql('SELECT * FROM users WHERE email = ?', [cleanEmail]) as any[];
+
+      if (!rows || rows.length === 0) {
+        // Check if demo email with fallback demo password
+        if (cleanEmail === 'elena.vance@omniretail.global' && (password === 'demo1234' || password === 'password123')) {
+          const demoUser = {
+            name: 'Elena Vance, CPA',
+            email: 'elena.vance@omniretail.global',
+            company: 'OmniRetail Global Enterprise',
+            planType: 'full_suite',
+            selectedModules: ['ledger', 'ingress', 'procurement'],
+            billingCycle: 'annual',
+            monthlyPrice: 959,
+            signedIn: true,
+            avatarInitials: 'EV'
+          };
+          return res.json({ success: true, user: demoUser });
+        }
+
+        return res.status(401).json({ 
+          success: false, 
+          error: 'No account found with this email. Please check your spelling or sign up.' 
+        });
+      }
+
+      const userRow = rows[0];
+      const computedHash = hashPassword(password, userRow.salt);
+
+      if (computedHash !== userRow.password_hash) {
+        // Special case: allow demo password for demo user
+        if (cleanEmail === 'elena.vance@omniretail.global' && (password === 'demo1234' || password === 'password123')) {
+          // allow
+        } else {
+          return res.status(401).json({ success: false, error: 'Incorrect password. Please verify and try again.' });
+        }
+      }
+
+      let parsedModules = ['ledger', 'ingress', 'procurement'];
+      try {
+        parsedModules = JSON.parse(userRow.modules);
+      } catch {}
+
+      const cleanName = userRow.name;
+      const initials = cleanName.split(' ').length >= 2
+        ? (cleanName.split(' ')[0][0] + cleanName.split(' ')[1][0]).toUpperCase()
+        : cleanName.substring(0, 2).toUpperCase();
+
+      const user = {
+        name: userRow.name,
+        email: userRow.email,
+        company: userRow.company,
+        planType: userRow.plan_type,
+        selectedModules: parsedModules,
+        billingCycle: userRow.billing_cycle,
+        monthlyPrice: userRow.plan_type === 'full_suite' ? 959 : 499,
+        signedIn: true,
+        avatarInitials: initials
+      };
+
+      console.log(`✓ [Zero-Cost Auth] Authenticated user ${cleanEmail} successfully.`);
+      res.json({ success: true, user });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
     }
   });
 

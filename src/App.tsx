@@ -84,6 +84,10 @@ import MultiEntityOverview from './components/MultiEntityOverview';
 import MegaNavbar from './components/MegaNavbar';
 import { CorporateBrandLogo } from './components/CorporateBrandLogo';
 import { MarketingLandingPage } from './components/MarketingLandingPage';
+import { ModuleAccessHub } from './components/ModuleAccessHub';
+import { ModuleSwitcherModal } from './components/ModuleSwitcherModal';
+import { UserAccount, AuthModal } from './components/AuthModal';
+import SecurityAuditModule from './components/SecurityAuditModule';
 
 export { CorporateBrandLogo };
 
@@ -210,17 +214,36 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 };
 
 export default function App() {
-  // Top-level site routing: Standalone Marketing Website vs Enterprise Operations Suite
-  const [appMode, setAppMode] = useState<'marketing' | 'suite'>(() => {
+  // User Authentication state
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    try {
+      const saved = localStorage.getItem('cloudboyx_auth_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Module Access Hub & In-Suite Switcher Modal states
+  const [isModuleSwitcherOpen, setIsModuleSwitcherOpen] = useState<boolean>(false);
+  const [lockedAttemptModule, setLockedAttemptModule] = useState<'ledger' | 'ingress' | 'procurement' | null>(null);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState<boolean>(false);
+
+  // Top-level site routing: Standalone Marketing Website vs Central Access Menu Hub vs Enterprise Operations Suite
+  const [appMode, setAppMode] = useState<'marketing' | 'hub' | 'suite'>(() => {
     try {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       const params = new URLSearchParams(window.location.search);
+      if (path.includes('/hub') || hash.includes('hub') || params.get('mode') === 'hub') {
+        return 'hub';
+      }
       if (path.includes('/suite') || path.includes('/app') || hash.includes('suite') || hash.includes('app') || params.get('mode') === 'suite') {
         return 'suite';
       }
       const saved = localStorage.getItem('cloudboyx_site_mode');
       if (saved === 'suite') return 'suite';
+      if (saved === 'hub') return 'hub';
       return 'marketing';
     } catch {
       return 'marketing';
@@ -231,7 +254,9 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash.includes('suite') || hash.includes('app')) {
+      if (hash.includes('hub')) {
+        setAppMode('hub');
+      } else if (hash.includes('suite') || hash.includes('app')) {
         setAppMode('suite');
       } else if (hash === '' || hash.includes('marketing') || hash.includes('home')) {
         setAppMode('marketing');
@@ -241,7 +266,27 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigateToSuite = () => {
+  const navigateToHub = () => {
+    setAppMode('hub');
+    try {
+      localStorage.setItem('cloudboyx_site_mode', 'hub');
+      window.location.hash = 'hub';
+    } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'suite' | 'hub') => {
+    if (target === 'hub') {
+      navigateToHub();
+      return;
+    }
+    if (target === 'ledger') {
+      setMainView('erp');
+    } else if (target === 'ingress') {
+      setMainView('cloudboy_x');
+    } else if (target === 'procurement') {
+      setMainView('procurement');
+    }
     setAppMode('suite');
     try {
       localStorage.setItem('cloudboyx_site_mode', 'suite');
@@ -4822,6 +4867,18 @@ export default function App() {
           </div>
 
         </div>
+
+        {/* 🛡️ Visual Security Audit Scorecard & Premium Security Suite Subscription Module */}
+        <div className="mt-8 pt-6 border-t border-slate-800">
+          <SecurityAuditModule
+            isAdminMode={isAdminMode}
+            lockedFields={lockedFields}
+            onOpenUpgradeModal={() => setIsUpgradeModalOpen(true)}
+            onPostMessage={(text, type) => setLedgerMessage({ text, type })}
+            currentUser={currentUser}
+            isDarkMode={isDarkMode}
+          />
+        </div>
       </div>
     );
   };
@@ -4834,6 +4891,53 @@ export default function App() {
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
       />
+    );
+  }
+
+  // Central Launch Menu & Module Access Hub
+  if (appMode === 'hub') {
+    return (
+      <>
+        <ModuleAccessHub
+          currentUser={currentUser}
+          onLaunchModule={(modKey) => {
+            if (modKey === 'suite') {
+              navigateToSuite('suite');
+            } else {
+              navigateToSuite(modKey);
+            }
+          }}
+          onExitToMarketing={navigateToMarketing}
+          onSignOut={() => {
+            try {
+              localStorage.removeItem('cloudboyx_auth_user');
+            } catch {}
+            setCurrentUser(null);
+            navigateToMarketing();
+          }}
+          onOpenUpgradeModal={() => setIsUpgradeModalOpen(true)}
+          isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
+        />
+
+        {/* Upgrade / Account Configuration Modal */}
+        <AuthModal
+          isOpen={isUpgradeModalOpen}
+          onClose={() => setIsUpgradeModalOpen(false)}
+          initialMode="signup"
+          selectedPlan={{
+            planType: 'full_suite',
+            selectedModules: ['ledger', 'ingress', 'procurement'],
+            billingCycle: 'annual',
+            price: 959
+          }}
+          onAuthSuccess={(user) => {
+            setCurrentUser(user);
+            setIsUpgradeModalOpen(false);
+          }}
+          isDarkMode={isDarkMode}
+        />
+      </>
     );
   }
 
@@ -4884,6 +4988,16 @@ export default function App() {
           handleResetLedger={handleResetLedger}
           onTriggerBotPrompt={handleTriggerBotPrompt}
           onExitToMarketing={navigateToMarketing}
+          currentUser={currentUser}
+          onOpenModuleSwitcher={() => {
+            setLockedAttemptModule(null);
+            setIsModuleSwitcherOpen(true);
+          }}
+          onGoToHub={navigateToHub}
+          onAttemptLockedModule={(modKey) => {
+            setLockedAttemptModule(modKey);
+            setIsModuleSwitcherOpen(true);
+          }}
         />
       </div>
 
@@ -11435,6 +11549,61 @@ export default function App() {
           </motion.button>
         )}
       </div>
+
+      {/* In-Suite Module Access Switcher Pop-Up Modal (Shows what user is able to use) */}
+      <ModuleSwitcherModal
+        isOpen={isModuleSwitcherOpen}
+        onClose={() => {
+          setIsModuleSwitcherOpen(false);
+          setLockedAttemptModule(null);
+        }}
+        currentUser={currentUser}
+        onSelectModule={(modKey) => {
+          setIsModuleSwitcherOpen(false);
+          setLockedAttemptModule(null);
+          if (modKey === 'suite') {
+            setMainView('erp');
+          } else if (modKey === 'ledger') {
+            setMainView('erp');
+          } else if (modKey === 'ingress') {
+            setMainView('cloudboy_x');
+          } else if (modKey === 'procurement') {
+            setMainView('procurement');
+          }
+        }}
+        onOpenUpgradeModal={() => {
+          setIsModuleSwitcherOpen(false);
+          setIsUpgradeModalOpen(true);
+        }}
+        onGoToHub={() => {
+          setIsModuleSwitcherOpen(false);
+          navigateToHub();
+        }}
+        onExitToMarketing={() => {
+          setIsModuleSwitcherOpen(false);
+          navigateToMarketing();
+        }}
+        lockedAttemptModule={lockedAttemptModule}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* In-Suite Upgrade & Subscription Configurator Modal */}
+      <AuthModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        initialMode="signup"
+        selectedPlan={{
+          planType: 'full_suite',
+          selectedModules: ['ledger', 'ingress', 'procurement'],
+          billingCycle: 'annual',
+          price: 959
+        }}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          setIsUpgradeModalOpen(false);
+        }}
+        isDarkMode={isDarkMode}
+      />
 
     </div>
     </ClickToEditContext.Provider>

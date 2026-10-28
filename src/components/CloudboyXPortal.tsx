@@ -477,6 +477,7 @@ export default function CloudboyXPortal({
           reputationLogs={reputationLogs}
           resellers={resellers}
           onTriggerReputationScan={handleTriggerReputationScan}
+          onPostMessage={onPostMessage}
         />
       ) : activePortalTab === 'rerouting' ? (
         <RealtimeRoutingSection

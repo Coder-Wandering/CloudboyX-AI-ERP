@@ -25,6 +25,9 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+import { CorporateBrandLogo } from './CorporateBrandLogo';
+import { UserAccount } from './AuthModal';
+
 export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity';
 
 interface MegaNavbarProps {
@@ -37,6 +40,10 @@ interface MegaNavbarProps {
   handleResetLedger: () => void;
   onTriggerBotPrompt?: (prompt: string) => void;
   onExitToMarketing?: () => void;
+  currentUser?: UserAccount | null;
+  onOpenModuleSwitcher?: () => void;
+  onGoToHub?: () => void;
+  onAttemptLockedModule?: (mod: 'ledger' | 'ingress' | 'procurement') => void;
 }
 
 export const MegaNavbar: React.FC<MegaNavbarProps> = ({
@@ -48,7 +55,11 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
   addAuditEvent,
   handleResetLedger,
   onTriggerBotPrompt,
-  onExitToMarketing
+  onExitToMarketing,
+  currentUser,
+  onOpenModuleSwitcher,
+  onGoToHub,
+  onAttemptLockedModule
 }) => {
   // Active dropdown tab on desktop: 'ledger' | 'cloudboy' | 'diagnostics' | 'all' | null
   const [activeDropdown, setActiveDropdown] = useState<'ledger' | 'cloudboy' | 'diagnostics' | 'all' | null>(null);
@@ -81,7 +92,25 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const isModulePermitted = (view: MainViewType): boolean => {
+    if (!currentUser) return true;
+    if (currentUser.planType === 'full_suite') return true;
+    if (view === 'erp') return currentUser.selectedModules.includes('ledger');
+    if (view === 'cloudboy_x') return currentUser.selectedModules.includes('ingress');
+    if (view === 'procurement' || view === 'multientity') return currentUser.selectedModules.includes('procurement');
+    return true;
+  };
+
   const handleSelectView = (view: MainViewType, auditTitle: string) => {
+    if (!isModulePermitted(view)) {
+      const modKey: 'ledger' | 'ingress' | 'procurement' = 
+        view === 'erp' ? 'ledger' : 
+        view === 'cloudboy_x' ? 'ingress' : 'procurement';
+      onAttemptLockedModule?.(modKey);
+      setActiveDropdown(null);
+      setIsMobileMenuOpen(false);
+      return;
+    }
     setMainView(view);
     setActiveDropdown(null);
     setIsMobileMenuOpen(false);
@@ -238,6 +267,34 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 {activeViewInfo.label}
               </span>
             </div>
+
+            {/* My Modules Pop-Up Box Button (Shows what user is able to use) */}
+            {onOpenModuleSwitcher && (
+              <button
+                type="button"
+                id="desktop-module-switcher-btn"
+                onClick={onOpenModuleSwitcher}
+                className="hidden sm:flex px-3 py-2 text-xs font-mono font-bold rounded-lg border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-200 hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                title="Open In-Suite Module Access Pop-Up Box"
+              >
+                <Layers className="w-3.5 h-3.5 text-cyan-300 shrink-0" />
+                <span>My Modules</span>
+              </button>
+            )}
+
+            {/* Central Access Menu Hub Button */}
+            {onGoToHub && (
+              <button
+                type="button"
+                id="desktop-module-hub-btn"
+                onClick={onGoToHub}
+                className="hidden lg:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-[#caf0f8] hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                title="Open Central Access Menu Hub"
+              >
+                <LayoutGrid className="w-3.5 h-3.5 text-[#90e0ef] shrink-0" />
+                <span>Access Hub</span>
+              </button>
+            )}
 
             {/* Global Dark / Light Theme Toggle (Always Present on Bar) */}
             <button
@@ -1008,6 +1065,53 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               </button>
             </div>
           )}
+
+          {/* Module Access Switcher & Central Hub (Tablet & Mobile) */}
+          <div className="p-3 bg-gradient-to-r from-cyan-950/60 to-blue-950/60 border border-cyan-400/30 rounded-xl flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-cyan-300" />
+                <span className="text-xs font-mono font-bold text-cyan-100 uppercase tracking-wide">
+                  Module Access
+                </span>
+              </div>
+              {currentUser && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">
+                  {currentUser.planType === 'full_suite' ? 'Full Suite' : `${currentUser.selectedModules.length} Modules`}
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              {onOpenModuleSwitcher && (
+                <button
+                  type="button"
+                  id="mobile-module-switcher-btn"
+                  onClick={() => {
+                    onOpenModuleSwitcher();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 text-xs font-mono font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>My Modules</span>
+                </button>
+              )}
+              {onGoToHub && (
+                <button
+                  type="button"
+                  id="mobile-module-hub-btn"
+                  onClick={() => {
+                    onGoToHub();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5 text-[#90e0ef]" />
+                  <span>Central Hub</span>
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* 3. ALL MODULES (Nested under Hamburger on Tablet & Mobile) */}
           <div className="space-y-4 pt-1">

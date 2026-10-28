@@ -112,14 +112,14 @@
       "transaction_id": "tx-mk0dt9r",
       "account_id": "acc-cash",
       "debit_amount": 20520,
-      "credit_amount": 0,
+      "credit_amount": null,
       "created_at": "2026-10-12T10:16:04.507Z"
     },
     {
       "id": "je-qix9m86",
       "transaction_id": "tx-mk0dt9r",
       "account_id": "acc-revenue",
-      "debit_amount": 0,
+      "debit_amount": null,
       "credit_amount": 19000,
       "created_at": "2026-10-12T10:16:04.507Z"
     },
@@ -127,7 +127,7 @@
       "id": "je-kbokopm",
       "transaction_id": "tx-mk0dt9r",
       "account_id": "acc-tax",
-      "debit_amount": 0,
+      "debit_amount": null,
       "credit_amount": 1520,
       "created_at": "2026-10-12T10:16:04.507Z"
     },
@@ -136,14 +136,14 @@
       "transaction_id": "tx-0w5g89v",
       "account_id": "acc-ar",
       "debit_amount": 40000,
-      "credit_amount": 0,
+      "credit_amount": null,
       "created_at": "2026-10-12T10:16:04.507Z"
     },
     {
       "id": "je-sv77emd",
       "transaction_id": "tx-0w5g89v",
       "account_id": "acc-revenue",
-      "debit_amount": 0,
+      "debit_amount": null,
       "credit_amount": 40000,
       "created_at": "2026-10-12T10:16:04.507Z"
     },
@@ -152,14 +152,14 @@
       "transaction_id": "tx-31dxojt",
       "account_id": "acc-ar",
       "debit_amount": 75000,
-      "credit_amount": 0,
+      "credit_amount": null,
       "created_at": "2026-10-12T10:16:04.507Z"
     },
     {
       "id": "je-e8c47y9",
       "transaction_id": "tx-31dxojt",
       "account_id": "acc-revenue",
-      "debit_amount": 0,
+      "debit_amount": null,
       "credit_amount": 75000,
       "created_at": "2026-10-12T10:16:04.507Z"
     }
@@ -189,7 +189,7 @@
       "domain": "shadow-bulk.net",
       "status": "Pending",
       "rate_limit": 100,
-      "orders_count": 0,
+      "orders_count": null,
       "last_active": "Never"
     },
     {
@@ -200,6 +200,20 @@
       "rate_limit": 250,
       "orders_count": 12,
       "last_active": "2026-10-02T10:16:04.507Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-mvsiri6k-3evm",
+      "name": "Alex Mercer",
+      "email": "alex@testcorp.com",
+      "password_hash": "168068c8faaef92c6c5276c9f78489ae50acf0fb49cf15393c92aa73890c215e",
+      "salt": "85953960ec838992e104c33e740ed080",
+      "company": "TestCorp",
+      "plan_type": "full_suite",
+      "modules": "[\"ledger\",\"ingress\",\"procurement\"]",
+      "billing_cycle": "annual",
+      "created_at": "2026-10-28T19:40:31.820Z"
     }
   ]
 }
