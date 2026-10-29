@@ -326,7 +326,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const moduleNamesMap: Record<string, { name: string; icon: React.ReactNode }> = {
-    ledger: { name: 'Module 1: General Ledger', icon: <BookOpen className="w-3 h-3 text-cyan-400" /> },
+    ledger: { name: 'Module 1: General Ledger', icon: <BookOpen className="w-3 h-3 text-[#979BF3]" /> },
     ingress: { name: 'Module 2: Ingress & AI Hub', icon: <Zap className="w-3 h-3 text-amber-400" /> },
     procurement: { name: 'Module 3: Procurement & AP', icon: <Layers className="w-3 h-3 text-emerald-400" /> }
   };
@@ -336,22 +336,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       <div 
         className={`relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden transition-all text-left ${
           isDarkMode 
-            ? 'bg-[#0a0f1e] border-slate-800 text-slate-100 shadow-cyan-950/20' 
+            ? 'bg-[#1C1B21] border-slate-800 text-slate-100 shadow-cyan-950/20' 
             : 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
         }`}
         onClick={e => e.stopPropagation()}
       >
         {/* Header Ribbon */}
-        <div className="bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] text-white p-5 flex items-center justify-between border-b border-[#0096c7]/40">
+        <div className="bg-[#24232B] text-white p-5 flex items-center justify-between border-b border-[#3B3947]">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/10 rounded-xl border border-white/20">
-              <ShieldCheck className="w-5 h-5 text-cyan-300" />
+              <ShieldCheck className="w-5 h-5 text-[#979BF3]" />
             </div>
             <div>
               <h3 className="text-base font-extrabold font-mono tracking-tight">
                 {mode === 'signin' ? 'Sign In to CloudboyX' : 'Create Your CloudboyX Account'}
               </h3>
-              <p className="text-[11px] text-[#caf0f8]/80 font-mono">
+              <p className="text-[11px] text-[#A6A5B2] font-mono">
                 {mode === 'signin' 
                   ? 'Access your General Ledger, Ingress & Procurement suite' 
                   : 'Start with the complete suite or customize your modules'}
@@ -373,7 +373,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-slate-50 border-slate-200'
         }`}>
           <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0077b6] dark:text-cyan-400 block">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#979BF3] dark:text-[#979BF3] block">
               Active Configuration
             </span>
             <span className="font-bold font-mono">
@@ -383,7 +383,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </span>
           </div>
           <div className="text-right font-mono">
-            <span className="text-sm font-extrabold text-[#0077b6] dark:text-[#48cae4]">
+            <span className="text-sm font-extrabold text-[#979BF3] dark:text-[#979BF3]">
               ${selectedPlan.price}
             </span>
             <span className="text-[10px] text-slate-500">/mo {selectedPlan.billingCycle === 'annual' ? '(Annual)' : ''}</span>
@@ -432,7 +432,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => { setMode('signin'); setErrorMessage(''); }}
               className={`py-2 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 mode === 'signin' 
-                  ? 'bg-white dark:bg-slate-800 text-[#0077b6] dark:text-cyan-300 shadow-sm' 
+                  ? 'bg-white dark:bg-slate-800 text-[#979BF3] dark:text-[#979BF3] shadow-sm' 
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -444,7 +444,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => { setMode('signup'); setErrorMessage(''); }}
               className={`py-2 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 mode === 'signup' 
-                  ? 'bg-[#0077b6] text-white shadow-sm' 
+                  ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-sm' 
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -485,7 +485,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={loginEmail}
                     onChange={e => setLoginEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0077b6] dark:focus:border-cyan-400"
+                    className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#979BF3] dark:focus:border-cyan-400"
                     required
                   />
                 </div>
@@ -502,7 +502,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={loginPassword}
                     onChange={e => setLoginPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-9 pr-9 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0077b6] dark:focus:border-cyan-400"
+                    className="w-full pl-9 pr-9 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#979BF3] dark:focus:border-cyan-400"
                     required
                   />
                   <button
@@ -557,7 +557,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
                       placeholder="Jane Doe, CPA"
-                      className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0077b6] dark:focus:border-cyan-400"
+                      className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#979BF3] dark:focus:border-cyan-400"
                       required
                     />
                   </div>
@@ -574,7 +574,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       value={companyName}
                       onChange={e => setCompanyName(e.target.value)}
                       placeholder="Retail Corp Inc."
-                      className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0077b6] dark:focus:border-cyan-400"
+                      className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#979BF3] dark:focus:border-cyan-400"
                       required
                     />
                   </div>
@@ -592,7 +592,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={signupEmail}
                     onChange={e => setSignupEmail(e.target.value)}
                     placeholder="jane@company.com"
-                    className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0077b6] dark:focus:border-cyan-400"
+                    className="w-full pl-9 pr-3 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#979BF3] dark:focus:border-cyan-400"
                     required
                   />
                 </div>
@@ -609,7 +609,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={signupPassword}
                     onChange={e => setSignupPassword(e.target.value)}
                     placeholder="Minimum 6 characters"
-                    className="w-full pl-9 pr-9 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0077b6] dark:focus:border-cyan-400"
+                    className="w-full pl-9 pr-9 py-2 text-xs font-sans rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#979BF3] dark:focus:border-cyan-400"
                     required
                   />
                   <button
@@ -629,7 +629,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   id="terms-check"
                   checked={termsAccepted}
                   onChange={e => setTermsAccepted(e.target.checked)}
-                  className="rounded border-slate-300 text-[#0077b6] focus:ring-0 cursor-pointer"
+                  className="rounded border-slate-300 text-[#979BF3] focus:ring-0 cursor-pointer"
                 />
                 <label htmlFor="terms-check" className="cursor-pointer">
                   I agree to CloudboyX Enterprise Terms and Master Service Agreement.

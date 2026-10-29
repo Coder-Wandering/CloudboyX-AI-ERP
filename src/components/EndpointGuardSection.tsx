@@ -392,16 +392,16 @@ export default function EndpointGuardSection({
       {/* ────────────────────────────────────────────────────────── */}
       {/* 1. CYBERSHIELD ENTERPRISE SUBSCRIPTION BANNER              */}
       {/* ────────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-950 via-[#0a1128] to-[#041a40] border-2 border-indigo-500/40 rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 p-4 opacity-5 select-none pointer-events-none font-mono text-8xl font-black">
+      <div className="bg-[#1C1B21] border-2 border-[#979BF3]/40 rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden">
+        <div className="absolute right-0 top-0 p-4 opacity-5 select-none pointer-events-none font-mono text-8xl font-black text-[#979BF3]">
           SHIELD
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-extrabold uppercase bg-cyan-400/20 text-cyan-300 border border-cyan-400/30 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-cyan-300" />
+              <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-extrabold uppercase bg-[#979BF3]/20 text-[#979BF3] border border-[#979BF3]/40 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#979BF3]" />
                 CyberShield Security Operations Center (SOC)
               </span>
               <span className="text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1">
@@ -419,23 +419,23 @@ export default function EndpointGuardSection({
           </div>
 
           {/* Subscription Tier Indicator & Quick Switcher */}
-          <div className="bg-slate-900/90 border border-indigo-400/30 rounded-xl p-3.5 shrink-0 flex flex-col gap-2 min-w-[260px]">
+          <div className="bg-[#24232B] border border-[#3B3947] rounded-xl p-3.5 shrink-0 flex flex-col gap-2 min-w-[260px]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">
+              <span className="text-[10px] font-mono text-[#A6A5B2] uppercase tracking-wider font-bold">
                 Security Subscription:
               </span>
               <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase ${
                 activeSecurityTier === 'cybershield_sovereign'
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
+                  ? 'bg-[#979BF3]/20 text-[#979BF3] border border-[#979BF3]/40'
                   : activeSecurityTier === 'cybershield_pro'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                  : 'bg-slate-700 text-slate-300'
+                  ? 'bg-[#979BF3]/20 text-[#979BF3] border border-[#979BF3]/40'
+                  : 'bg-[#1C1B21] text-[#A6A5B2] border border-[#3B3947]'
               }`}>
                 {activeSecurityTier === 'cybershield_sovereign' ? 'SOVEREIGN ($599/MO)' : activeSecurityTier === 'cybershield_pro' ? 'PRO ($249/MO)' : 'STANDARD SHIELD'}
               </span>
             </div>
 
-            <div className="text-[11px] font-mono text-cyan-200">
+            <div className="text-[11px] font-mono text-[#979BF3]">
               {activeSecurityTier === 'cybershield_sovereign' ? (
                 <span>✓ Merkle Proofs + AI Fraud Sentinel + mTLS Vault</span>
               ) : activeSecurityTier === 'cybershield_pro' ? (

@@ -28,7 +28,7 @@ import {
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { UserAccount } from './AuthModal';
 
-export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity';
+export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection';
 
 interface MegaNavbarProps {
   mainView: MainViewType;
@@ -98,6 +98,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
     if (view === 'erp') return currentUser.selectedModules.includes('ledger');
     if (view === 'cloudboy_x') return currentUser.selectedModules.includes('ingress');
     if (view === 'procurement' || view === 'multientity') return currentUser.selectedModules.includes('procurement');
+    if (view === 'map_protection') return currentUser.selectedModules.includes('map_protection' as any);
     return true;
   };
 
@@ -125,7 +126,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
   const getCurrentViewInfo = () => {
     switch (mainView) {
       case 'erp':
-        return { label: 'ERP Ledger Gateway', category: 'Ledger', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-300" /> };
+        return { label: 'ERP Ledger Gateway', category: 'Ledger', icon: <BookOpen className="w-3.5 h-3.5 text-[#979BF3]" /> };
       case 'cloudboy_x':
         return { label: 'Cloudboy X Flow', category: 'Cloudboy X', icon: <Zap className="w-3.5 h-3.5 text-amber-300" /> };
       case 'troubleshooting':
@@ -136,6 +137,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
         return { label: 'Procurement Room', category: 'Ledger', icon: <FileSpreadsheet className="w-3.5 h-3.5 text-pink-300" /> };
       case 'multientity':
         return { label: 'Multi-Entity GAAP', category: 'Ledger', icon: <Globe className="w-3.5 h-3.5 text-teal-300" /> };
+      case 'map_protection':
+        return { label: 'MAP & Brand Defense', category: 'Defense', icon: <Shield className="w-3.5 h-3.5 text-[#E00728]" /> };
       default:
         return { label: 'System Gateway', category: 'Platform', icon: <Database className="w-3.5 h-3.5 text-sky-300" /> };
     }
@@ -147,7 +150,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
     <div 
       ref={navRef} 
       id="module-navigation-bar" 
-      className="bg-[#03045e] border-b border-[#0077b6]/30 text-white relative z-40 select-none shadow-md"
+      className="bg-[#1C1B21] border-b border-[#3B3947] text-white relative z-40 select-none shadow-md"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
@@ -168,13 +171,13 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               onClick={() => toggleDropdown('all')}
               className={`px-3 py-2 rounded-lg text-xs font-mono font-bold tracking-wider transition-all flex items-center gap-2 cursor-pointer border ${
                 activeDropdown === 'all'
-                  ? 'bg-[#00b4d8] text-[#03045e] border-[#caf0f8] shadow-md'
-                  : 'bg-white/10 hover:bg-white/20 text-[#caf0f8] hover:text-white border-white/15'
+                  ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-md'
+                  : 'bg-white/10 hover:bg-white/20 text-white hover:text-white border-white/15'
               }`}
               title="Open full Mega Menu across all platform modules and controls"
               aria-expanded={activeDropdown === 'all'}
             >
-              <LayoutGrid className="w-4 h-4 shrink-0 text-cyan-300" />
+              <LayoutGrid className="w-4 h-4 shrink-0 text-[#979BF3]" />
               <span>Mega Menu</span>
               <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${activeDropdown === 'all' ? 'rotate-180' : ''}`} />
             </button>
@@ -191,11 +194,11 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 className={`px-3 py-2 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                   activeDropdown === 'ledger' || ['erp', 'procurement', 'multientity'].includes(mainView)
                     ? 'text-white bg-white/15 font-bold'
-                    : 'text-[#90e0ef]/80 hover:text-white hover:bg-white/10'
+                    : 'text-[#979BF3] hover:text-white hover:bg-white/10'
                 }`}
                 aria-expanded={activeDropdown === 'ledger'}
               >
-                <BookOpen className="w-3.5 h-3.5 text-[#48cae4]" />
+                <BookOpen className="w-3.5 h-3.5 text-[#979BF3]" />
                 <span>Financial Ledger</span>
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${activeDropdown === 'ledger' ? 'rotate-180' : ''}`} />
               </button>
@@ -210,7 +213,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 className={`px-3 py-2 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                   activeDropdown === 'cloudboy' || mainView === 'cloudboy_x'
                     ? 'text-white bg-white/15 font-bold'
-                    : 'text-[#90e0ef]/80 hover:text-white hover:bg-white/10'
+                    : 'text-[#979BF3] hover:text-white hover:bg-white/10'
                 }`}
                 aria-expanded={activeDropdown === 'cloudboy'}
               >
@@ -229,7 +232,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 className={`px-3 py-2 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                   activeDropdown === 'diagnostics' || ['troubleshooting', 'admin'].includes(mainView)
                     ? 'text-white bg-white/15 font-bold'
-                    : 'text-[#90e0ef]/80 hover:text-white hover:bg-white/10'
+                    : 'text-[#979BF3] hover:text-white hover:bg-white/10'
                 }`}
                 aria-expanded={activeDropdown === 'diagnostics'}
               >
@@ -238,10 +241,25 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${activeDropdown === 'diagnostics' ? 'rotate-180' : ''}`} />
               </button>
             </div>
+
+            {/* 5. Autonomous MAP & Brand Defense Module */}
+            <button
+              type="button"
+              onClick={() => handleSelectView('map_protection', 'MAP & Brand Protection Suite')}
+              className={`px-3 py-2 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                mainView === 'map_protection'
+                  ? 'text-white bg-[#E00728]/30 font-bold border border-[#E00728]/60 shadow-xs'
+                  : 'text-rose-200/90 hover:text-white hover:bg-[#E00728]/25'
+              }`}
+              title="Launch Autonomous Brand Reputation & MAP Protection Suite"
+            >
+              <Shield className="w-3.5 h-3.5 text-[#E00728]" />
+              <span>MAP &amp; Brand Defense</span>
+            </button>
           </div>
 
           {/* Mobile & Tablet Left Display: Clean Active Module Breadcrumb */}
-          <div className="flex lg:hidden items-center gap-2 py-1.5 px-3 bg-black/25 border border-white/10 rounded-lg text-xs font-mono text-cyan-200 select-none">
+          <div className="flex lg:hidden items-center gap-2 py-1.5 px-3 bg-black/25 border border-white/10 rounded-lg text-xs font-mono text-[#979BF3] select-none">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <span className="text-white/50 text-[10px] hidden sm:inline">Active:</span>
             <span className="font-bold text-white flex items-center gap-1.5 truncate max-w-[190px] sm:max-w-[320px]">
@@ -259,7 +277,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Active View Quick Indicator (Desktop Only) */}
-            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-black/25 border border-white/10 rounded-lg text-[11px] font-mono text-cyan-200/90">
+            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-black/25 border border-white/10 rounded-lg text-[11px] font-mono text-[#979BF3]/90">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/50 text-[10px]">Active:</span>
               <span className="font-bold text-white flex items-center gap-1">
@@ -274,10 +292,10 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 type="button"
                 id="desktop-module-switcher-btn"
                 onClick={onOpenModuleSwitcher}
-                className="hidden sm:flex px-3 py-2 text-xs font-mono font-bold rounded-lg border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-200 hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                className="hidden sm:flex px-3 py-2 text-xs font-mono font-bold rounded-lg border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 text-[#979BF3] hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 title="Open In-Suite Module Access Pop-Up Box"
               >
-                <Layers className="w-3.5 h-3.5 text-cyan-300 shrink-0" />
+                <Layers className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
                 <span>My Modules</span>
               </button>
             )}
@@ -288,10 +306,10 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 type="button"
                 id="desktop-module-hub-btn"
                 onClick={onGoToHub}
-                className="hidden lg:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-[#caf0f8] hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                className="hidden lg:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 title="Open Central Access Menu Hub"
               >
-                <LayoutGrid className="w-3.5 h-3.5 text-[#90e0ef] shrink-0" />
+                <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
                 <span>Access Hub</span>
               </button>
             )}
@@ -325,10 +343,10 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 type="button"
                 id="desktop-exit-to-marketing-btn"
                 onClick={onExitToMarketing}
-                className="hidden md:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-[#caf0f8] hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                className="hidden md:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 title="Return to the public CloudboyX marketing website"
               >
-                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-cyan-300" />
+                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-[#979BF3]" />
                 <span>Public Website</span>
               </button>
             )}
@@ -343,7 +361,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               aria-expanded={isMobileMenuOpen}
               aria-label="Toggle Navigation Menu"
             >
-              {isMobileMenuOpen ? <X className="w-4 h-4 text-rose-300" /> : <Menu className="w-4 h-4 text-cyan-300" />}
+              {isMobileMenuOpen ? <X className="w-4 h-4 text-rose-300" /> : <Menu className="w-4 h-4 text-[#979BF3]" />}
               <span className="text-xs font-mono font-bold hidden sm:inline">Menu</span>
             </button>
 
@@ -355,16 +373,16 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       {/* 1. FINANCIAL LEDGER CATEGORY DROPDOWN PANEL (DESKTOP)      */}
       {/* ────────────────────────────────────────────────────────── */}
       {activeDropdown === 'ledger' && (
-        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#021844]/95 backdrop-blur-md border-b-2 border-[#00b4d8] shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#24232B]/95 backdrop-blur-md border-b-2 border-[#00b4d8] shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#00b4d8]" />
-                <h3 className="text-xs font-mono uppercase tracking-widest text-[#caf0f8] font-bold">
+                <BookOpen className="w-4 h-4 text-[#979BF3]" />
+                <h3 className="text-xs font-mono uppercase tracking-widest text-white font-bold">
                   Financial Ledger & Core Accounting Modules
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-[#90e0ef]/70">Double-entry verified • Real-time audit integrity</span>
+              <span className="text-[11px] font-mono text-[#979BF3]/70">Double-entry verified • Real-time audit integrity</span>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
@@ -376,29 +394,29 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 onClick={() => handleSelectView('erp', 'ERP Ledger Translation Gateway')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'erp'
-                    ? 'bg-[#0077b6]/35 border-[#00b4d8] shadow-lg ring-1 ring-[#00b4d8]'
+                    ? 'bg-[#979BF3]/35 border-[#00b4d8] shadow-lg ring-1 ring-[#00b4d8]'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-cyan-400/50'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 rounded-lg bg-cyan-500/20 text-cyan-300">
+                    <div className="p-2 rounded-lg bg-cyan-500/20 text-[#979BF3]">
                       <BookOpen className="w-5 h-5" />
                     </div>
                     {mainView === 'erp' && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#00b4d8] text-[#03045e]">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#979BF3] text-[#03045e]">
                         ACTIVE
                       </span>
                     )}
                   </div>
-                  <h4 className="text-sm font-bold text-white group-hover:text-cyan-200 transition-colors font-mono">
+                  <h4 className="text-sm font-bold text-white group-hover:text-[#979BF3] transition-colors font-mono">
                     📋 ERP Ledger Translation Gateway
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Double-entry general ledger, canonical order auto-mapping, chart of accounts & real-time thresholds.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-cyan-300">
+                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#979BF3]">
                   <span>General Ledger & Balancing</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -411,7 +429,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 onClick={() => handleSelectView('multientity', 'Multi-Entity GAAP Overview')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'multientity'
-                    ? 'bg-[#0077b6]/35 border-[#00b4d8] shadow-lg ring-1 ring-[#00b4d8]'
+                    ? 'bg-[#979BF3]/35 border-[#00b4d8] shadow-lg ring-1 ring-[#00b4d8]'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-cyan-400/50'
                 }`}
               >
@@ -421,7 +439,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                       <Globe className="w-5 h-5" />
                     </div>
                     {mainView === 'multientity' && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#00b4d8] text-[#03045e]">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#979BF3] text-[#03045e]">
                         ACTIVE
                       </span>
                     )}
@@ -429,7 +447,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <h4 className="text-sm font-bold text-white group-hover:text-teal-200 transition-colors font-mono">
                     🌐 Multi-Entity GAAP Overview
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Multi-subsidiary financial statements, cross-border currency conversions & inter-entity eliminations.
                   </p>
                 </div>
@@ -446,7 +464,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 onClick={() => handleSelectView('procurement', 'Procurement Room & Accounts Payable')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'procurement'
-                    ? 'bg-[#0077b6]/35 border-[#00b4d8] shadow-lg ring-1 ring-[#00b4d8]'
+                    ? 'bg-[#979BF3]/35 border-[#00b4d8] shadow-lg ring-1 ring-[#00b4d8]'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-cyan-400/50'
                 }`}
               >
@@ -456,7 +474,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                       <FileSpreadsheet className="w-5 h-5" />
                     </div>
                     {mainView === 'procurement' && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#00b4d8] text-[#03045e]">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#979BF3] text-[#03045e]">
                         ACTIVE
                       </span>
                     )}
@@ -464,7 +482,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <h4 className="text-sm font-bold text-white group-hover:text-pink-200 transition-colors font-mono">
                     📥 Procurement Room & AP
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Purchase Order 3-way matching, automated invoice reconciliation & accounts payable workflows.
                   </p>
                 </div>
@@ -483,16 +501,16 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       {/* 2. CLOUDBOY X SUITE CATEGORY DROPDOWN PANEL (DESKTOP)      */}
       {/* ────────────────────────────────────────────────────────── */}
       {activeDropdown === 'cloudboy' && (
-        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#021844]/95 backdrop-blur-md border-b-2 border-amber-400 shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#24232B]/95 backdrop-blur-md border-b-2 border-amber-400 shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-300" />
-                <h3 className="text-xs font-mono uppercase tracking-widest text-[#caf0f8] font-bold">
+                <h3 className="text-xs font-mono uppercase tracking-widest text-white font-bold">
                   Cloudboy X Transitional Flow & Intelligent Integrations
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-[#90e0ef]/70">E-Commerce Webhooks • EDI 850 • AI Copilot</span>
+              <span className="text-[11px] font-mono text-[#979BF3]/70">E-Commerce Webhooks • EDI 850 • AI Copilot</span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -504,7 +522,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Transitional Flow')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'cloudboy_x'
-                    ? 'bg-[#0077b6]/35 border-amber-400 shadow-lg ring-1 ring-amber-400'
+                    ? 'bg-[#979BF3]/35 border-amber-400 shadow-lg ring-1 ring-amber-400'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-amber-400/50'
                 }`}
               >
@@ -522,7 +540,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <h4 className="text-sm font-bold text-white group-hover:text-amber-200 transition-colors font-mono">
                     ⚡ Cloudboy X Transitional Flow
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Reseller webhook router, live Shopify transaction feeds, EDI 850 purchase order translator & high-speed batch dispatcher.
                   </p>
                 </div>
@@ -555,7 +573,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <h4 className="text-sm font-bold text-white group-hover:text-indigo-200 transition-colors font-mono">
                     🤖 Advanced Enterprise AI Copilot Suite
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Predictive cashflow forecasting, agentic OCR receipt reader, conversational natural language SQL querying & live advisory chat.
                   </p>
                 </div>
@@ -574,16 +592,16 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       {/* 3. DIAGNOSTICS & ADMIN CATEGORY DROPDOWN PANEL (DESKTOP)   */}
       {/* ────────────────────────────────────────────────────────── */}
       {activeDropdown === 'diagnostics' && (
-        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#021844]/95 backdrop-blur-md border-b-2 border-emerald-400 shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#24232B]/95 backdrop-blur-md border-b-2 border-emerald-400 shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-emerald-300" />
-                <h3 className="text-xs font-mono uppercase tracking-widest text-[#caf0f8] font-bold">
+                <h3 className="text-xs font-mono uppercase tracking-widest text-white font-bold">
                   System Diagnostics, Thread Isolation & Security Controls
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-[#90e0ef]/70">Thread isolation • Keepalive telemetry • Admin guards</span>
+              <span className="text-[11px] font-mono text-[#979BF3]/70">Thread isolation • Keepalive telemetry • Admin guards</span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -595,7 +613,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 onClick={() => handleSelectView('troubleshooting', 'Diagnostics & Job Isolator')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'troubleshooting'
-                    ? 'bg-[#0077b6]/35 border-emerald-400 shadow-lg ring-1 ring-emerald-400'
+                    ? 'bg-[#979BF3]/35 border-emerald-400 shadow-lg ring-1 ring-emerald-400'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-emerald-400/50'
                 }`}
               >
@@ -613,7 +631,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <h4 className="text-sm font-bold text-white group-hover:text-emerald-200 transition-colors font-mono">
                     🛠️ Diagnostics & Job Isolator
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Inspect 5 active worker daemon threads, isolate stalled keepalive processes & analyze real-time IPC event streams.
                   </p>
                 </div>
@@ -630,7 +648,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 onClick={() => handleSelectView('admin', 'System Admin Console')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'admin'
-                    ? 'bg-[#0077b6]/35 border-emerald-400 shadow-lg ring-1 ring-emerald-400'
+                    ? 'bg-[#979BF3]/35 border-emerald-400 shadow-lg ring-1 ring-emerald-400'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-emerald-400/50'
                 }`}
               >
@@ -648,7 +666,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <h4 className="text-sm font-bold text-white group-hover:text-indigo-200 transition-colors font-mono">
                     🛡️ System Admin Console
                   </h4>
-                  <p className="text-xs text-[#caf0f8]/70 mt-1 leading-relaxed">
+                  <p className="text-xs text-white/70 mt-1 leading-relaxed">
                     Configure hardline branding locks, inspect audit trails, manage reseller roles and execute security overrides.
                   </p>
                 </div>
@@ -667,17 +685,17 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       {/* 4. EXPANSIVE "ALL MODULES" MEGA MENU FLYOUT PANEL (DESKTOP)*/}
       {/* ────────────────────────────────────────────────────────── */}
       {activeDropdown === 'all' && (
-        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#021333]/98 backdrop-blur-xl border-b-4 border-[#00b4d8] shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#1C1B21]/98 backdrop-blur-xl border-b-4 border-[#00b4d8] shadow-2xl z-50 animate-fadeIn max-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
             
             {/* Mega Menu Top Header */}
             <div className="flex items-center justify-between pb-4 mb-6 border-b border-white/15">
               <div>
                 <h3 className="text-base font-bold font-mono tracking-tight text-white flex items-center gap-2">
-                  <LayoutGrid className="w-5 h-5 text-[#00b4d8]" />
+                  <LayoutGrid className="w-5 h-5 text-[#979BF3]" />
                   CloudboyX Enterprise Navigation Hub
                 </h3>
-                <p className="text-xs text-[#caf0f8]/70 mt-0.5">
+                <p className="text-xs text-white/70 mt-0.5">
                   Complete architectural overview across accounting ledgers, e-commerce pipelines, diagnostics and global system preferences.
                 </p>
               </div>
@@ -696,9 +714,9 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               
               {/* Column 1: Core Financial Ledger */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-[#0096c7]/40">
-                  <BookOpen className="w-4 h-4 text-cyan-300" />
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-200">
+                <div className="flex items-center gap-2 pb-2 border-b border-[#3B3947]/40">
+                  <BookOpen className="w-4 h-4 text-[#979BF3]" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#979BF3]">
                     Core Accounting
                   </span>
                 </div>
@@ -708,16 +726,16 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     type="button"
                     onClick={() => handleSelectView('erp', 'ERP Ledger Gateway')}
                     className={`w-full p-2.5 rounded-lg text-left transition-all flex items-start gap-3 cursor-pointer group ${
-                      mainView === 'erp' ? 'bg-[#0077b6]/40 border border-[#00b4d8]' : 'hover:bg-white/5 border border-transparent'
+                      mainView === 'erp' ? 'bg-[#979BF3]/40 border border-[#00b4d8]' : 'hover:bg-white/5 border border-transparent'
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 text-cyan-300 mt-0.5 shrink-0" />
+                    <BookOpen className="w-4 h-4 text-[#979BF3] mt-0.5 shrink-0" />
                     <div>
-                      <div className="text-xs font-bold text-white group-hover:text-cyan-200 font-mono flex items-center gap-1">
+                      <div className="text-xs font-bold text-white group-hover:text-[#979BF3] font-mono flex items-center gap-1">
                         ERP Ledger Gateway
-                        {mainView === 'erp' && <Check className="w-3 h-3 text-cyan-300" />}
+                        {mainView === 'erp' && <Check className="w-3 h-3 text-[#979BF3]" />}
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">Double-entry ledger & chart of accounts</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">Double-entry ledger & chart of accounts</div>
                     </div>
                   </button>
 
@@ -725,7 +743,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     type="button"
                     onClick={() => handleSelectView('multientity', 'Multi-Entity GAAP')}
                     className={`w-full p-2.5 rounded-lg text-left transition-all flex items-start gap-3 cursor-pointer group ${
-                      mainView === 'multientity' ? 'bg-[#0077b6]/40 border border-[#00b4d8]' : 'hover:bg-white/5 border border-transparent'
+                      mainView === 'multientity' ? 'bg-[#979BF3]/40 border border-[#00b4d8]' : 'hover:bg-white/5 border border-transparent'
                     }`}
                   >
                     <Globe className="w-4 h-4 text-teal-300 mt-0.5 shrink-0" />
@@ -734,7 +752,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                         Multi-Entity GAAP
                         {mainView === 'multientity' && <Check className="w-3 h-3 text-teal-300" />}
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">Subsidiary balances & currency translation</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">Subsidiary balances & currency translation</div>
                     </div>
                   </button>
 
@@ -742,7 +760,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     type="button"
                     onClick={() => handleSelectView('procurement', 'Procurement Room')}
                     className={`w-full p-2.5 rounded-lg text-left transition-all flex items-start gap-3 cursor-pointer group ${
-                      mainView === 'procurement' ? 'bg-[#0077b6]/40 border border-[#00b4d8]' : 'hover:bg-white/5 border border-transparent'
+                      mainView === 'procurement' ? 'bg-[#979BF3]/40 border border-[#00b4d8]' : 'hover:bg-white/5 border border-transparent'
                     }`}
                   >
                     <FileSpreadsheet className="w-4 h-4 text-pink-300 mt-0.5 shrink-0" />
@@ -751,7 +769,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                         Procurement & AP
                         {mainView === 'procurement' && <Check className="w-3 h-3 text-pink-300" />}
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">PO 3-way matching & vendor ledger routing</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">PO 3-way matching & vendor ledger routing</div>
                     </div>
                   </button>
                 </div>
@@ -771,7 +789,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     type="button"
                     onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Flow')}
                     className={`w-full p-2.5 rounded-lg text-left transition-all flex items-start gap-3 cursor-pointer group ${
-                      mainView === 'cloudboy_x' ? 'bg-[#0077b6]/40 border border-amber-400' : 'hover:bg-white/5 border border-transparent'
+                      mainView === 'cloudboy_x' ? 'bg-[#979BF3]/40 border border-amber-400' : 'hover:bg-white/5 border border-transparent'
                     }`}
                   >
                     <Zap className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
@@ -780,7 +798,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                         Cloudboy X Gateway
                         {mainView === 'cloudboy_x' && <Check className="w-3 h-3 text-amber-300" />}
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">Reseller routing & Shopify webhook listener</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">Reseller routing & Shopify webhook listener</div>
                     </div>
                   </button>
 
@@ -799,7 +817,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                       <div className="text-xs font-bold text-white group-hover:text-indigo-200 font-mono">
                         AI Copilot Hub
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">Cash forecasting & receipt image OCR</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">Cash forecasting & receipt image OCR</div>
                     </div>
                   </button>
                 </div>
@@ -819,7 +837,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     type="button"
                     onClick={() => handleSelectView('troubleshooting', 'Diagnostics & Isolator')}
                     className={`w-full p-2.5 rounded-lg text-left transition-all flex items-start gap-3 cursor-pointer group ${
-                      mainView === 'troubleshooting' ? 'bg-[#0077b6]/40 border border-emerald-400' : 'hover:bg-white/5 border border-transparent'
+                      mainView === 'troubleshooting' ? 'bg-[#979BF3]/40 border border-emerald-400' : 'hover:bg-white/5 border border-transparent'
                     }`}
                   >
                     <Terminal className="w-4 h-4 text-emerald-300 mt-0.5 shrink-0" />
@@ -828,7 +846,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                         Diagnostics & Isolator
                         {mainView === 'troubleshooting' && <Check className="w-3 h-3 text-emerald-300" />}
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">Daemon threads & worker keepalives</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">Daemon threads & worker keepalives</div>
                     </div>
                   </button>
 
@@ -836,7 +854,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     type="button"
                     onClick={() => handleSelectView('admin', 'System Admin Console')}
                     className={`w-full p-2.5 rounded-lg text-left transition-all flex items-start gap-3 cursor-pointer group ${
-                      mainView === 'admin' ? 'bg-[#0077b6]/40 border border-indigo-400' : 'hover:bg-white/5 border border-transparent'
+                      mainView === 'admin' ? 'bg-[#979BF3]/40 border border-indigo-400' : 'hover:bg-white/5 border border-transparent'
                     }`}
                   >
                     <Shield className="w-4 h-4 text-indigo-300 mt-0.5 shrink-0" />
@@ -845,7 +863,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                         System Admin Console
                         {mainView === 'admin' && <Check className="w-3 h-3 text-indigo-300" />}
                       </div>
-                      <div className="text-[11px] text-[#caf0f8]/60 mt-0.5">Asset locks, audit trail & permissions</div>
+                      <div className="text-[11px] text-white/60 mt-0.5">Asset locks, audit trail & permissions</div>
                     </div>
                   </button>
                 </div>
@@ -865,7 +883,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   {/* External Link to Public Website */}
                   {onExitToMarketing && (
                     <div>
-                      <span className="text-[10px] font-mono text-[#caf0f8]/60 uppercase block mb-1">Public Website</span>
+                      <span className="text-[10px] font-mono text-white/60 uppercase block mb-1">Public Website</span>
                       <button
                         type="button"
                         id="mega-menu-exit-to-marketing-btn"
@@ -873,10 +891,10 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                           onExitToMarketing();
                           setActiveDropdown(null);
                         }}
-                        className="w-full py-2 px-3 text-xs font-mono font-bold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-[#caf0f8] hover:text-white transition-all flex items-center justify-between cursor-pointer"
+                        className="w-full py-2 px-3 text-xs font-mono font-bold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white hover:text-white transition-all flex items-center justify-between cursor-pointer"
                       >
                         <span className="flex items-center gap-2">
-                          <Globe className="w-3.5 h-3.5 text-cyan-300" />
+                          <Globe className="w-3.5 h-3.5 text-[#979BF3]" />
                           Visit Public Website
                         </span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -886,7 +904,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
                   {/* Admin Control Panel action */}
                   <div>
-                    <span className="text-[10px] font-mono text-[#caf0f8]/60 uppercase block mb-1">Administrative Drawer</span>
+                    <span className="text-[10px] font-mono text-white/60 uppercase block mb-1">Administrative Drawer</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -906,7 +924,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
                   {/* Dark Mode Theme Toggle */}
                   <div>
-                    <span className="text-[10px] font-mono text-[#caf0f8]/60 uppercase block mb-1">Theme Preference</span>
+                    <span className="text-[10px] font-mono text-white/60 uppercase block mb-1">Theme Preference</span>
                     <button
                       type="button"
                       onClick={() => setIsDarkMode(prev => !prev)}
@@ -916,13 +934,13 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                         {isDarkMode ? <Sun className="w-3.5 h-3.5 text-amber-300" /> : <Moon className="w-3.5 h-3.5 text-sky-200" />}
                         {isDarkMode ? "Active: Dark Canvas" : "Active: Maritime Light"}
                       </span>
-                      <span className="text-[10px] text-cyan-300 font-normal">Toggle</span>
+                      <span className="text-[10px] text-[#979BF3] font-normal">Toggle</span>
                     </button>
                   </div>
 
                   {/* Reset SQL Ledger Maintenance */}
                   <div>
-                    <span className="text-[10px] font-mono text-[#caf0f8]/60 uppercase block mb-1">Quick Maintenance</span>
+                    <span className="text-[10px] font-mono text-white/60 uppercase block mb-1">Quick Maintenance</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -931,7 +949,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                       }}
                       className="w-full py-2 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-200 hover:text-white text-xs font-mono font-bold rounded-lg border border-rose-400/30 flex items-center gap-2 cursor-pointer transition-colors"
                     >
-                      <RefreshCw className="w-3.5 h-3.5 text-rose-400" />
+                      <RefreshCw className="w-3.5 h-3.5 text-[#E00728]" />
                       Reset General Ledger
                     </button>
                   </div>
@@ -952,7 +970,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       {isMobileMenuOpen && (
         <div 
           id="mobile-nav-drawer" 
-          className="absolute top-full left-0 right-0 bg-[#021333]/98 backdrop-blur-2xl border-b-4 border-[#00b4d8] shadow-2xl z-50 p-4 sm:p-6 animate-fadeIn max-h-[calc(100vh-100px)] overflow-y-auto"
+          className="absolute top-full left-0 right-0 bg-[#1C1B21]/98 backdrop-blur-2xl border-b-4 border-[#00b4d8] shadow-2xl z-50 p-4 sm:p-6 animate-fadeIn max-h-[calc(100vh-100px)] overflow-y-auto"
           role="dialog"
           aria-label="Navigation and Administrative Drawer"
         >
@@ -960,11 +978,11 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
           {/* Drawer Header with Title and Close Button */}
           <div className="flex items-center justify-between pb-3 border-b border-white/15">
             <div>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4 text-[#00b4d8]" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#979BF3] flex items-center gap-2">
+                <LayoutGrid className="w-4 h-4 text-[#979BF3]" />
                 Navigation & Control Center
               </span>
-              <p className="text-[11px] text-[#caf0f8]/60 mt-0.5">All modules & administrative functions</p>
+              <p className="text-[11px] text-white/60 mt-0.5">All modules & administrative functions</p>
             </div>
             <button
               type="button"
@@ -980,15 +998,15 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
           {/* 1. ADMIN NAVIGATION CARD (Nested under Hamburger on Tablet & Mobile) */}
           <div className="p-3.5 bg-gradient-to-r from-[#0077b6]/35 to-[#00b4d8]/20 border border-[#00b4d8]/40 rounded-xl space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-200 font-bold flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-cyan-300" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#979BF3] font-bold flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[#979BF3]" />
                 Administrative Oversight
               </span>
-              <span className="text-[9px] font-mono font-bold bg-[#00b4d8]/30 text-cyan-200 px-1.5 py-0.5 rounded border border-[#00b4d8]/40">
+              <span className="text-[9px] font-mono font-bold bg-[#979BF3]/30 text-[#979BF3] px-1.5 py-0.5 rounded border border-[#00b4d8]/40">
                 MASTER
               </span>
             </div>
-            <p className="text-[11px] text-[#caf0f8]/70 leading-snug">
+            <p className="text-[11px] text-white/70 leading-snug">
               Access element branding locks, audit trail logs, reseller roles & ledger calibration.
             </p>
             <button
@@ -1017,7 +1035,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               </div>
               <div>
                 <div className="text-xs font-mono font-bold text-white">Theme Preference</div>
-                <div className="text-[10px] font-mono text-cyan-200/70">
+                <div className="text-[10px] font-mono text-[#979BF3]/70">
                   {isDarkMode ? "Current: High-Contrast Dark Canvas" : "Current: Maritime Light Mode"}
                 </div>
               </div>
@@ -1046,10 +1064,10 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
             <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
               <div>
                 <div className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-cyan-300" />
+                  <Globe className="w-3.5 h-3.5 text-[#979BF3]" />
                   Public Website
                 </div>
-                <div className="text-[10px] text-[#caf0f8]/60 mt-0.5">Return to public marketing homepage</div>
+                <div className="text-[10px] text-white/60 mt-0.5">Return to public marketing homepage</div>
               </div>
               <button
                 type="button"
@@ -1070,13 +1088,13 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
           <div className="p-3 bg-gradient-to-r from-cyan-950/60 to-blue-950/60 border border-cyan-400/30 rounded-xl flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-cyan-300" />
+                <Layers className="w-4 h-4 text-[#979BF3]" />
                 <span className="text-xs font-mono font-bold text-cyan-100 uppercase tracking-wide">
                   Module Access
                 </span>
               </div>
               {currentUser && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-400/20 text-[#979BF3] border border-cyan-400/30">
                   {currentUser.planType === 'full_suite' ? 'Full Suite' : `${currentUser.selectedModules.length} Modules`}
                 </span>
               )}
@@ -1090,7 +1108,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     onOpenModuleSwitcher();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 text-xs font-mono font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-[#979BF3] text-xs font-mono font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
                 >
                   <Layers className="w-3.5 h-3.5" />
                   <span>My Modules</span>
@@ -1106,7 +1124,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   }}
                   className="p-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
                 >
-                  <LayoutGrid className="w-3.5 h-3.5 text-[#90e0ef]" />
+                  <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3]" />
                   <span>Central Hub</span>
                 </button>
               )}
@@ -1118,7 +1136,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
             
             {/* Group A: Core Accounting Ledgers */}
             <div className="space-y-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-300/80 font-bold block px-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#979BF3]/80 font-bold block px-1">
                 Core Accounting Ledgers
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1130,18 +1148,18 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   onClick={() => handleSelectView('erp', 'ERP Ledger Gateway')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'erp' 
-                      ? 'bg-[#0077b6] text-white border-cyan-300 shadow-md ring-1 ring-cyan-300' 
-                      : 'bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10'
+                      ? 'bg-[#979BF3] text-white border-cyan-300 shadow-md ring-1 ring-cyan-300' 
+                      : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <BookOpen className="w-4 h-4 text-cyan-300 shrink-0" />
+                    <BookOpen className="w-4 h-4 text-[#979BF3] shrink-0" />
                     <div>
                       <div className="text-xs font-bold">ERP Ledger Gateway</div>
                       <div className="text-[10px] text-white/60 font-normal">Double-entry ledger & chart of accounts</div>
                     </div>
                   </div>
-                  {mainView === 'erp' && <Check className="w-4 h-4 text-cyan-200 shrink-0" />}
+                  {mainView === 'erp' && <Check className="w-4 h-4 text-[#979BF3] shrink-0" />}
                 </button>
 
                 {/* Module 2: Multi-Entity GAAP */}
@@ -1151,8 +1169,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   onClick={() => handleSelectView('multientity', 'Multi-Entity GAAP')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'multientity' 
-                      ? 'bg-[#0077b6] text-white border-cyan-300 shadow-md ring-1 ring-cyan-300' 
-                      : 'bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10'
+                      ? 'bg-[#979BF3] text-white border-cyan-300 shadow-md ring-1 ring-cyan-300' 
+                      : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -1172,8 +1190,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   onClick={() => handleSelectView('procurement', 'Procurement Room')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'procurement' 
-                      ? 'bg-[#0077b6] text-white border-cyan-300 shadow-md ring-1 ring-cyan-300' 
-                      : 'bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10'
+                      ? 'bg-[#979BF3] text-white border-cyan-300 shadow-md ring-1 ring-cyan-300' 
+                      : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -1203,8 +1221,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Flow')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'cloudboy_x' 
-                      ? 'bg-[#0077b6] text-white border-amber-300 shadow-md ring-1 ring-amber-300' 
-                      : 'bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10'
+                      ? 'bg-[#979BF3] text-white border-amber-300 shadow-md ring-1 ring-amber-300' 
+                      : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -1226,7 +1244,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                       onTriggerBotPrompt("Provide an overview of our double-entry ledger status and predictive trends.");
                     }
                   }}
-                  className="w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10"
+                  className="w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border bg-white/5 hover:bg-white/10 text-white border-white/10"
                 >
                   <div className="flex items-center gap-2.5">
                     <Sparkles className="w-4 h-4 text-indigo-300 shrink-0" />
@@ -1255,8 +1273,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   onClick={() => handleSelectView('troubleshooting', 'Diagnostics & Isolator')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'troubleshooting' 
-                      ? 'bg-[#0077b6] text-white border-emerald-300 shadow-md ring-1 ring-emerald-300' 
-                      : 'bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10'
+                      ? 'bg-[#979BF3] text-white border-emerald-300 shadow-md ring-1 ring-emerald-300' 
+                      : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -1276,8 +1294,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   onClick={() => handleSelectView('admin', 'System Admin Console')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'admin' 
-                      ? 'bg-[#0077b6] text-white border-indigo-300 shadow-md ring-1 ring-indigo-300' 
-                      : 'bg-white/5 hover:bg-white/10 text-[#caf0f8] border-white/10'
+                      ? 'bg-[#979BF3] text-white border-indigo-300 shadow-md ring-1 ring-indigo-300' 
+                      : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -1305,10 +1323,10 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               }}
               className="py-2 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-200 text-xs font-mono font-bold rounded-lg border border-rose-400/30 flex items-center gap-2 cursor-pointer transition-colors active:scale-95"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+              <RefreshCw className="w-3.5 h-3.5 text-[#E00728] shrink-0" />
               <span>Reset General Ledger</span>
             </button>
-            <span className="text-[10px] font-mono text-cyan-200/50">Double-Entry Mode</span>
+            <span className="text-[10px] font-mono text-[#979BF3]/50">Double-Entry Mode</span>
           </div>
 
           </div>

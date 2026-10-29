@@ -88,6 +88,7 @@ import { ModuleAccessHub } from './components/ModuleAccessHub';
 import { ModuleSwitcherModal } from './components/ModuleSwitcherModal';
 import { UserAccount, AuthModal } from './components/AuthModal';
 import SecurityAuditModule from './components/SecurityAuditModule';
+import MapProtectionModule from './components/MapProtectionModule';
 
 export { CorporateBrandLogo };
 
@@ -275,7 +276,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'suite' | 'hub') => {
+  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'suite' | 'hub') => {
     if (target === 'hub') {
       navigateToHub();
       return;
@@ -286,6 +287,8 @@ export default function App() {
       setMainView('cloudboy_x');
     } else if (target === 'procurement') {
       setMainView('procurement');
+    } else if (target === 'map_protection') {
+      setMainView('map_protection');
     }
     setAppMode('suite');
     try {
@@ -306,7 +309,7 @@ export default function App() {
 
   // Feed source channels state
   const [activeTab, setActiveTab] = useState<'shopify' | 'legacy_csv' | 'edi' | 'ai_mapped'>('shopify');
-  const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity'>('erp');
+  const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection'>('erp');
   const [activeBot, setActiveBot] = useState<'erp_gateway' | 'cloudboy_transit' | 'backend_isolator'>('erp_gateway');
 
   // Trigger automated helper prompt from our connection assistant bot
@@ -4943,12 +4946,12 @@ export default function App() {
 
   return (
     <ClickToEditContext.Provider value={{ isClickToEditActive, setActiveEditorField, lockedFields, isAdminMode, onPostMessage: (text, type) => setLedgerMessage({ text, type }) }}>
-      <div className={`min-h-screen font-sans antialiased pb-20 transition-colors duration-200 ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#fafaf9] text-[#1c1917]'}`}>
+      <div className={`min-h-screen font-sans antialiased pb-20 transition-colors duration-200 ${isDarkMode ? 'dark bg-[#1C1B21] text-white' : 'bg-[#FAFAF9] text-[#1C1B21]'}`}>
       
       {/* Anchored / Sticky Header & Mega Menu Navigation Suite */}
       <div id="anchored-header-container" className="sticky top-0 z-40 w-full shadow-lg transition-all">
         {/* Banner/Header Workspace */}
-        <header className="bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] text-white border-b border-[#0096c7]/40">
+        <header className="bg-[#1C1B21] text-white border-b border-[#3B3947]">
           <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div 
@@ -4967,10 +4970,10 @@ export default function App() {
                 type="button"
                 id="header-exit-to-marketing-btn"
                 onClick={navigateToMarketing}
-                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-cyan-200 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-[#979BF3] hover:text-white bg-[#24232B] hover:bg-[#2C2B35] border border-[#3B3947] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 title="Exit to the public CloudboyX marketing website"
               >
-                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-cyan-300" />
+                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-[#979BF3]" />
                 <span>Public Website</span>
               </button>
             </div>
@@ -10034,6 +10037,7 @@ export default function App() {
             onPostMessage={(text, type) => setLedgerMessage({ text, type })} 
             isAdminMode={isAdminMode}
             lockedFields={lockedFields}
+            onNavigateToMapSuite={() => setMainView('map_protection')}
           />
         </main>
       )}
@@ -10086,6 +10090,16 @@ export default function App() {
           <DiagnosticsPanel 
             onRefreshStats={fetchLedgerState} 
             onPostMessage={(text, type) => setLedgerMessage({ text, type })} 
+          />
+        </main>
+      )}
+
+      {/* Brand Reputation & MAP Protection Suite Section */}
+      {mainView === 'map_protection' && (
+        <main className="w-full">
+          <MapProtectionModule 
+            onBackToCentralHub={navigateToHub}
+            onNavigateToModule={(mod) => navigateToSuite(mod as any)}
           />
         </main>
       )}
@@ -11569,6 +11583,8 @@ export default function App() {
             setMainView('cloudboy_x');
           } else if (modKey === 'procurement') {
             setMainView('procurement');
+          } else if (modKey === 'map_protection') {
+            setMainView('map_protection');
           }
         }}
         onOpenUpgradeModal={() => {

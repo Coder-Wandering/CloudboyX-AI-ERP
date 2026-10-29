@@ -41,13 +41,15 @@ interface CloudboyXPortalProps {
   onPostMessage: (text: string, type: 'success' | 'err') => void;
   isAdminMode?: boolean;
   lockedFields?: string[];
+  onNavigateToMapSuite?: () => void;
 }
 
 export default function CloudboyXPortal({ 
   onRefreshStats, 
   onPostMessage,
   isAdminMode = true,
-  lockedFields = []
+  lockedFields = [],
+  onNavigateToMapSuite
 }: CloudboyXPortalProps) {
   const isBackendLocked = !isAdminMode && lockedFields.includes('systemBackendSettings');
 
@@ -445,7 +447,7 @@ export default function CloudboyXPortal({
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
-          🛡️ Brand Reputation & MAP
+          🛡️ Brand Reputation & Feeds
         </button>
         <button
           onClick={() => setActivePortalTab('rerouting')}
@@ -465,7 +467,7 @@ export default function CloudboyXPortal({
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
-          🔒 Endpoint Shield Guard
+          🔒 Enterprise CyberShield Security Operations Center (SOC)
         </button>
       </div>
 
@@ -478,6 +480,7 @@ export default function CloudboyXPortal({
           resellers={resellers}
           onTriggerReputationScan={handleTriggerReputationScan}
           onPostMessage={onPostMessage}
+          onNavigateToMapSuite={onNavigateToMapSuite}
         />
       ) : activePortalTab === 'rerouting' ? (
         <RealtimeRoutingSection

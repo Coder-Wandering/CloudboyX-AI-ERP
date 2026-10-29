@@ -27,7 +27,7 @@ import { UserAccount } from './AuthModal';
 
 interface ModuleAccessHubProps {
   currentUser: UserAccount | null;
-  onLaunchModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'suite') => void;
+  onLaunchModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'suite') => void;
   onExitToMarketing: () => void;
   onSignOut: () => void;
   onOpenUpgradeModal: () => void;
@@ -57,21 +57,21 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
     avatarInitials: 'EV'
   };
 
-  const isModuleUnlocked = (mod: 'ledger' | 'ingress' | 'procurement') => {
+  const isModuleUnlocked = (mod: 'ledger' | 'ingress' | 'procurement' | 'map_protection') => {
     if (user.planType === 'full_suite') return true;
-    return user.selectedModules.includes(mod);
+    return user.selectedModules.includes(mod as any);
   };
 
-  const unlockedCount = ['ledger', 'ingress', 'procurement'].filter(m => isModuleUnlocked(m as any)).length;
+  const unlockedCount = ['ledger', 'ingress', 'procurement', 'map_protection'].filter(m => isModuleUnlocked(m as any)).length;
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-200 ${
-      isDarkMode ? 'bg-[#060a14] text-slate-100' : 'bg-slate-50 text-slate-900'
+      isDarkMode ? 'bg-[#1C1B21] text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
       {/* ────────────────────────────────────────────────────────── */}
       {/* TOP HEADER BAR                                             */}
       {/* ────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md border-b bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] text-white border-[#0096c7]/30 shadow-md">
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md border-b bg-[#1C1B21] text-white border-b border-[#3B3947] shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div 
@@ -81,7 +81,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
             >
               <CorporateBrandLogo className="h-10 w-auto max-w-[180px] object-contain drop-shadow-md" />
             </div>
-            <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 border border-white/20 text-cyan-200">
+            <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 border border-white/20 text-[#979BF3]">
               CENTRAL ACCESS HUB
             </span>
           </div>
@@ -89,12 +89,12 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
           <div className="flex items-center gap-3">
             {/* User Profile Pill */}
             <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/20">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-400 to-blue-500 text-slate-950 font-mono font-extrabold text-xs flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-[#979BF3] text-[#1C1B21] font-black font-mono font-extrabold text-xs flex items-center justify-center">
                 {user.avatarInitials}
               </div>
               <div className="hidden md:block text-left text-xs font-mono leading-tight">
                 <div className="font-bold text-white truncate max-w-[140px]">{user.name}</div>
-                <div className="text-[10px] text-cyan-200 truncate max-w-[140px]">{user.company}</div>
+                <div className="text-[10px] text-[#979BF3] truncate max-w-[140px]">{user.company}</div>
               </div>
             </div>
 
@@ -102,7 +102,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
             <button
               type="button"
               onClick={onExitToMarketing}
-              className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-cyan-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-[#979BF3] hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>Public Site</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -112,7 +112,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
             <button
               type="button"
               onClick={onSignOut}
-              className="p-2 rounded-lg bg-white/10 hover:bg-rose-500/20 hover:text-rose-300 text-cyan-200 transition-colors cursor-pointer"
+              className="p-2 rounded-lg bg-white/10 hover:bg-rose-500/20 hover:text-rose-300 text-[#979BF3] transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -139,14 +139,14 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
         {/* Welcome Banner */}
         <div className={`p-8 sm:p-10 rounded-3xl border shadow-xl mb-12 relative overflow-hidden ${
           isDarkMode 
-            ? 'bg-gradient-to-br from-[#0a1226] via-[#091022] to-[#040814] border-slate-800' 
+            ? 'bg-[#24232B] border-[#3B3947]' 
             : 'bg-gradient-to-br from-white via-blue-50/40 to-slate-100 border-slate-200'
         }`}>
           <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#0077b6]/10 text-[#0077b6] dark:text-[#48cae4] border border-[#0077b6]/20 mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#0077b6]/10 text-[#979BF3] dark:text-[#979BF3] border border-[#0077b6]/20 mb-3">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Central Modular Launchpad & Engine Switcher</span>
               </div>
@@ -163,7 +163,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
               <button
                 type="button"
                 onClick={() => onLaunchModule('suite')}
-                className="px-6 py-3.5 bg-gradient-to-r from-[#0077b6] to-[#023e8a] hover:from-[#023e8a] hover:to-[#0096c7] text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer border border-[#48cae4]/30"
+                className="px-6 py-3.5 bg-[#979BF3] hover:bg-[#B4B7F7] text-[#1C1B21] font-mono font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer border border-[#979BF3]"
               >
                 <PackageCheck className="w-4 h-4" />
                 <span>Launch Unified Suite</span>
@@ -196,7 +196,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
             </div>
             <div>
               <div className="text-slate-400 text-[10px] uppercase">Unlocked Modules</div>
-              <div className="font-bold text-cyan-600 dark:text-cyan-400 mt-0.5">
+              <div className="font-bold text-cyan-600 dark:text-[#979BF3] mt-0.5">
                 {unlockedCount} of 3 Available
               </div>
             </div>
@@ -227,13 +227,13 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* ──────────────── MODULE 1 CARD ──────────────── */}
           <div className={`rounded-3xl border-2 flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
             isModuleUnlocked('ledger')
               ? isDarkMode
-                ? 'bg-[#0a1124] border-cyan-500/40 shadow-xl shadow-cyan-950/20 hover:border-cyan-400'
+                ? 'bg-[#24232B] border-[#979BF3]/40 shadow-xl shadow-cyan-950/20 hover:border-cyan-400'
                 : 'bg-white border-[#0077b6] shadow-lg hover:border-blue-700'
               : isDarkMode
                 ? 'bg-slate-900/40 border-slate-800 opacity-70 hover:opacity-100'
@@ -261,7 +261,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
 
               {/* Module Title */}
               <div className="flex items-center gap-2.5 mb-2">
-                <div className="p-2 rounded-xl bg-blue-500/10 text-[#0077b6] dark:text-cyan-400">
+                <div className="p-2 rounded-xl bg-blue-500/10 text-[#979BF3] dark:text-[#979BF3]">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <h3 className="text-lg font-bold">Universal General Ledger & Balancing Engine</h3>
@@ -293,7 +293,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
 
               {/* Operational Stats Preview */}
               <div className={`p-4 rounded-xl border text-[11px] font-mono ${
-                isDarkMode ? 'bg-[#060b17] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+                isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}>
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-slate-400">Ledger Invariant:</span>
@@ -312,7 +312,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 <button
                   type="button"
                   onClick={() => onLaunchModule('ledger')}
-                  className="w-full py-3 bg-[#0077b6] hover:bg-[#023e8a] active:scale-98 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-98 text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span>Launch General Ledger ➔</span>
@@ -334,7 +334,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
           <div className={`rounded-3xl border-2 flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
             isModuleUnlocked('ingress')
               ? isDarkMode
-                ? 'bg-[#0a1124] border-purple-500/40 shadow-xl shadow-purple-950/20 hover:border-purple-400'
+                ? 'bg-[#24232B] border-[#979BF3]/40 shadow-xl shadow-purple-950/20 hover:border-purple-400'
                 : 'bg-white border-purple-600 shadow-lg hover:border-purple-800'
               : isDarkMode
                 ? 'bg-slate-900/40 border-slate-800 opacity-70 hover:opacity-100'
@@ -394,7 +394,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
 
               {/* Operational Stats Preview */}
               <div className={`p-4 rounded-xl border text-[11px] font-mono ${
-                isDarkMode ? 'bg-[#060b17] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+                isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}>
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-slate-400">Ingress Status:</span>
@@ -413,7 +413,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 <button
                   type="button"
                   onClick={() => onLaunchModule('ingress')}
-                  className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 active:scale-98 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-98 text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Zap className="w-4 h-4" />
                   <span>Launch Ingress & AI Gateway ➔</span>
@@ -435,7 +435,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
           <div className={`rounded-3xl border-2 flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
             isModuleUnlocked('procurement')
               ? isDarkMode
-                ? 'bg-[#0a1124] border-emerald-500/40 shadow-xl shadow-emerald-950/20 hover:border-emerald-400'
+                ? 'bg-[#24232B] border-[#979BF3]/40 shadow-xl shadow-emerald-950/20 hover:border-emerald-400'
                 : 'bg-white border-emerald-600 shadow-lg hover:border-emerald-800'
               : isDarkMode
                 ? 'bg-slate-900/40 border-slate-800 opacity-70 hover:opacity-100'
@@ -495,7 +495,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
 
               {/* Operational Stats Preview */}
               <div className={`p-4 rounded-xl border text-[11px] font-mono ${
-                isDarkMode ? 'bg-[#060b17] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+                isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}>
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-slate-400">Daemon Mesh:</span>
@@ -514,7 +514,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 <button
                   type="button"
                   onClick={() => onLaunchModule('procurement')}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-98 text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <ShieldCheck className="w-4 h-4" />
                   <span>Launch Procurement & Ops ➔</span>
@@ -532,11 +532,112 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
             </div>
           </div>
 
+          {/* ──────────────── MODULE 4 CARD ──────────────── */}
+          <div className={`rounded-3xl border-2 flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
+            isModuleUnlocked('map_protection')
+              ? isDarkMode
+                ? 'bg-[#24232B] border-[#E00728]/50 shadow-xl shadow-rose-950/20 hover:border-rose-400'
+                : 'bg-white border-rose-500 shadow-lg hover:border-rose-700'
+              : isDarkMode
+                ? 'bg-slate-900/40 border-slate-800 opacity-70 hover:opacity-100'
+                : 'bg-slate-100/70 border-slate-300 opacity-70 hover:opacity-100'
+          }`}>
+            <div className="p-7">
+              {/* Header Status */}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-mono font-extrabold uppercase px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                  MODULE 04 · FOCAL SUITE
+                </span>
+
+                {isModuleUnlocked('map_protection') ? (
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>UNLOCKED & ACTIVE</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-500/10 text-slate-500 border border-slate-500/20 flex items-center gap-1.5">
+                    <Lock className="w-3 h-3" />
+                    <span>NOT INCLUDED</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Module Title */}
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold">Brand Reputation & Autonomous MAP Protection</h3>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                Private Data Vault, 240+ touchpoint batch SKU scrapers (Amazon, Walmart, TikTok Shop, eBay), courtroom screenshot hashing, 1-click Cease &amp; Desist dispatch, automated email alerts, and Sentinel AI bot.
+              </p>
+
+              {/* Features List */}
+              <div className="space-y-2 text-xs font-mono mb-6">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>240+ Listing touchpoint circular sweeps</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Courtroom screenshot evidence hashing</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>1-Click Lanham Act Cease &amp; Desist generator</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Regional MAP compliance heatmaps &amp; timeline</span>
+                </div>
+              </div>
+
+              {/* Operational Stats Preview */}
+              <div className={`p-4 rounded-xl border text-[11px] font-mono ${
+                isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-slate-400">Detection Mesh:</span>
+                  <span className="font-bold text-rose-500">240 Active SKUs Crawled</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Brand Sentiment:</span>
+                  <span className="font-bold text-emerald-500">94.2% Positive Index</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Launch or Unlock Button */}
+            <div className="p-7 pt-0">
+              {isModuleUnlocked('map_protection') ? (
+                <button
+                  type="button"
+                  onClick={() => onLaunchModule('map_protection')}
+                  className="w-full py-3 bg-gradient-to-r from-rose-600 via-[#0077b6] to-[#023e8a] hover:from-rose-500 hover:to-[#0096c7] active:scale-98 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Launch MAP Protection Suite ➔</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onOpenUpgradeModal}
+                  className="w-full py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-mono font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Unlock Module 04 ($399/mo)</span>
+                </button>
+              )}
+            </div>
+          </div>
+
         </div>
 
         {/* ──────────────── CYBERSHIELD SECURITY OPERATIONS CARD ──────────────── */}
         <div className={`mt-8 rounded-3xl border-2 p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative overflow-hidden transition-all ${
-          isDarkMode ? 'bg-[#060e22] border-indigo-500/40 text-white' : 'bg-white border-indigo-300 text-slate-900 shadow-md'
+          isDarkMode ? 'bg-[#1C1B21] border-indigo-500/40 text-white' : 'bg-white border-indigo-300 text-slate-900 shadow-md'
         }`}>
           <div className="space-y-3 max-w-2xl">
             <div className="flex items-center gap-2">
@@ -588,7 +689,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
               onClick={() => onLaunchModule('ingress')}
               className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
-              <Shield className="w-4 h-4 text-cyan-200" />
+              <Shield className="w-4 h-4 text-[#979BF3]" />
               <span>Open CyberShield SOC Console ➔</span>
             </button>
 

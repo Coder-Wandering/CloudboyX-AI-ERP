@@ -16,6 +16,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import alasql from 'alasql';
 import { UniversalGateway } from './src/gateway';
 import { CanonicalOrder, CanonicalLineItem } from './src/canonical';
+import { registerMapProtectionRoutes } from './src/server/mapProtectionRoutes';
 
 // Setup file URL helpers for ES Modules format
 const __filename = typeof import.meta !== 'undefined' && import.meta.url ? fileURLToPath(import.meta.url) : '';
@@ -1934,6 +1935,9 @@ Invoice Total Due Amount: $[TOTAL DUE]`
       res.status(500).json({ success: false, error: err.message });
     }
   });
+
+  // Mount CloudboyX MAP Protection & Brand Defense Suite Routes
+  registerMapProtectionRoutes(app);
 
   // Vite development vs production asset serving pipeline
   if (process.env.NODE_ENV !== 'production') {

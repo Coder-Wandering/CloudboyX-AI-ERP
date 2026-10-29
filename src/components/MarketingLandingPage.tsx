@@ -50,7 +50,14 @@ import {
   FileKey,
   Hash,
   Fingerprint,
-  AlertTriangle
+  AlertTriangle,
+  Camera,
+  FileCheck,
+  Mail,
+  MapPin,
+  TrendingDown,
+  Send,
+  Inbox
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { AuthModal, UserAccount } from './AuthModal';
@@ -202,12 +209,12 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   ];
 
   return (
-    <div className={`w-full min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-[#090d16] text-[#f8fafc]' : 'bg-[#fafaf9] text-[#1c1917]'}`}>
+    <div className={`w-full min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-[#1C1B21] text-[#f8fafc]' : 'bg-[#fafaf9] text-[#1c1917]'}`}>
       
       {/* ────────────────────────────────────────────────────────── */}
       {/* 1. TOP GLOBAL ANNOUNCEMENT BANNER                          */}
       {/* ────────────────────────────────────────────────────────── */}
-      <aside aria-label="Announcement" className="bg-gradient-to-r from-[#03045e] via-[#0077b6] to-[#00b4d8] text-white py-2 px-4 text-xs font-mono text-center font-semibold border-b border-[#0096c7]/40 flex items-center justify-center gap-2 flex-wrap">
+      <aside aria-label="Announcement" className="bg-[#1C1B21] text-white py-2 px-4 text-xs font-mono text-center font-semibold border-b border-[#3B3947] flex items-center justify-center gap-2 flex-wrap">
         <span className="bg-white/20 text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
           New Release
         </span>
@@ -224,7 +231,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* 2. MARKETING NAVIGATION HEADER (Bootstrap style container) */}
       {/* ────────────────────────────────────────────────────────── */}
       <header className={`sticky top-0 z-50 border-b backdrop-blur-md transition-colors ${
-        isDarkMode ? 'bg-[#0f172a]/90 border-slate-800 shadow-md' : 'bg-white/90 border-slate-200 shadow-xs'
+        isDarkMode ? 'bg-[#24232B]/90 border-slate-800 shadow-md' : 'bg-white/90 border-slate-200 shadow-xs'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
           
@@ -237,20 +244,24 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
           {/* Nav Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs font-mono font-bold tracking-wide">
-            <a href="#modules" className="text-[#0077b6] dark:text-[#48cae4] hover:underline flex items-center gap-1">
+            <a href="#modules" className="text-[#979BF3] dark:text-[#979BF3] hover:underline flex items-center gap-1">
               <Layers className="w-3.5 h-3.5" />
               <span>3 Modules</span>
+            </a>
+            <a href="#brand-protection" className="text-[#E00728] dark:text-[#E00728] hover:underline flex items-center gap-1 font-bold">
+              <ShieldAlert className="w-3.5 h-3.5 text-[#E00728]" />
+              <span>MAP & Brand Protection</span>
             </a>
             <a href="#security" className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-bold">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>CyberShield SOC</span>
             </a>
-            <a href="#features" className="hover:text-[#0077b6] transition-colors">Features</a>
-            <a href="#simulator" className="hover:text-[#0077b6] transition-colors">How It Works</a>
-            <a href="#architecture" className="hover:text-[#0077b6] transition-colors">Architecture</a>
-            <a href="#testimonials" className="hover:text-[#0077b6] transition-colors">Enterprise Proof</a>
-            <a href="#pricing" className="hover:text-[#0077b6] transition-colors">Pricing & Plans</a>
-            <a href="#faq" className="hover:text-[#0077b6] transition-colors">FAQ</a>
+            <a href="#features" className="hover:text-[#979BF3] transition-colors">Features</a>
+            <a href="#simulator" className="hover:text-[#979BF3] transition-colors">How It Works</a>
+            <a href="#architecture" className="hover:text-[#979BF3] transition-colors">Architecture</a>
+            <a href="#testimonials" className="hover:text-[#979BF3] transition-colors">Enterprise Proof</a>
+            <a href="#pricing" className="hover:text-[#979BF3] transition-colors">Pricing & Plans</a>
+            <a href="#faq" className="hover:text-[#979BF3] transition-colors">FAQ</a>
           </nav>
 
           {/* Right Action Buttons */}
@@ -284,7 +295,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   </span>
                   <div className="text-left hidden lg:block leading-tight">
                     <div className="font-bold truncate max-w-[110px] text-xs">{currentUser.name}</div>
-                    <div className="text-[9px] text-[#0077b6] dark:text-[#48cae4]">
+                    <div className="text-[9px] text-[#979BF3] dark:text-[#979BF3]">
                       {currentUser.planType === 'full_suite' || currentUser.selectedModules.length === 3 ? 'Full Suite Plan' : `${currentUser.selectedModules.length} Modules Custom`}
                     </div>
                   </div>
@@ -306,7 +317,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   type="button"
                   id="marketing-header-suite-btn"
                   onClick={() => onLaunchApp('suite')}
-                  className="px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] hover:from-[#03045e] hover:to-[#0077b6] active:scale-95 text-white text-xs sm:text-sm font-mono font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer border border-[#48cae4]/50"
+                  className="px-3 py-2 sm:px-4 sm:py-2.5 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-95 text-white text-xs sm:text-sm font-mono font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer border border-[#979BF3]"
                   title="Enter Enterprise Suite"
                 >
                   <span className="hidden sm:inline">Enter Suite</span>
@@ -317,7 +328,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="p-2 rounded-lg border text-slate-400 hover:text-rose-500 hover:border-rose-400/50 transition-colors cursor-pointer"
+                  className="p-2 rounded-lg border text-slate-400 hover:text-[#E00728] hover:border-rose-400/50 transition-colors cursor-pointer"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -328,7 +339,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={() => openAuthWithPlan('signin')}
-                  className="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 hover:text-[#0077b6] dark:hover:text-cyan-300 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 hover:text-[#979BF3] dark:hover:text-cyan-300 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In</span>
@@ -337,7 +348,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={() => openAuthWithPlan('signup', true)}
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] hover:from-[#03045e] hover:to-[#0077b6] active:scale-95 text-white text-xs sm:text-sm font-mono font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer border border-[#48cae4]/50"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-95 text-white text-xs sm:text-sm font-mono font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer border border-[#979BF3]"
                 >
                   <UserPlus className="w-3.5 h-3.5 shrink-0" />
                   <span className="hidden sm:inline">Sign Up Free</span>
@@ -365,13 +376,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
           <div className={`md:hidden border-t px-4 py-4 space-y-3 font-mono text-sm ${
-            isDarkMode ? 'bg-[#0a0f1d] border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-700 shadow-lg'
+            isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-700 shadow-lg'
           }`}>
             {/* Mobile Auth Status Card */}
             {currentUser ? (
               <div className="p-3 rounded-xl border bg-slate-100/80 dark:bg-slate-850/80 border-slate-200 dark:border-slate-750 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-full bg-[#0077b6] text-white flex items-center justify-center font-bold text-xs">
+                  <span className="w-7 h-7 rounded-full bg-[#979BF3] text-[#1C1B21] text-white flex items-center justify-center font-bold text-xs">
                     {currentUser.avatarInitials}
                   </span>
                   <div>
@@ -382,7 +393,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-2 py-1 text-xs text-rose-500 hover:underline flex items-center gap-1"
+                  className="px-2 py-1 text-xs text-[#E00728] hover:underline flex items-center gap-1"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>
@@ -401,7 +412,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={() => { setIsMobileMenuOpen(false); openAuthWithPlan('signup', true); }}
-                  className="py-2 px-3 rounded-lg bg-[#0077b6] text-white text-center font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                  className="py-2 px-3 rounded-lg bg-[#979BF3] text-[#1C1B21] text-white text-center font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>Sign Up</span>
@@ -412,10 +423,18 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             <a 
               href="#modules" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors font-bold text-[#0077b6] dark:text-[#48cae4] flex items-center gap-2"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors font-bold text-[#979BF3] dark:text-[#979BF3] flex items-center gap-2"
             >
               <Layers className="w-4 h-4" />
               <span>3 Core Modules</span>
+            </a>
+            <a 
+              href="#brand-protection" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              className="block py-2 px-3 rounded-lg hover:bg-[#E00728]/15 text-[#E00728] dark:text-[#E00728] transition-colors font-bold flex items-center gap-2"
+            >
+              <ShieldAlert className="w-4 h-4 text-[#E00728]" />
+              <span>MAP & Brand Protection Suite</span>
             </a>
             <a 
               href="#security" 
@@ -428,42 +447,42 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             <a 
               href="#features" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
             >
               Features
             </a>
             <a 
               href="#simulator" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
             >
               How It Works
             </a>
             <a 
               href="#architecture" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors font-bold text-[#0077b6] dark:text-[#48cae4]"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors font-bold text-[#979BF3] dark:text-[#979BF3]"
             >
               Architecture
             </a>
             <a 
               href="#testimonials" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
             >
               Enterprise Proof
             </a>
             <a 
               href="#pricing" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
             >
               Pricing
             </a>
             <a 
               href="#faq" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#0077b6]/10 hover:text-[#0077b6] transition-colors"
+              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
             >
               FAQ
             </a>
@@ -482,19 +501,19 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-[#0077b6]/10 border border-[#0096c7]/30 text-[#0077b6] dark:text-[#90e0ef] mb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-[#979BF3]/15 border border-[#979BF3]/30 text-[#979BF3] dark:text-[#979BF3] mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Autonomous General Ledger Pipeline & E-Commerce Translator</span>
+            <span>Complete Commerce Suite · General Ledger + Brand Reputation & MAP Defense</span>
           </div>
 
           {/* Main Hero Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight sm:leading-none">
-            The Universal Transactional Gateway for Modern Enterprise Commerce
+            The Universal Commerce Suite with Autonomous MAP & Brand Protection
           </h1>
 
           {/* Lead Paragraph */}
           <p className="mt-6 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed text-slate-600 dark:text-slate-300 font-sans">
-            Instantly transform raw Shopify webhooks, legacy CSV streams, and complex EDI 850 purchase orders into mathematically balanced, double-entry General Ledger postings in milliseconds.
+            Unify Commerce Ingress, Autonomous MAP Price Violation Scraping, 1-Click Cease & Desist Legal Dispatch, and Double-Entry General Ledger balancing into one powerhouse platform for <strong className="text-[#979BF3] dark:text-[#979BF3]">$959/month</strong>.
           </p>
 
           {/* Hero Action Buttons */}
@@ -504,7 +523,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   id="hero-open-hub-btn"
                   onClick={() => onLaunchApp('hub')}
-                  className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] hover:from-[#023e8a] hover:to-[#0096c7] text-white font-mono font-bold text-sm rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#48cae4]/50"
+                  className="w-full sm:w-auto px-7 py-3.5 bg-[#979BF3] hover:bg-[#B4B7F7] text-white font-mono font-bold text-sm rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#979BF3]"
                 >
                   <Layers className="w-4 h-4 text-cyan-200" />
                   <span>Open Central Module Hub</span>
@@ -514,7 +533,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   id="hero-launch-suite-btn"
                   onClick={() => onLaunchApp('suite')}
-                  className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] hover:from-[#023e8a] hover:to-[#0096c7] text-white font-mono font-bold text-sm rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#00b4d8]/40"
+                  className="w-full sm:w-auto px-7 py-3.5 bg-[#979BF3] hover:bg-[#B4B7F7] text-white font-mono font-bold text-sm rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#979BF3]"
                 >
                   <span>Launch Enterprise Suite</span>
                   <ArrowRight className="w-4 h-4" />
@@ -525,21 +544,20 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   id="hero-signup-plan-btn"
                   onClick={() => openAuthWithPlan('signup', true)}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] hover:from-[#023e8a] hover:to-[#0096c7] text-white font-mono font-bold text-sm rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#00b4d8]/40"
+                  className="w-full sm:w-auto px-8 py-3.5 bg-[#979BF3] hover:bg-[#B4B7F7] text-white font-mono font-bold text-sm rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#979BF3]"
                 >
                   <UserPlus className="w-4 h-4 text-cyan-200" />
-                  <span>Sign Up / Configure Plan</span>
+                  <span>Get Complete Suite ($959/mo)</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
-                <button
-                  id="hero-demo-hub-btn"
-                  onClick={() => onLaunchApp('hub')}
-                  className="w-full sm:w-auto px-6 py-3.5 bg-cyan-600/10 hover:bg-cyan-600/20 text-[#0077b6] dark:text-cyan-300 font-mono font-bold text-sm rounded-xl border border-cyan-500/30 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                <a
+                  href="#brand-protection"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-[#E00728]/15 hover:bg-[#E00728]/20 text-[#E00728] dark:text-rose-300 font-mono font-bold text-sm rounded-xl border border-[#E00728]/40 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Layers className="w-4 h-4 text-cyan-500" />
-                  <span>Central Module Hub</span>
-                </button>
+                  <ShieldAlert className="w-4 h-4 text-[#E00728]" />
+                  <span>Explore MAP & Brand Defense</span>
+                </a>
               </>
             )}
 
@@ -551,15 +569,42 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-300 shadow-xs'
               }`}
             >
-              <Activity className="w-4 h-4 text-[#0077b6]" />
+              <Activity className="w-4 h-4 text-[#979BF3]" />
               <span>Watch Live Pipeline Demo</span>
             </a>
+          </div>
+
+          {/* Focal Suite Highlight Callout Ribbon */}
+          <div className="mt-8 max-w-4xl mx-auto p-4 rounded-2xl bg-gradient-to-r from-rose-950/40 via-slate-900/90 to-teal-950/40 border border-[#E00728]/50 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+            <div className="flex items-center gap-3.5">
+              <div className="p-2.5 bg-[#E00728]/20 text-rose-300 rounded-xl border border-[#E00728]/50 shrink-0">
+                <ShieldAlert className="w-5 h-5 animate-pulse text-[#E00728]" />
+              </div>
+              <div>
+                <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#E00728] flex items-center gap-2">
+                  <span>Focal Suite Engine · Autonomous MAP & Margin Protection</span>
+                  <span className="px-1.5 py-0.2 rounded bg-[#E00728]/20 text-rose-300 text-[9px] font-black">INCLUDED</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
+                  Automated scraping across Amazon, Walmart, and TikTok Shop, screenshot courtroom evidence, and certified Cease & Desist dispatch are all bundled into the <strong className="text-white">General Suite Subscription</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              <a
+                href="#brand-protection"
+                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-mono font-bold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>View Live Defense</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
 
           {/* Key Metrics Strip (Bootstrap 4-column card deck) */}
           <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
             <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-xs'}`}>
-              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0077b6] dark:text-[#48cae4]">$4.8B+</div>
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#979BF3] dark:text-[#979BF3]">$4.8B+</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono uppercase tracking-wider">Processed Volume</div>
               <div className="text-[11px] text-emerald-500 font-semibold mt-1 flex items-center gap-1">
                 <Check className="w-3 h-3" /> Zero manual corrections
@@ -575,7 +620,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </div>
 
             <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-xs'}`}>
-              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#00b4d8]">&lt; 4ms</div>
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#979BF3]">&lt; 4ms</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono uppercase tracking-wider">Ingestion Latency</div>
               <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                 IPC broker daemon thread
@@ -598,12 +643,12 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* 3B. THE 3 CORE POWER MODULES (Interactive Showcase)         */}
       {/* ────────────────────────────────────────────────────────── */}
       <section id="modules" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-y ${
-        isDarkMode ? 'bg-[#090e1a] border-slate-800' : 'bg-slate-100/70 border-slate-200'
+        isDarkMode ? 'bg-[#1C1B21] border-slate-800' : 'bg-slate-100/70 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#0077b6]/10 text-[#0077b6] dark:text-[#48cae4] border border-[#0077b6]/20 mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#979BF3]/15 text-[#979BF3] dark:text-[#979BF3] border border-[#979BF3]/30 mb-3">
               <Layers className="w-3.5 h-3.5" />
               <span>Modular Architecture · Deploy Separately or Unified</span>
             </div>
@@ -621,7 +666,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 onClick={() => setActiveModuleTab('ledger')}
                 className={`flex-1 min-w-[200px] py-2.5 px-4 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   activeModuleTab === 'ledger'
-                    ? 'bg-gradient-to-r from-[#03045e] to-[#0077b6] text-white shadow-md'
+                    ? 'bg-[#979BF3] text-white shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -634,7 +679,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 onClick={() => setActiveModuleTab('ingress')}
                 className={`flex-1 min-w-[200px] py-2.5 px-4 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   activeModuleTab === 'ingress'
-                    ? 'bg-gradient-to-r from-[#03045e] to-[#0077b6] text-white shadow-md'
+                    ? 'bg-[#979BF3] text-white shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -647,7 +692,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 onClick={() => setActiveModuleTab('procurement')}
                 className={`flex-1 min-w-[200px] py-2.5 px-4 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   activeModuleTab === 'procurement'
-                    ? 'bg-gradient-to-r from-[#03045e] to-[#0077b6] text-white shadow-md'
+                    ? 'bg-[#979BF3] text-white shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -660,7 +705,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           {/* Module 1: General Ledger Details */}
           {activeModuleTab === 'ledger' && (
             <div className={`p-8 sm:p-10 rounded-3xl border shadow-xl transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
             }`}>
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-7 space-y-5">
@@ -718,7 +763,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                   <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-extrabold font-mono text-[#0077b6] dark:text-[#48cae4]">
+                      <span className="text-2xl font-extrabold font-mono text-[#979BF3] dark:text-[#979BF3]">
                         ${billingCycle === 'annual' ? '399' : '499'}
                       </span>
                       <span className="text-xs text-slate-500 font-mono">/mo standalone</span>
@@ -761,7 +806,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                 <div className="lg:col-span-5">
                   <div className={`p-5 rounded-2xl border font-mono text-xs ${
-                    isDarkMode ? 'bg-[#080d1a] border-slate-800' : 'bg-slate-50 border-slate-200'
+                    isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'
                   }`}>
                     <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 text-[11px] text-slate-500">
                       <span>GL ENGINE RECONCILIATION</span>
@@ -798,7 +843,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           {/* Module 2: Ingress & AI Gateway Details */}
           {activeModuleTab === 'ingress' && (
             <div className={`p-8 sm:p-10 rounded-3xl border shadow-xl transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
             }`}>
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-7 space-y-5">
@@ -856,7 +901,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                   <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-extrabold font-mono text-[#0077b6] dark:text-[#48cae4]">
+                      <span className="text-2xl font-extrabold font-mono text-[#979BF3] dark:text-[#979BF3]">
                         ${billingCycle === 'annual' ? '399' : '499'}
                       </span>
                       <span className="text-xs text-slate-500 font-mono">/mo standalone</span>
@@ -899,7 +944,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                 <div className="lg:col-span-5">
                   <div className={`p-5 rounded-2xl border font-mono text-xs ${
-                    isDarkMode ? 'bg-[#080d1a] border-slate-800' : 'bg-slate-50 border-slate-200'
+                    isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'
                   }`}>
                     <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 text-[11px] text-slate-500">
                       <span>INGRESS PARSING STACK</span>
@@ -936,7 +981,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           {/* Module 3: Procurement & Multi-Entity Details */}
           {activeModuleTab === 'procurement' && (
             <div className={`p-8 sm:p-10 rounded-3xl border shadow-xl transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
             }`}>
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-7 space-y-5">
@@ -994,7 +1039,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                   <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-extrabold font-mono text-[#0077b6] dark:text-[#48cae4]">
+                      <span className="text-2xl font-extrabold font-mono text-[#979BF3] dark:text-[#979BF3]">
                         ${billingCycle === 'annual' ? '399' : '499'}
                       </span>
                       <span className="text-xs text-slate-500 font-mono">/mo standalone</span>
@@ -1037,7 +1082,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                 <div className="lg:col-span-5">
                   <div className={`p-5 rounded-2xl border font-mono text-xs ${
-                    isDarkMode ? 'bg-[#080d1a] border-slate-800' : 'bg-slate-50 border-slate-200'
+                    isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'
                   }`}>
                     <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 text-[11px] text-slate-500">
                       <span>DAEMON MESH TELEMETRY</span>
@@ -1082,7 +1127,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* 3C. CYBERSHIELD ENTERPRISE SECURITY (SOC & 4 PILLARS)      */}
       {/* ────────────────────────────────────────────────────────── */}
       <section id="security" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-b ${
-        isDarkMode ? 'bg-[#060a14] border-slate-800' : 'bg-slate-50/70 border-slate-200'
+        isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50/70 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -1105,7 +1150,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             
             {/* Pillar 1: Gateway Firewall & WAF */}
             <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
-              isDarkMode ? 'bg-[#0a1122] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-[#0077b6]/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-[#979BF3]/50'
             }`}>
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -1143,7 +1188,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Pillar 2: Webhook HMAC & Replay Defense */}
             <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
-              isDarkMode ? 'bg-[#0a1122] border-slate-800 hover:border-purple-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-purple-500/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-purple-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-purple-500/50'
             }`}>
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -1181,7 +1226,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Pillar 3: Tamper-Proof Merkle Ledger (SOX-404) */}
             <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
-              isDarkMode ? 'bg-[#0a1122] border-slate-800 hover:border-emerald-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-emerald-500/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-emerald-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-emerald-500/50'
             }`}>
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -1219,7 +1264,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Pillar 4: AI Transaction Fraud Sentinel */}
             <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
-              isDarkMode ? 'bg-[#0a1122] border-slate-800 hover:border-amber-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-amber-500/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-amber-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-amber-500/50'
             }`}>
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -1258,7 +1303,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           </div>
 
           {/* Interactive SOC Telemetry & Demo Bar */}
-          <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#03152d] via-[#02234e] to-[#04336c] text-white border border-[#00b4d8]/40 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#03152d] via-[#02234e] to-[#04336c] text-white border border-[#979BF3] shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start gap-2 text-xs font-mono font-bold text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -1297,13 +1342,350 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       </section>
 
       {/* ────────────────────────────────────────────────────────── */}
+      {/* 3D. BRAND REPUTATION & AUTONOMOUS MAP PROTECTION FOCAL SUITE */}
+      {/* ────────────────────────────────────────────────────────── */}
+      <section id="brand-protection" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-b relative overflow-hidden ${
+        isDarkMode ? 'bg-[#080718] border-slate-800' : 'bg-gradient-to-b from-rose-50/40 via-white to-slate-50 border-slate-200'
+      }`}>
+        {/* Ambient atmospheric glow */}
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[350px] bg-[#E00728]/15 dark:bg-[#E00728]/10 blur-3xl rounded-full pointer-events-none -z-10" />
+        <div className="absolute bottom-10 left-10 w-[400px] h-[300px] bg-indigo-500/10 dark:bg-indigo-600/10 blur-3xl rounded-full pointer-events-none -z-10" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-[#E00728]/15 text-[#E00728] dark:text-[#E00728] border border-[#E00728]/40 mb-4 shadow-xs">
+              <ShieldAlert className="w-4 h-4 text-[#E00728] animate-pulse" />
+              <span>FOCAL SUITE CAPABILITY · AUTONOMOUS MAP DEFENSE & REPUTATION ENGINE</span>
+            </div>
+            
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+              Defend Wholesale Margins & Enforce Minimum Advertised Pricing
+            </h2>
+            
+            <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-sans">
+              Rogue resellers and grey-market undercutting erode wholesale distribution relationships and destroy brand value. CloudboyX deploys autonomous circular scrapers across Amazon, Walmart, TikTok Shop, and Mercari—capturing courtroom evidence, transmitting formal Cease &amp; Desist demands, and delivering real-time email alerts.
+            </p>
+          </div>
+
+          {/* 6 High-Impact Capabilities Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            
+            {/* Card 1: Batch SKU Scrapers */}
+            <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] flex flex-col justify-between ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-rose-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-rose-500/50'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#E00728]/15 text-[#E00728] dark:text-[#E00728] flex items-center justify-center font-bold">
+                    <Zap className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#E00728]/15 text-[#E00728] dark:text-[#E00728] font-bold border border-rose-500/20">
+                    AUTOMATED SCRAPERS
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Batch SKU Multi-Marketplace Crawler</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Upload CSV product feeds or single SKUs. Daemons run circular sweeps across Amazon US, Walmart, TikTok Shop, Mercari, and eBay to flag price cuts beneath your MAP floor.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-[#E00728] shrink-0" />
+                    <span>240+ Listing Touchpoints Scanned</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-[#E00728] shrink-0" />
+                    <span>Sub-Minute Price Breach Detection</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-[#E00728] dark:text-[#E00728]">
+                <span>Coverage</span>
+                <span className="font-bold">Amazon, Walmart, TikTok &amp; eBay</span>
+              </div>
+            </div>
+
+            {/* Card 2: Courtroom Screenshot Evidence */}
+            <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] flex flex-col justify-between ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-purple-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-purple-500/50'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                    <Camera className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20">
+                    LEGAL EVIDENCE
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Courtroom-Ready Screenshot Proof</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  The moment a violation occurs, the scraper takes a full viewport screenshot of the reseller listing, stamping it with UTC timestamps and cryptographic SHA-256 evidence hashes.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span>Immutable SHA-256 Cryptographic Hash</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span>Tamper-Proof Audit Attachment</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-purple-600 dark:text-purple-400">
+                <span>Admissibility</span>
+                <span className="font-bold">Federal Courtroom Compliant</span>
+              </div>
+            </div>
+
+            {/* Card 3: Automated Cease & Desist Warning */}
+            <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] flex flex-col justify-between ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-indigo-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-indigo-500/50'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                    <FileCheck className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/20">
+                    LEGAL ENFORCEMENT
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Automated Cease &amp; Desist Engine</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Generates legal notices citing Lanham Act 15 U.S.C. § 1125(a) and authorized reseller terms. Features a 24h–48h cure period countdown with 1-click certified dispatch.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <span>1-Click Certified Legal Transmission</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <span>Active 24h/48h Cure Window Tracker</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-indigo-600 dark:text-indigo-400">
+                <span>Transmission</span>
+                <span className="font-bold">SendGrid &amp; Lob Courier Gateway</span>
+              </div>
+            </div>
+
+            {/* Card 4: Automated Email Notifications */}
+            <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] flex flex-col justify-between ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-emerald-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-emerald-500/50'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                    REAL-TIME ALERTS
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Automated Email Notification System</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Instant HTML email alerts delivered when breaches occur, featuring product SKU, price delta, scraper screenshot evidence, and a direct link to the Cease &amp; Desist draft.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Pre-Configured to gocloudboy2@gmail.com</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Direct 1-Click Link into C&amp;D Draft</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
+                <span>Speed</span>
+                <span className="font-bold">&lt; 5s Alert Dispatch</span>
+              </div>
+            </div>
+
+            {/* Card 5: Regional Heatmap */}
+            <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] flex flex-col justify-between ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-amber-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-amber-500/50'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/20">
+                    GEOGRAPHIC INTEL
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Regional MAP Compliance Heatmap</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Interactive visual breakdown mapping active MAP breaches by region (US-West, Midwest, Southwest, Europe, Asia) to expose geographic wholesale leakage.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>Dynamic Regional Compliance Percentages</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>Rogue Reseller Hub Geolocation</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-amber-600 dark:text-amber-400">
+                <span>Granularity</span>
+                <span className="font-bold">5 Regional Enclaves</span>
+              </div>
+            </div>
+
+            {/* Card 6: Sentinel AI Reputation Bot */}
+            <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] flex flex-col justify-between ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-cyan-500/50'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20">
+                    PREDICTIVE BOT
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Sentinel AI Brand Reputation Bot</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Autonomous bot crawling Reddit, X, Trustpilot, and regional forums. Evaluates real-time brand sentiment and computes forward-looking trajectory probability rates.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                    <span>Sentiment Index: 94.2% Positive</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                    <span>Predictive Brand Drift Trajectory</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
+                <span>Intelligence</span>
+                <span className="font-bold">Multichannel Sentiment Feed</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Interactive Incident & C&D Notice Preview Card */}
+          <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-2 border-[#E00728]/50 text-white shadow-2xl space-y-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#E00728]">
+                    LIVE SYSTEM SIMULATION · ACTIVE MAP VIOLATION DETECTED
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold font-mono mt-1">
+                  Incident Ref: CD-2026-MAP-0842 · Amazon US
+                </h3>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                  Rogue reseller <strong>Apex Deals LLC</strong> detected selling <strong>VNTG-TEE-BLK</strong> at $26.99 (target MAP floor: $35.00). Price degradation: -$8.01 (-23%).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-xs font-bold">
+                  ⏳ 19 Hours Cure Remaining
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono text-xs font-bold">
+                  ✓ Email Alert Delivered
+                </span>
+              </div>
+            </div>
+
+            {/* Incident Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+                <span className="text-slate-400 text-[10px] block uppercase">Scraper Screenshot Evidence</span>
+                <div className="text-white font-bold flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-indigo-400" />
+                  <span>Captured with SHA-256 Hash</span>
+                </div>
+                <span className="text-slate-400 text-[9px] truncate block font-mono">e3b0c44298fc1c149afbf4c8996fb9...</span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+                <span className="text-slate-400 text-[10px] block uppercase">Formal Demand Reference</span>
+                <div className="text-white font-bold flex items-center gap-2">
+                  <FileCheck className="w-4 h-4 text-[#E00728]" />
+                  <span>Lanham Act § 1125(a) Demand</span>
+                </div>
+                <span className="text-slate-400 text-[10px] block">Notice ID: TRK-CD-9941-US</span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+                <span className="text-slate-400 text-[10px] block uppercase">Automated Alert Destination</span>
+                <div className="text-white font-bold flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-emerald-400" />
+                  <span>gocloudboy2@gmail.com</span>
+                </div>
+                <span className="text-slate-400 text-[10px] block">1-Click C&amp;D Review Link Active</span>
+              </div>
+            </div>
+
+            {/* Focal Call to Action Card Inside Brand Protection */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-rose-950/60 via-slate-950 to-indigo-950/60 border border-[#E00728]/50 flex flex-col lg:flex-row items-center justify-between gap-5">
+              <div className="text-center lg:text-left space-y-1">
+                <div className="text-xs font-mono font-bold text-[#E00728] uppercase tracking-wider">
+                  ALL-IN-ONE SUITE SUBSCRIPTION VALUE
+                </div>
+                <h4 className="text-lg sm:text-xl font-bold font-mono text-white">
+                  Get Brand Reputation &amp; MAP Protection in the Complete Suite ($959/mo)
+                </h4>
+                <p className="text-xs text-slate-300 max-w-xl">
+                  Why pay thousands for separate web scrapers, legal notice dispatchers, and accounting software? Everything is integrated into one unified monthly subscription.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full lg:w-auto">
+                <button
+                  type="button"
+                  id="brand-protection-signup-suite-btn"
+                  onClick={() => openAuthWithPlan('signup', true)}
+                  className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-rose-600 via-red-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-mono font-bold text-xs sm:text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Get Complete Suite ($959/mo)</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <button
+                  type="button"
+                  id="brand-protection-launch-workspace-btn"
+                  onClick={() => onLaunchApp('ingress')}
+                  className="w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono font-bold text-xs sm:text-sm rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Zap className="w-4 h-4 text-cyan-400" />
+                  <span>Launch Live Workspace</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────────────────────── */}
       {/* 4. INTERACTIVE LIVE PIPELINE SIMULATOR (How It Works)      */}
       {/* ────────────────────────────────────────────────────────── */}
       <section id="simulator" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-y ${isDarkMode ? 'bg-[#0d1322] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0077b6] dark:text-[#48cae4]">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#979BF3] dark:text-[#979BF3]">
               Interactive Demonstration
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight mt-2">
@@ -1316,7 +1698,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
           {/* Simulator Box */}
           <div className={`max-w-4xl mx-auto rounded-2xl border shadow-xl overflow-hidden ${
-            isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
+            isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
           }`}>
             
             {/* Simulator Controls Bar */}
@@ -1329,7 +1711,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   onClick={() => setSimChannel('shopify')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     simChannel === 'shopify' 
-                      ? 'bg-[#0077b6] text-white shadow-xs' 
+                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-xs' 
                       : 'bg-white/10 hover:bg-white/20 text-slate-700 dark:text-slate-300'
                   }`}
                 >
@@ -1339,7 +1721,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   onClick={() => setSimChannel('edi')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     simChannel === 'edi' 
-                      ? 'bg-[#0077b6] text-white shadow-xs' 
+                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-xs' 
                       : 'bg-white/10 hover:bg-white/20 text-slate-700 dark:text-slate-300'
                   }`}
                 >
@@ -1349,7 +1731,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   onClick={() => setSimChannel('csv')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     simChannel === 'csv' 
-                      ? 'bg-[#0077b6] text-white shadow-xs' 
+                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-xs' 
                       : 'bg-white/10 hover:bg-white/20 text-slate-700 dark:text-slate-300'
                   }`}
                 >
@@ -1438,7 +1820,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
                 <span>Timestamp: 2026-10-26 UTC · Ingestion Thread: TH-01 [Healthy]</span>
-                <button onClick={onLaunchApp} className="text-[#0077b6] hover:underline font-bold flex items-center gap-1 cursor-pointer">
+                <button onClick={onLaunchApp} className="text-[#979BF3] hover:underline font-bold flex items-center gap-1 cursor-pointer">
                   Open full General Ledger Console <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -1456,7 +1838,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0077b6] dark:text-[#48cae4]">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#979BF3] dark:text-[#979BF3]">
               Enterprise Platform Architecture
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2">
@@ -1471,9 +1853,9 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             
             {/* Feature 1 */}
             <div className={`p-6 rounded-2xl border transition-all hover:shadow-lg ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#0077b6]/50 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#979BF3]/50 shadow-xs'
             }`}>
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-[#0077b6] dark:text-cyan-400 flex items-center justify-center mb-5">
+              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-[#979BF3] dark:text-cyan-400 flex items-center justify-center mb-5">
                 <Zap className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold font-mono">Canonical Schema Normalization</h3>
@@ -1484,7 +1866,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Feature 2 */}
             <div className={`p-6 rounded-2xl border transition-all hover:shadow-lg ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#0077b6]/50 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#979BF3]/50 shadow-xs'
             }`}>
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5">
                 <BookOpen className="w-6 h-6" />
@@ -1497,7 +1879,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Feature 3 */}
             <div className={`p-6 rounded-2xl border transition-all hover:shadow-lg ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#0077b6]/50 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#979BF3]/50 shadow-xs'
             }`}>
               <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-5">
                 <Globe className="w-6 h-6" />
@@ -1510,7 +1892,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Feature 4 */}
             <div className={`p-6 rounded-2xl border transition-all hover:shadow-lg ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#0077b6]/50 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#979BF3]/50 shadow-xs'
             }`}>
               <div className="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-5">
                 <FileSpreadsheet className="w-6 h-6" />
@@ -1523,7 +1905,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Feature 5 */}
             <div className={`p-6 rounded-2xl border transition-all hover:shadow-lg ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#0077b6]/50 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#979BF3]/50 shadow-xs'
             }`}>
               <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-5">
                 <Sparkles className="w-6 h-6" />
@@ -1536,7 +1918,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Feature 6 */}
             <div className={`p-6 rounded-2xl border transition-all hover:shadow-lg ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#0077b6]/50 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 hover:border-[#979BF3]/50 shadow-xs'
             }`}>
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5">
                 <Terminal className="w-6 h-6" />
@@ -1556,13 +1938,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* 5B. ENTERPRISE SYSTEM ARCHITECTURE & TOPOLOGY              */}
       {/* ────────────────────────────────────────────────────────── */}
       <section id="architecture" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-t ${
-        isDarkMode ? 'bg-[#080d1a] border-slate-800' : 'bg-slate-50 border-slate-200'
+        isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0077b6] dark:text-[#48cae4]">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#979BF3] dark:text-[#979BF3]">
               System Architecture & Transactional Topology
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2">
@@ -1578,11 +1960,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             
             {/* Tier 1 */}
             <div className={`p-6 rounded-2xl border transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#0077b6]/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#979BF3]/50'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-[#0077b6] dark:text-cyan-400 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-[#979BF3] dark:text-cyan-400 flex items-center justify-center shrink-0">
                     <Zap className="w-6 h-6" />
                   </div>
                   <div>
@@ -1612,7 +1994,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Tier 2 */}
             <div className={`p-6 rounded-2xl border transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#0077b6]/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#979BF3]/50'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -1646,7 +2028,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Tier 3 */}
             <div className={`p-6 rounded-2xl border-2 transition-all ${
-              isDarkMode ? 'bg-[#041a38] border-[#0096c7]' : 'bg-blue-50/60 border-[#0077b6] shadow-md'
+              isDarkMode ? 'bg-[#24232B] border-[#0096c7]' : 'bg-blue-50/60 border-[#979BF3] shadow-md'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -1661,7 +2043,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                       <h3 className="text-base sm:text-lg font-bold font-mono">Cryptographic Parity Guard Core</h3>
                     </div>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
-                      Continuous mathematical assertion of the fundamental double-entry equation: <span className="font-mono font-bold text-[#0077b6] dark:text-[#90e0ef]">Σ Debits ≡ Σ Credits</span>. Unbalanced entries are automatically quarantined into a zero-impact audit sandbox.
+                      Continuous mathematical assertion of the fundamental double-entry equation: <span className="font-mono font-bold text-[#979BF3] dark:text-[#979BF3]">Σ Debits ≡ Σ Credits</span>. Unbalanced entries are automatically quarantined into a zero-impact audit sandbox.
                     </p>
                   </div>
                 </div>
@@ -1680,7 +2062,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Tier 4 */}
             <div className={`p-6 rounded-2xl border transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#0077b6]/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#979BF3]/50'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -1714,7 +2096,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
             {/* Tier 5 */}
             <div className={`p-6 rounded-2xl border transition-all ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#0077b6]/50'
+              isDarkMode ? 'bg-[#24232B] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-xs hover:border-[#979BF3]/50'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -1744,9 +2126,9 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           </div>
 
           {/* Interactive Inspection Callout Banner */}
-          <div className="mt-12 max-w-5xl mx-auto rounded-2xl bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-[#00b4d8]/40">
+          <div className="mt-12 max-w-5xl mx-auto rounded-2xl bg-[#979BF3] p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-[#979BF3]">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#90e0ef]">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#979BF3]">
                 <Cpu className="w-4 h-4" />
                 <span>Live Enterprise Suite Execution</span>
               </div>
@@ -1769,7 +2151,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 href="#simulator"
                 className="w-full sm:w-auto px-5 py-3 bg-[#03045e]/40 hover:bg-[#03045e]/60 border border-white/20 text-white font-mono font-bold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
               >
-                <Activity className="w-4 h-4 text-[#90e0ef]" />
+                <Activity className="w-4 h-4 text-[#979BF3]" />
                 <span>Test Simulator</span>
               </a>
             </div>
@@ -1781,11 +2163,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* ────────────────────────────────────────────────────────── */}
       {/* 6. ENTERPRISE SOCIAL PROOF & TESTIMONIALS                  */}
       {/* ────────────────────────────────────────────────────────── */}
-      <section id="testimonials" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-t ${isDarkMode ? 'bg-[#0b101c] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+      <section id="testimonials" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-t ${isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0077b6] dark:text-[#48cae4]">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#979BF3] dark:text-[#979BF3]">
               Trusted by Finance & Ops Leaders
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight mt-2">
@@ -1796,7 +2178,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <div className={`p-6 rounded-2xl border flex flex-col justify-between ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
             }`}>
               <div>
                 <div className="flex items-center gap-1 text-amber-400 mb-3">
@@ -1813,7 +2195,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </div>
 
             <div className={`p-6 rounded-2xl border flex flex-col justify-between ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
             }`}>
               <div>
                 <div className="flex items-center gap-1 text-amber-400 mb-3">
@@ -1830,7 +2212,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </div>
 
             <div className={`p-6 rounded-2xl border flex flex-col justify-between ${
-              isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
             }`}>
               <div>
                 <div className="flex items-center gap-1 text-amber-400 mb-3">
@@ -1858,15 +2240,43 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-10">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0077b6] dark:text-[#48cae4]">
-              Modular & Transparent Pricing
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2">
-              License the Whole Suite or Piece Them Together as Needed
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-gradient-to-r from-[#0077b6]/15 via-rose-500/15 to-emerald-500/15 text-[#979BF3] dark:text-[#979BF3] border border-[#979BF3]/30 mb-3 shadow-xs">
+              <Sparkles className="w-4 h-4 text-[#E00728] animate-pulse" />
+              <span>GENERAL SUITE SUBSCRIPTION · ONE BUNDLED PRICE OR PIECE THEM TOGETHER</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-2">
+              General Suite Subscription: All Engines, One Simple Price
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Enjoy all three power engines at one discounted bundled price, or build your custom stack by selecting only the modules your commerce pipeline demands.
+              Get the entire platform—including autonomous <strong>Brand Reputation &amp; MAP Price Defense</strong>, General Ledger, Ingress Pipelines, Procurement Matching, and CyberShield Security—for just <strong>${billingCycle === 'annual' ? '959' : '1,199'}/month</strong>. Or piece together individual modules as needed.
             </p>
+
+            {/* General Suite Call to Action Banner Ribbon */}
+            <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-rose-500/10 via-[#0077b6]/10 to-emerald-500/10 border border-[#979BF3]/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-[#0077b6] text-white flex items-center justify-center font-bold shrink-0 shadow-md">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-mono font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>COMPLETE SUITE INCLUDES MAP &amp; REPUTATION SHIELD</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#E00728]/20 text-[#E00728] dark:text-[#E00728] font-extrabold">NEW</span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                    240+ touchpoint scrapers, court-ready screenshot evidence hashes, automated Cease &amp; Desist dispatch, and email alerts.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openAuthWithPlan('signup', true, selectedSecurityTier)}
+                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#0077b6] to-[#023e8a] hover:bg-[#B4B7F7] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all shrink-0 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>Get General Suite (${billingCycle === 'annual' ? '959' : '1,199'}/mo)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
 
             {/* Pricing Mode Toggle: Whole Suite vs Piece Them Together */}
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -1876,19 +2286,19 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   onClick={() => setPricingMode('bundle')}
                   className={`px-5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
                     pricingMode === 'bundle'
-                      ? 'bg-gradient-to-r from-[#03045e] to-[#0077b6] text-white shadow-md'
+                      ? 'bg-[#979BF3] text-white shadow-md'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <PackageCheck className="w-4 h-4" />
-                  <span>The Complete Suite (All 3 Modules)</span>
+                  <span>General Suite All-in-One ($959/mo)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPricingMode('modular')}
                   className={`px-5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
                     pricingMode === 'modular'
-                      ? 'bg-[#0077b6] text-white shadow-md'
+                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-md'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1915,7 +2325,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   onClick={() => setBillingCycle('annual')}
                   className={`px-3.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     billingCycle === 'annual'
-                      ? 'bg-[#0077b6] text-white shadow-xs'
+                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -1998,7 +2408,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               
               {/* Plan 1: Single Module Entry */}
               <div className={`p-8 rounded-3xl border flex flex-col justify-between ${
-                isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
               }`}>
                 <div>
                   <div className="font-mono text-xs font-bold uppercase text-slate-500">Individual Module</div>
@@ -2045,25 +2455,30 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 </button>
               </div>
 
-              {/* Plan 2: Complete 3-Module Suite (Featured Best Value) */}
+              {/* Plan 2: General Suite All-in-One (Featured Best Value) */}
               <div className={`p-8 rounded-3xl border-2 relative flex flex-col justify-between shadow-2xl ${
-                isDarkMode ? 'bg-[#021844] border-[#00b4d8]' : 'bg-blue-50/50 border-[#0077b6]'
+                isDarkMode ? 'bg-[#24232B] border-[#00b4d8]' : 'bg-blue-50/50 border-[#979BF3]'
               }`}>
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] text-white text-[10px] font-mono font-extrabold uppercase px-3.5 py-1 rounded-full shadow-md tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3" />
-                  <span>Best Value · All 3 Modules Bundled</span>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 via-[#0077b6] to-[#00b4d8] text-white text-[10px] font-mono font-extrabold uppercase px-4 py-1 rounded-full shadow-md tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-amber-300" />
+                  <span>General Suite All-in-One · Best Value</span>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="font-mono text-xs font-bold uppercase text-[#00b4d8]">Complete Enterprise Suite</div>
+                    <div>
+                      <div className="font-mono text-xs font-bold uppercase text-[#979BF3]">General Suite Subscription</div>
+                      <div className="text-[11px] font-mono text-[#E00728] dark:text-[#E00728] font-bold mt-0.5">
+                        Includes Brand Reputation &amp; MAP Defense
+                      </div>
+                    </div>
                     <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
                       Save $298/mo
                     </span>
                   </div>
 
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-4xl sm:text-5xl font-extrabold font-mono text-[#0077b6] dark:text-[#48cae4]">
+                    <span className="text-4xl sm:text-5xl font-extrabold font-mono text-[#979BF3] dark:text-[#979BF3]">
                       ${getBundleTotalPrice()}
                     </span>
                     <span className="text-xs text-slate-500 font-mono">/mo</span>
@@ -2074,21 +2489,25 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     )}
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">
-                    Everything included in one unified license. The ultimate autonomous financial pipeline.
+                    Everything bundled into one turnkey subscription price. The complete financial ledger, autonomous commerce ingress, and multi-marketplace brand protection system.
                   </p>
 
-                  <div className="mt-6 space-y-3 text-xs font-mono">
-                    <div className="flex items-start gap-2 font-bold text-slate-900 dark:text-white">
-                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Module 01: Universal General Ledger & Balancing Engine</span>
+                  <div className="mt-6 space-y-2.5 text-xs font-mono">
+                    <div className="flex items-start gap-2 font-bold text-[#E00728] dark:text-[#E00728] bg-[#E00728]/15 p-2 rounded-lg border border-rose-500/20">
+                      <ShieldAlert className="w-4 h-4 text-[#E00728] shrink-0 mt-0.5" />
+                      <span>FOCAL: Autonomous Brand Reputation &amp; MAP Protection Suite (Batch SKU Scrapers, Courtroom Screenshot Hashing, Cease &amp; Desist Dispatch &amp; Email Alerts)</span>
                     </div>
                     <div className="flex items-start gap-2 font-bold text-slate-900 dark:text-white">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Module 02: Commerce Ingress Gateway & Strategic AI Copilot</span>
+                      <span>Module 01: Universal General Ledger &amp; Balancing Engine</span>
                     </div>
                     <div className="flex items-start gap-2 font-bold text-slate-900 dark:text-white">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Module 03: 3-Way Procurement Matching & Multi-Entity Operations</span>
+                      <span>Module 02: Commerce Ingress Gateway &amp; Strategic AI Copilot</span>
+                    </div>
+                    <div className="flex items-start gap-2 font-bold text-slate-900 dark:text-white">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Module 03: 3-Way Procurement Matching &amp; Multi-Entity Operations</span>
                     </div>
                     <div className="flex items-center gap-2 pt-2 text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800">
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -2111,10 +2530,10 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   <button
                     type="button"
                     onClick={() => openAuthWithPlan('signup', true, selectedSecurityTier)}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#0077b6] via-[#023e8a] to-[#03045e] hover:from-[#023e8a] hover:to-[#0096c7] text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-rose-600 via-[#0077b6] to-[#023e8a] hover:from-rose-500 hover:to-[#0096c7] text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
                     <UserPlus className="w-4 h-4" />
-                    <span>Sign Up for Complete Suite</span>
+                    <span>Get General Suite (${billingCycle === 'annual' ? '959' : '1,199'}/mo)</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <p className="text-[11px] text-center text-slate-500 font-sans">
@@ -2125,7 +2544,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
               {/* Plan 3: Sovereign / Custom */}
               <div className={`p-8 rounded-3xl border flex flex-col justify-between ${
-                isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
               }`}>
                 <div>
                   <div className="font-mono text-xs font-bold uppercase text-slate-500">Sovereign / On-Prem</div>
@@ -2173,7 +2592,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           {pricingMode === 'modular' && (
             <div className="max-w-5xl mx-auto">
               <div className={`p-6 sm:p-8 rounded-3xl border shadow-xl ${
-                isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
+                isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
               }`}>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
@@ -2188,7 +2607,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                   <div className="flex items-center gap-2 self-start sm:self-center">
                     <span className="text-xs font-mono text-slate-500">Modules Selected:</span>
-                    <span className="px-2.5 py-1 rounded-full bg-[#0077b6] text-white text-xs font-mono font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-[#979BF3] text-[#1C1B21] text-white text-xs font-mono font-bold">
                       {selectedModules.length} of 3
                     </span>
                   </div>
@@ -2203,8 +2622,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                       selectedModules.includes('ledger')
                         ? isDarkMode
-                          ? 'bg-[#041a38] border-[#00b4d8] shadow-md'
-                          : 'bg-blue-50/60 border-[#0077b6] shadow-md'
+                          ? 'bg-[#24232B] border-[#00b4d8] shadow-md'
+                          : 'bg-blue-50/60 border-[#979BF3] shadow-md'
                         : isDarkMode
                           ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
                           : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
@@ -2216,14 +2635,14 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                           Module 01
                         </span>
                         {selectedModules.includes('ledger') ? (
-                          <CheckSquare className="w-5 h-5 text-[#0077b6] dark:text-[#48cae4]" />
+                          <CheckSquare className="w-5 h-5 text-[#979BF3] dark:text-[#979BF3]" />
                         ) : (
                           <Square className="w-5 h-5 text-slate-400" />
                         )}
                       </div>
 
                       <div className="flex items-center gap-2 mb-2">
-                        <BookOpen className="w-4 h-4 text-[#0077b6] dark:text-[#48cae4]" />
+                        <BookOpen className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
                         <h4 className="font-bold text-sm">General Ledger & Balancing</h4>
                       </div>
 
@@ -2234,7 +2653,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                     <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                       <span className="text-xs font-mono text-slate-500">Standalone:</span>
-                      <span className="font-mono font-bold text-sm text-[#0077b6] dark:text-[#48cae4]">
+                      <span className="font-mono font-bold text-sm text-[#979BF3] dark:text-[#979BF3]">
                         ${billingCycle === 'annual' ? '399' : '499'}/mo
                       </span>
                     </div>
@@ -2246,8 +2665,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                       selectedModules.includes('ingress')
                         ? isDarkMode
-                          ? 'bg-[#041a38] border-[#00b4d8] shadow-md'
-                          : 'bg-blue-50/60 border-[#0077b6] shadow-md'
+                          ? 'bg-[#24232B] border-[#00b4d8] shadow-md'
+                          : 'bg-blue-50/60 border-[#979BF3] shadow-md'
                         : isDarkMode
                           ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
                           : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
@@ -2259,14 +2678,14 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                           Module 02
                         </span>
                         {selectedModules.includes('ingress') ? (
-                          <CheckSquare className="w-5 h-5 text-[#0077b6] dark:text-[#48cae4]" />
+                          <CheckSquare className="w-5 h-5 text-[#979BF3] dark:text-[#979BF3]" />
                         ) : (
                           <Square className="w-5 h-5 text-slate-400" />
                         )}
                       </div>
 
                       <div className="flex items-center gap-2 mb-2">
-                        <Zap className="w-4 h-4 text-[#0077b6] dark:text-[#48cae4]" />
+                        <Zap className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
                         <h4 className="font-bold text-sm">Commerce Ingress & AI</h4>
                       </div>
 
@@ -2277,7 +2696,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                     <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                       <span className="text-xs font-mono text-slate-500">Standalone:</span>
-                      <span className="font-mono font-bold text-sm text-[#0077b6] dark:text-[#48cae4]">
+                      <span className="font-mono font-bold text-sm text-[#979BF3] dark:text-[#979BF3]">
                         ${billingCycle === 'annual' ? '399' : '499'}/mo
                       </span>
                     </div>
@@ -2289,8 +2708,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                       selectedModules.includes('procurement')
                         ? isDarkMode
-                          ? 'bg-[#041a38] border-[#00b4d8] shadow-md'
-                          : 'bg-blue-50/60 border-[#0077b6] shadow-md'
+                          ? 'bg-[#24232B] border-[#00b4d8] shadow-md'
+                          : 'bg-blue-50/60 border-[#979BF3] shadow-md'
                         : isDarkMode
                           ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
                           : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
@@ -2302,14 +2721,14 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                           Module 03
                         </span>
                         {selectedModules.includes('procurement') ? (
-                          <CheckSquare className="w-5 h-5 text-[#0077b6] dark:text-[#48cae4]" />
+                          <CheckSquare className="w-5 h-5 text-[#979BF3] dark:text-[#979BF3]" />
                         ) : (
                           <Square className="w-5 h-5 text-slate-400" />
                         )}
                       </div>
 
                       <div className="flex items-center gap-2 mb-2">
-                        <ShieldCheck className="w-4 h-4 text-[#0077b6] dark:text-[#48cae4]" />
+                        <ShieldCheck className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
                         <h4 className="font-bold text-sm">3-Way Procurement & Ops</h4>
                       </div>
 
@@ -2320,7 +2739,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                     <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                       <span className="text-xs font-mono text-slate-500">Standalone:</span>
-                      <span className="font-mono font-bold text-sm text-[#0077b6] dark:text-[#48cae4]">
+                      <span className="font-mono font-bold text-sm text-[#979BF3] dark:text-[#979BF3]">
                         ${billingCycle === 'annual' ? '399' : '499'}/mo
                       </span>
                     </div>
@@ -2346,7 +2765,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                       onClick={() => setSelectedSecurityTier('standard')}
                       className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer ${
                         selectedSecurityTier === 'standard'
-                          ? isDarkMode ? 'bg-[#031b33] border-cyan-400' : 'bg-cyan-50/70 border-cyan-600'
+                          ? isDarkMode ? 'bg-[#24232B] border-cyan-400' : 'bg-cyan-50/70 border-cyan-600'
                           : isDarkMode ? 'bg-slate-900/40 border-slate-800 opacity-70 hover:opacity-100' : 'bg-slate-50 border-slate-200 opacity-70 hover:opacity-100'
                       }`}
                     >
@@ -2400,7 +2819,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                 {/* Live Dynamic Pricing Calculation Card */}
                 <div className={`p-6 rounded-2xl border ${
-                  isDarkMode ? 'bg-[#080d1a] border-slate-800' : 'bg-slate-50 border-slate-200'
+                  isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'
                 }`}>
                   <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-1.5 text-center md:text-left">
@@ -2431,7 +2850,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                     <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
                       <div className="text-right">
-                        <div className="text-3xl font-extrabold font-mono text-[#0077b6] dark:text-[#48cae4]">
+                        <div className="text-3xl font-extrabold font-mono text-[#979BF3] dark:text-[#979BF3]">
                           ${calculateTotalPrice()}
                           <span className="text-xs text-slate-500 font-normal">/mo</span>
                         </div>
@@ -2448,7 +2867,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                       <button
                         type="button"
                         onClick={() => openAuthWithPlan('signup', false, selectedSecurityTier)}
-                        className="px-6 py-3.5 bg-gradient-to-r from-[#0077b6] to-[#023e8a] hover:from-[#023e8a] hover:to-[#0096c7] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                        className="px-6 py-3.5 bg-gradient-to-r from-[#0077b6] to-[#023e8a] hover:bg-[#B4B7F7] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <UserPlus className="w-4 h-4" />
                         <span>Sign Up with Chosen Configuration</span>
@@ -2468,11 +2887,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* ────────────────────────────────────────────────────────── */}
       {/* 8. FREQUENTLY ASKED QUESTIONS (Accordion)                  */}
       {/* ────────────────────────────────────────────────────────── */}
-      <section id="faq" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-t ${isDarkMode ? 'bg-[#0b101c] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+      <section id="faq" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-t ${isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center mb-12">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0077b6] dark:text-[#48cae4]">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#979BF3] dark:text-[#979BF3]">
               Common Questions
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight mt-2">
@@ -2487,7 +2906,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <div 
                   key={idx}
                   className={`border rounded-xl transition-all overflow-hidden ${
-                    isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                    isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
                   }`}
                 >
                   <button
@@ -2495,7 +2914,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className="w-full py-4 px-5 text-left flex items-center justify-between gap-4 font-mono font-bold text-sm cursor-pointer"
                   >
                     <span>{item.q}</span>
-                    {isOpen ? <ChevronUp className="w-4 h-4 text-[#0077b6] shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />}
+                    {isOpen ? <ChevronUp className="w-4 h-4 text-[#979BF3] shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />}
                   </button>
 
                   {isOpen && (
@@ -2514,22 +2933,37 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* ────────────────────────────────────────────────────────── */}
       {/* 9. CLOSING CALL TO ACTION JUMBOTRON                        */}
       {/* ────────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 bg-gradient-to-r from-[#03045e] via-[#023e8a] to-[#0077b6] text-white text-center">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Ready to Eliminate General Ledger Discrepancies Forever?
+      <section className="py-16 sm:py-24 bg-gradient-to-r from-[#03045e] via-[#02234e] to-[#04336c] text-white text-center relative overflow-hidden">
+        <div className="absolute top-0 right-1/3 w-96 h-96 bg-[#E00728]/15 blur-3xl rounded-full pointer-events-none" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-white/10 text-[#979BF3] border border-white/20 mb-4 shadow-xs">
+            <Sparkles className="w-4 h-4 text-[#E00728]" />
+            <span>GENERAL SUITE SUBSCRIPTION · ALL ENGINES INCLUDED AT $959/MONTH</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+            Stop Margin Erosion. Automate Accounting. Defend Your Brand.
           </h2>
           <p className="mt-4 text-sm sm:text-base text-[#caf0f8] max-w-2xl mx-auto font-sans leading-relaxed">
-            Experience the CloudboyX Gateway live interactive sandbox right now. Test incoming Shopify webhooks, inspect double-entry debit/credit postings, and query balances with our AI copilot.
+            Gain immediate access to autonomous MAP price violation scraping, court-ready screenshot evidence hashes, 1-click cease and desist transmission, double-entry general ledger balancing, and enterprise security.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              onClick={onLaunchApp}
-              className="w-full sm:w-auto px-8 py-3.5 bg-[#00b4d8] hover:bg-[#90e0ef] text-[#03045e] font-mono font-extrabold text-sm rounded-xl shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
+              onClick={() => openAuthWithPlan('signup', true, selectedSecurityTier)}
+              className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-rose-500 to-[#00b4d8] hover:from-rose-600 hover:to-[#90e0ef] text-white font-mono font-extrabold text-sm rounded-xl shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
             >
-              <span>Launch Enterprise Suite Now</span>
+              <UserPlus className="w-4 h-4" />
+              <span>Get General Suite All-in-One ($959/mo)</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onLaunchApp}
+              className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-mono font-bold text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <ShieldAlert className="w-4 h-4 text-[#E00728]" />
+              <span>Launch Live Workspace Sandbox</span>
             </button>
           </div>
         </div>
@@ -2538,37 +2972,37 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* ────────────────────────────────────────────────────────── */}
       {/* 10. COMPREHENSIVE FOOTER                                   */}
       {/* ────────────────────────────────────────────────────────── */}
-      <footer className={`border-t py-12 text-xs font-mono ${isDarkMode ? 'bg-[#070a12] border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
+      <footer className={`border-t py-12 text-xs font-mono ${isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="font-bold text-slate-900 dark:text-white uppercase mb-3">Product Core</div>
               <ul className="space-y-2">
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">ERP Ledger Gateway</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Shopify Sync Engine</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">EDI 850 Order Parser</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Procurement Room (AP)</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">ERP Ledger Gateway</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Shopify Sync Engine</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">EDI 850 Order Parser</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Procurement Room (AP)</button></li>
               </ul>
             </div>
 
             <div>
               <div className="font-bold text-slate-900 dark:text-white uppercase mb-3">Compliance & GAAP</div>
               <ul className="space-y-2">
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Multi-Entity Rollups</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Double-Entry Parity Lock</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Automated Tax Allocation</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Audit Trail Immutability</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Multi-Entity Rollups</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Double-Entry Parity Lock</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Automated Tax Allocation</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Audit Trail Immutability</button></li>
               </ul>
             </div>
 
             <div>
               <div className="font-bold text-slate-900 dark:text-white uppercase mb-3">Reliability & IPC</div>
               <ul className="space-y-2">
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Thread Isolator Daemons</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">Keepalive Telemetry</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">High-Availability SLA</button></li>
-                <li><button onClick={onLaunchApp} className="hover:text-[#0077b6] cursor-pointer">System Benchmarks</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Thread Isolator Daemons</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">Keepalive Telemetry</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">High-Availability SLA</button></li>
+                <li><button onClick={onLaunchApp} className="hover:text-[#979BF3] cursor-pointer">System Benchmarks</button></li>
               </ul>
             </div>
 
