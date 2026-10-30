@@ -10032,7 +10032,7 @@ export default function App() {
 
       </main>
 
-      {/* Cloudboy X Gateway Section */}
+      {/* Cloudboy Connect Unified Studio Section */}
       {mainView === 'cloudboy_x' && (
         <main className="max-w-7xl mx-auto px-4 mt-8 sm:px-6 lg:px-8">
           <CloudboyXPortal 

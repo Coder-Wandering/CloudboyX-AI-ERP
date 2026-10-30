@@ -414,20 +414,20 @@ export default function CloudboyXPortal({
       
       {/* Visual Header / Explainer banner */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl text-white relative overflow-hidden">
-        <div className="absolute right-0 top-0 p-4 opacity-5 select-none pointer-events-none font-mono text-8xl">CLOUDBOY X</div>
+        <div className="absolute right-0 top-0 p-4 opacity-5 select-none pointer-events-none font-mono text-8xl">CLOUDBOY CONNECT</div>
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 mb-3">
             <Cpu className="w-3.5 h-3.5" />
-            Transitional Gateway & Reseller Authority Core
+            Unified Commerce Ingress &amp; Reseller Authority Core
           </div>
-          <h2 className="text-xl font-extrabold tracking-tight">Cloudboy X authorized ingress filters</h2>
+          <h2 className="text-xl font-extrabold tracking-tight">Cloudboy Connect Unified Studio</h2>
           <p className="text-slate-300 text-xs mt-1.5 leading-relaxed">
-            Configure, authorize, and verify reseller domains. Admin-side controls filter domain streams, ensuring only approved portals can route transactions directly into your relational General Ledger.
+            The unified integration engine combining Cloudboy Ingress Studio and Cloudboy Connect. Authorize and verify reseller domains, manage high-throughput Shopify &amp; EDI webhooks, and ensure only certified partner traffic routes into your relational General Ledger.
           </p>
         </div>
       </div>
 
-      {/* Tab Navigation for Cloudboy X Portal */}
+      {/* Tab Navigation for Cloudboy Connect Portal */}
       <div className="flex flex-wrap border-b border-slate-200 gap-1 sm:gap-2">
         <button
           onClick={() => setActivePortalTab('ingress')}
@@ -437,7 +437,7 @@ export default function CloudboyXPortal({
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
-          🌐 Ingress & Resellers
+          🌐 Connect &amp; Reseller Ingress
         </button>
         <button
           onClick={() => setActivePortalTab('monitoring')}

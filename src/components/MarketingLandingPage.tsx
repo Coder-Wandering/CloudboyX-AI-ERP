@@ -56,12 +56,14 @@ import {
   Mail,
   MapPin,
   TrendingDown,
-  Send,
   Inbox,
-  Trophy
+  Trophy,
+  Layout,
+  ArrowLeft
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { AuthModal, UserAccount } from './AuthModal';
+import WebsiteBuilderView from './WebsiteBuilderView';
 
 interface MarketingLandingPageProps {
   onLaunchApp: (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'hub') => void;
@@ -119,6 +121,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const [sandboxMarketPrice, setSandboxMarketPrice] = useState<number>(44);
   const [activePortalTemplate, setActivePortalTemplate] = useState<'saas' | 'logistics' | 'brand' | 'agency' | 'wholesale'>('saas');
   const [portalViewport, setPortalViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [isBuilderOpen, setIsBuilderOpen] = useState<boolean>(false);
 
   const toggleModuleSelection = (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict') => {
     setSelectedModules(prev => {
@@ -221,6 +224,55 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
     }
   ];
 
+  if (isBuilderOpen) {
+    return (
+      <div className={`w-full min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-[#1C1B21] text-white' : 'bg-[#FAFAF9] text-[#1C1B21]'}`}>
+        <header className="sticky top-0 z-50 bg-[#24232B] border-b border-[#3B3947] px-4 py-3 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              id="builder-back-to-website-btn"
+              onClick={() => setIsBuilderOpen(false)}
+              className="px-3 py-1.5 rounded-lg bg-[#1C1B21] hover:bg-[#2C2B35] text-white text-xs font-mono font-bold flex items-center gap-2 border border-[#3B3947] cursor-pointer transition-colors shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#979BF3]" />
+              <span>Back to Public Website</span>
+            </button>
+            <div className="hidden sm:block h-5 w-px bg-[#3B3947]" />
+            <div className="flex items-center gap-2">
+              <Layout className="w-4 h-4 text-[#979BF3]" />
+              <h2 className="text-xs sm:text-sm font-bold font-mono tracking-tight text-white">
+                CloudboyX Bootstrap Website Builder
+              </h2>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsBuilderOpen(false);
+                onLaunchApp('suite');
+              }}
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#979BF3] hover:bg-[#B4B7F7] text-[#1C1B21] font-mono font-bold text-xs rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span className="hidden sm:inline">Enter Enterprise Suite</span>
+              <span className="sm:hidden">Suite</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto p-3 sm:p-6">
+          <WebsiteBuilderView
+            isStandaloneMode={true}
+            setIsStandaloneMode={(val) => setIsBuilderOpen(val)}
+            currentUser={currentUser}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-[#1C1B21] text-[#f8fafc]' : 'bg-[#fafaf9] text-[#1c1917]'}`}>
       
@@ -269,6 +321,16 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
               <span>Predict Engine</span>
             </a>
+            <button
+              type="button"
+              id="header-nav-bootstrap-builder-btn"
+              onClick={() => setIsBuilderOpen(true)}
+              className="text-[#979BF3] hover:text-[#B4B7F7] hover:underline flex items-center gap-1.5 font-bold cursor-pointer transition-colors"
+              title="Launch Visual Bootstrap Landing Page & Portal Builder"
+            >
+              <Layout className="w-3.5 h-3.5 text-[#979BF3]" />
+              <span>Bootstrap Builder</span>
+            </button>
             <a href="#portals" className="text-[#979BF3] hover:underline flex items-center gap-1 font-bold">
               <Globe className="w-3.5 h-3.5 text-[#979BF3]" />
               <span>Brand Portals</span>
@@ -462,6 +524,18 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <TrendingUp className="w-4 h-4 text-purple-400" />
                 <span>Predict &amp; Odds Engine</span>
               </a>
+              <button
+                type="button"
+                id="mobile-drawer-bootstrap-builder-btn"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsBuilderOpen(true);
+                }}
+                className="w-full text-left min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 text-[#979BF3] transition-colors font-bold flex items-center gap-2.5 cursor-pointer"
+              >
+                <Layout className="w-4 h-4 text-[#979BF3]" />
+                <span>Bootstrap Builder</span>
+              </button>
               <a 
                 href="#portals" 
                 onClick={() => setIsMobileMenuOpen(false)} 
@@ -705,7 +779,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 }`}
               >
                 <Zap className="w-4 h-4" />
-                <span>02. Ingress &amp; AI</span>
+                <span>02. Cloudboy Connect</span>
               </button>
 
               <button
@@ -905,11 +979,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   </div>
 
                   <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                    Commerce Ingress Gateway & Strategic AI Copilot
+                    Cloudboy Connect Unified Studio
                   </h3>
 
                   <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
-                    The external translation engine. Ingests raw Shopify webhook payloads, ANSI X12 EDI 850 purchasing streams, CSV batches, and invoice images, compiling them into normalized transactions with AI guidance.
+                    The unified integration core merging Cloudboy Ingress Studio and Cloudboy Connect. Authorizes reseller partner domains and translates raw Shopify webhooks, ANSI X12 EDI 850 purchasing streams, CSV batches, and invoice images with AI cognitive routing into relational general ledgers.
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-mono">
@@ -924,8 +998,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="font-bold text-slate-900 dark:text-white">MAP & C&D Protection Suite</div>
-                        <div className="text-slate-500 text-[11px]">Batch SKU scrapers, screenshot proof, C&D dispatch & regional heatmap</div>
+                        <div className="font-bold text-slate-900 dark:text-white">Reseller Domain Authority</div>
+                        <div className="text-slate-500 text-[11px]">DNS verification, rate-limit governance, and certified ingress routes</div>
                       </div>
                     </div>
 
@@ -961,7 +1035,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                       className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-mono font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      <span>Launch Module 02 Workspace</span>
+                      <span>Launch Cloudboy Connect Studio</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
 
@@ -3382,7 +3456,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     </div>
                     <div className="flex items-start gap-2 font-bold text-slate-900 dark:text-white">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Module 02: Commerce Ingress Gateway &amp; Strategic AI Copilot</span>
+                      <span>Module 02: Cloudboy Connect Unified Studio</span>
                     </div>
                     <div className="flex items-start gap-2 font-bold text-slate-900 dark:text-white">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -3565,11 +3639,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                       <div className="flex items-center gap-2 mb-2">
                         <Zap className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
-                        <h4 className="font-bold text-sm">Commerce Ingress &amp; AI</h4>
+                        <h4 className="font-bold text-sm">Cloudboy Connect Studio</h4>
                       </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Shopify webhooks, ANSI X12 EDI 850 parser, CSV batch mapper, camera QR scanner, and Gemini multimodal OCR.
+                        Unified ingress core, reseller domain filtering, Shopify &amp; ANSI X12 EDI 850 webhooks, CSV batch mapper, and Gemini AI copilot.
                       </p>
                     </div>
 
@@ -3818,7 +3892,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                         </span>
                       </div>
                       <p className="text-xs text-slate-500">
-                        {selectedModules.map(m => m === 'ledger' ? 'General Ledger' : m === 'ingress' ? 'Commerce Ingress & AI' : m === 'procurement' ? '3-Way Procurement' : m === 'map_protection' ? 'MAP Defense' : 'Predict & Odds Engine').join(' + ')}
+                        {selectedModules.map(m => m === 'ledger' ? 'General Ledger' : m === 'ingress' ? 'Cloudboy Connect' : m === 'procurement' ? '3-Way Procurement' : m === 'map_protection' ? 'MAP Defense' : 'Predict & Odds Engine').join(' + ')}
                         {selectedSecurityTier !== 'standard' && ` + ${selectedSecurityTier === 'cybershield_pro' ? 'CyberShield Pro SOC' : 'CyberShield Sovereign SOX-404 SOC'}`}
                       </p>
                     </div>

@@ -180,7 +180,7 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
                   <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">
                     MOD 02
                   </span>
-                  <h4 className="font-bold text-xs truncate">Commerce Ingress & AI Copilot</h4>
+                  <h4 className="font-bold text-xs truncate">Cloudboy Connect Unified Studio</h4>
                   {isModuleUnlocked('ingress') ? (
                     <span className="text-[9px] font-mono font-bold text-emerald-500 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> ACTIVE
@@ -192,7 +192,7 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                  Shopify webhooks, EDI 850 parser, CSV auto-mapper, QR/barcode scanner, OCR
+                  Unified reseller domain authority, EDI 850 parser, Shopify webhooks & CSV mapper
                 </p>
               </div>
             </div>

@@ -132,7 +132,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       case 'erp':
         return { label: 'ERP Ledger Gateway', category: 'Ledger', icon: <BookOpen className="w-3.5 h-3.5 text-[#979BF3]" /> };
       case 'cloudboy_x':
-        return { label: 'Cloudboy X Flow', category: 'Cloudboy X', icon: <Zap className="w-3.5 h-3.5 text-amber-300" /> };
+        return { label: 'Cloudboy Connect', category: 'Connect', icon: <Zap className="w-3.5 h-3.5 text-amber-300" /> };
       case 'troubleshooting':
         return { label: 'Diagnostics & Isolator', category: 'Diagnostics', icon: <Terminal className="w-3.5 h-3.5 text-emerald-300" /> };
       case 'admin':
@@ -210,7 +210,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               </button>
             </div>
 
-            {/* 3. Cloudboy X Suite Category Dropdown */}
+            {/* 3. Cloudboy Connect Category Dropdown */}
             <div className="relative">
               <button
                 type="button"
@@ -224,7 +224,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 aria-expanded={activeDropdown === 'cloudboy'}
               >
                 <Zap className="w-3.5 h-3.5 text-amber-300" />
-                <span>Cloudboy X Suite</span>
+                <span>Cloudboy Connect</span>
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${activeDropdown === 'cloudboy' ? 'rotate-180' : ''}`} />
               </button>
             </div>
@@ -433,7 +433,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
         <button
           type="button"
-          onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Flow')}
+          onClick={() => handleSelectView('cloudboy_x', 'Cloudboy Connect')}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
             mainView === 'cloudboy_x'
               ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
@@ -441,7 +441,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
           }`}
         >
           <Zap className="w-3.5 h-3.5 text-amber-300" />
-          <span>02. Ingress</span>
+          <span>02. Cloudboy Connect</span>
         </button>
 
         <button
@@ -648,7 +648,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-300" />
                 <h3 className="text-xs font-mono uppercase tracking-widest text-white font-bold">
-                  Cloudboy X Transitional Flow & Intelligent Integrations
+                  Cloudboy Connect Unified Studio & Intelligent Integrations
                 </h3>
               </div>
               <span className="text-[11px] font-mono text-[#979BF3]/70">E-Commerce Webhooks • EDI 850 • AI Copilot</span>
@@ -656,11 +656,11 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               
-              {/* Cloudboy X Gateway */}
+              {/* Cloudboy Connect Unified Studio */}
               <button
                 type="button"
                 id="tab-view-cloudboy-x"
-                onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Transitional Flow')}
+                onClick={() => handleSelectView('cloudboy_x', 'Cloudboy Connect Studio')}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                   mainView === 'cloudboy_x'
                     ? 'bg-[#979BF3]/35 border-amber-400 shadow-lg ring-1 ring-amber-400'
@@ -679,14 +679,14 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     )}
                   </div>
                   <h4 className="text-sm font-bold text-white group-hover:text-amber-200 transition-colors font-mono">
-                    ⚡ Cloudboy X Transitional Flow
+                    ⚡ Cloudboy Connect Studio
                   </h4>
                   <p className="text-xs text-white/70 mt-1 leading-relaxed">
-                    Reseller webhook router, live Shopify transaction feeds, EDI 850 purchase order translator & high-speed batch dispatcher.
+                    Unified reseller domain authority, live Shopify transaction feeds, EDI 850 purchase order translator & high-speed batch router.
                   </p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-amber-300">
-                  <span>Open Reseller & Storefront Flow</span>
+                  <span>Open Cloudboy Connect Studio</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
@@ -1348,18 +1348,18 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               </div>
             </div>
 
-            {/* Group B: Cloudboy X Suite */}
+            {/* Group B: Cloudboy Connect Suite */}
             <div className="space-y-2 pt-2 border-t border-white/10">
               <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300/80 font-bold block px-1">
-                Cloudboy X Transitional Suite
+                Cloudboy Connect Unified Suite
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 
-                {/* Module 4: Cloudboy X Gateway */}
+                {/* Module 4: Cloudboy Connect Unified Studio */}
                 <button
                   type="button"
                   id="tab-view-cloudboy-x-mobile"
-                  onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Flow')}
+                  onClick={() => handleSelectView('cloudboy_x', 'Cloudboy Connect Studio')}
                   className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
                     mainView === 'cloudboy_x' 
                       ? 'bg-[#979BF3] text-white border-amber-300 shadow-md ring-1 ring-amber-300' 
@@ -1369,8 +1369,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                   <div className="flex items-center gap-2.5">
                     <Zap className="w-4 h-4 text-amber-300 shrink-0" />
                     <div>
-                      <div className="text-xs font-bold">Cloudboy X Gateway</div>
-                      <div className="text-[10px] text-white/60 font-normal">Reseller router & Shopify webhooks</div>
+                      <div className="text-xs font-bold">Cloudboy Connect Studio</div>
+                      <div className="text-[10px] text-white/60 font-normal">Unified reseller router & Shopify webhooks</div>
                     </div>
                   </div>
                   {mainView === 'cloudboy_x' && <Check className="w-4 h-4 text-amber-200 shrink-0" />}

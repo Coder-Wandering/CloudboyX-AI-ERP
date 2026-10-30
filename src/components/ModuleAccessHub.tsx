@@ -366,11 +366,11 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
                   <Zap className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold">Commerce Ingress Gateway & Strategic AI Copilot</h3>
+                <h3 className="text-lg font-bold">Cloudboy Connect Unified Studio</h3>
               </div>
 
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                Shopify HMAC webhooks, ANSI X12 EDI 850 parser, batch SKU MAP price crawlers, automated Cease & Desist dispatch, and Sentinel AI brand sentiment bots.
+                Unified commerce ingress, reseller domain authority, Shopify HMAC webhooks, ANSI X12 EDI 850 parser, CSV auto-mappers, and AI cognitive ledger routing.
               </p>
 
               {/* Features List */}
@@ -381,15 +381,15 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>Autonomous MAP & C&D Enforcement Suite</span>
+                  <span>Authorized Reseller Domain Ingress</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>Regional Violation Heatmap & Evidence Scraper</span>
+                  <span>Sub-4ms Ingest Latency & Event Fan-out</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>Sentinel AI Reputation Bot & Trajectory Forecast</span>
+                  <span>AI Cognitive Journal Entry Dispatch</span>
                 </div>
               </div>
 
@@ -398,7 +398,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}>
                 <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-slate-400">Ingress Status:</span>
+                  <span className="text-slate-400">Connect Status:</span>
                   <span className="font-bold text-purple-400">3 CHANNELS ONLINE</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -417,7 +417,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                   className="w-full py-3 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-98 text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Zap className="w-4 h-4" />
-                  <span>Launch Ingress & AI Gateway ➔</span>
+                  <span>Launch Cloudboy Connect Studio ➔</span>
                 </button>
               ) : (
                 <button

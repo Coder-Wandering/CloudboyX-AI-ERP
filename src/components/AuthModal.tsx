@@ -327,7 +327,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const moduleNamesMap: Record<string, { name: string; icon: React.ReactNode }> = {
     ledger: { name: 'Module 1: General Ledger', icon: <BookOpen className="w-3 h-3 text-[#979BF3]" /> },
-    ingress: { name: 'Module 2: Ingress & AI Hub', icon: <Zap className="w-3 h-3 text-amber-400" /> },
+    ingress: { name: 'Module 2: Cloudboy Connect Studio', icon: <Zap className="w-3 h-3 text-amber-400" /> },
     procurement: { name: 'Module 3: Procurement & AP', icon: <Layers className="w-3 h-3 text-emerald-400" /> }
   };
 
@@ -353,7 +353,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </h3>
               <p className="text-[11px] text-[#A6A5B2] font-mono">
                 {mode === 'signin' 
-                  ? 'Access your General Ledger, Ingress & Procurement suite' 
+                  ? 'Access your General Ledger, Cloudboy Connect & Procurement suite' 
                   : 'Start with the complete suite or customize your modules'}
               </p>
             </div>
