@@ -89,6 +89,7 @@ import { ModuleSwitcherModal } from './components/ModuleSwitcherModal';
 import { UserAccount, AuthModal } from './components/AuthModal';
 import SecurityAuditModule from './components/SecurityAuditModule';
 import MapProtectionModule from './components/MapProtectionModule';
+import { PredictModule } from './predict/PredictModule';
 
 export { CorporateBrandLogo };
 
@@ -276,7 +277,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'suite' | 'hub') => {
+  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'hub') => {
     if (target === 'hub') {
       navigateToHub();
       return;
@@ -289,6 +290,8 @@ export default function App() {
       setMainView('procurement');
     } else if (target === 'map_protection') {
       setMainView('map_protection');
+    } else if (target === 'predict') {
+      setMainView('predict');
     }
     setAppMode('suite');
     try {
@@ -309,7 +312,7 @@ export default function App() {
 
   // Feed source channels state
   const [activeTab, setActiveTab] = useState<'shopify' | 'legacy_csv' | 'edi' | 'ai_mapped'>('shopify');
-  const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection'>('erp');
+  const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection' | 'predict'>('erp');
   const [activeBot, setActiveBot] = useState<'erp_gateway' | 'cloudboy_transit' | 'backend_isolator'>('erp_gateway');
 
   // Trigger automated helper prompt from our connection assistant bot
@@ -10104,6 +10107,18 @@ export default function App() {
         </main>
       )}
 
+      {/* Quantitative Forecasting & Bayesian Prediction Engine Section */}
+      {mainView === 'predict' && (
+        <main className="w-full">
+          <PredictModule 
+            onBackToCentralHub={navigateToHub}
+            onNavigateToModule={(mod) => navigateToSuite(mod as any)}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+          />
+        </main>
+      )}
+
       {/* Global Regulatory Compliance & Licensing Footer */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 pb-12 border-t border-slate-200">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -11585,6 +11600,8 @@ export default function App() {
             setMainView('procurement');
           } else if (modKey === 'map_protection') {
             setMainView('map_protection');
+          } else if (modKey === 'predict') {
+            setMainView('predict');
           }
         }}
         onOpenUpgradeModal={() => {

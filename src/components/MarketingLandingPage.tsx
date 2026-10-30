@@ -57,13 +57,14 @@ import {
   MapPin,
   TrendingDown,
   Send,
-  Inbox
+  Inbox,
+  Trophy
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { AuthModal, UserAccount } from './AuthModal';
 
 interface MarketingLandingPageProps {
-  onLaunchApp: (target?: 'ledger' | 'ingress' | 'procurement' | 'suite' | 'hub') => void;
+  onLaunchApp: (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'hub') => void;
   isDarkMode: boolean;
   setIsDarkMode?: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -85,18 +86,20 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signup');
 
-  // Interactive 3-Modules showcase tab
-  const [activeModuleTab, setActiveModuleTab] = useState<'ledger' | 'ingress' | 'procurement'>('ledger');
+  // Interactive 5-Modules showcase tab
+  const [activeModuleTab, setActiveModuleTab] = useState<'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict'>('ledger');
 
   // Billing cycle toggle: monthly | annual
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
 
   // Modular A La Carte Pricing Configurator state
   const [pricingMode, setPricingMode] = useState<'bundle' | 'modular'>('bundle');
-  const [selectedModules, setSelectedModules] = useState<('ledger' | 'ingress' | 'procurement')[]>([
+  const [selectedModules, setSelectedModules] = useState<('ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict')[]>([
     'ledger',
     'ingress',
-    'procurement'
+    'procurement',
+    'map_protection',
+    'predict'
   ]);
 
   // CyberShield Security Subscription Add-on state
@@ -111,7 +114,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [simStep, setSimStep] = useState<number>(3); // 1 = Ingesting, 2 = Mapping, 3 = Balanced
 
-  const toggleModuleSelection = (moduleKey: 'ledger' | 'ingress' | 'procurement') => {
+  // Interactive Predict Sandbox Calculator state
+  const [sandboxModelProb, setSandboxModelProb] = useState<number>(65);
+  const [sandboxMarketPrice, setSandboxMarketPrice] = useState<number>(44);
+  const [activePortalTemplate, setActivePortalTemplate] = useState<'saas' | 'logistics' | 'brand' | 'agency' | 'wholesale'>('saas');
+  const [portalViewport, setPortalViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+
+  const toggleModuleSelection = (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict') => {
     setSelectedModules(prev => {
       if (prev.includes(moduleKey)) {
         if (prev.length === 1) return prev; // Keep at least 1 module selected
@@ -125,11 +134,15 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const calculateModularPrice = () => {
     const count = selectedModules.length;
     if (billingCycle === 'annual') {
-      if (count === 3) return 959; // All 3 modules (Save $298/mo)
+      if (count === 5) return 1299; // All 5 modules (Save $696/mo)
+      if (count === 4) return 1149; // 4 modules (Save $447/mo)
+      if (count === 3) return 959; // 3 modules (Save $238/mo)
       if (count === 2) return 719; // 2 modules (Save $79/mo)
       return 399; // 1 module
     } else {
-      if (count === 3) return 1199; // All 3 modules (Save $298/mo)
+      if (count === 5) return 1599; // All 5 modules (Save $896/mo)
+      if (count === 4) return 1399; // 4 modules (Save $597/mo)
+      if (count === 3) return 1199; // 3 modules (Save $298/mo)
       if (count === 2) return 899; // 2 modules (Save $99/mo)
       return 499; // 1 module
     }
@@ -243,23 +256,27 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           </div>
 
           {/* Nav Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs font-mono font-bold tracking-wide">
+          <nav className="hidden md:flex items-center gap-5 lg:gap-6 text-xs font-mono font-bold tracking-wide">
             <a href="#modules" className="text-[#979BF3] dark:text-[#979BF3] hover:underline flex items-center gap-1">
               <Layers className="w-3.5 h-3.5" />
-              <span>3 Modules</span>
+              <span>5 Core Modules</span>
             </a>
             <a href="#brand-protection" className="text-[#E00728] dark:text-[#E00728] hover:underline flex items-center gap-1 font-bold">
               <ShieldAlert className="w-3.5 h-3.5 text-[#E00728]" />
-              <span>MAP & Brand Protection</span>
+              <span>MAP Defense</span>
+            </a>
+            <a href="#predict" className="text-purple-400 hover:underline flex items-center gap-1 font-bold">
+              <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
+              <span>Predict Engine</span>
+            </a>
+            <a href="#portals" className="text-[#979BF3] hover:underline flex items-center gap-1 font-bold">
+              <Globe className="w-3.5 h-3.5 text-[#979BF3]" />
+              <span>Brand Portals</span>
             </a>
             <a href="#security" className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-bold">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>CyberShield SOC</span>
             </a>
-            <a href="#features" className="hover:text-[#979BF3] transition-colors">Features</a>
-            <a href="#simulator" className="hover:text-[#979BF3] transition-colors">How It Works</a>
-            <a href="#architecture" className="hover:text-[#979BF3] transition-colors">Architecture</a>
-            <a href="#testimonials" className="hover:text-[#979BF3] transition-colors">Enterprise Proof</a>
             <a href="#pricing" className="hover:text-[#979BF3] transition-colors">Pricing & Plans</a>
             <a href="#faq" className="hover:text-[#979BF3] transition-colors">FAQ</a>
           </nav>
@@ -380,20 +397,20 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           }`}>
             {/* Mobile Auth Status Card */}
             {currentUser ? (
-              <div className="p-3 rounded-xl border bg-slate-100/80 dark:bg-slate-850/80 border-slate-200 dark:border-slate-750 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-full bg-[#979BF3] text-[#1C1B21] text-white flex items-center justify-center font-bold text-xs">
+              <div className="p-3.5 rounded-xl border bg-[#24232B] border-[#3B3947] text-white flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-full bg-[#979BF3] text-[#1C1B21] flex items-center justify-center font-bold text-xs shrink-0">
                     {currentUser.avatarInitials}
                   </span>
                   <div>
-                    <div className="font-bold text-xs">{currentUser.name}</div>
-                    <div className="text-[10px] text-slate-500">{currentUser.company}</div>
+                    <div className="font-bold text-xs text-white">{currentUser.name}</div>
+                    <div className="text-[10px] text-[#A6A5B2]">{currentUser.company}</div>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-2 py-1 text-xs text-[#E00728] hover:underline flex items-center gap-1"
+                  className="px-3 py-1.5 text-xs text-[#E00728] hover:underline flex items-center gap-1 min-h-[40px] cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>
@@ -404,88 +421,92 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={() => { setIsMobileMenuOpen(false); openAuthWithPlan('signin'); }}
-                  className="py-2 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-center font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="min-h-[44px] py-2.5 px-3 rounded-xl border border-slate-300 dark:border-slate-700 text-center font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
                 >
-                  <LogIn className="w-3.5 h-3.5" />
+                  <LogIn className="w-4 h-4" />
                   <span>Sign In</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { setIsMobileMenuOpen(false); openAuthWithPlan('signup', true); }}
-                  className="py-2 px-3 rounded-lg bg-[#979BF3] text-[#1C1B21] text-white text-center font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                  className="min-h-[44px] py-2.5 px-3 rounded-xl bg-[#979BF3] text-[#1C1B21] hover:bg-[#B4B7F7] text-center font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
                 >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>Sign Up</span>
+                  <UserPlus className="w-4 h-4 text-[#1C1B21]" />
+                  <span>Sign Up Free</span>
                 </button>
               </div>
             )}
 
-            <a 
-              href="#modules" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors font-bold text-[#979BF3] dark:text-[#979BF3] flex items-center gap-2"
-            >
-              <Layers className="w-4 h-4" />
-              <span>3 Core Modules</span>
-            </a>
-            <a 
-              href="#brand-protection" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#E00728]/15 text-[#E00728] dark:text-[#E00728] transition-colors font-bold flex items-center gap-2"
-            >
-              <ShieldAlert className="w-4 h-4 text-[#E00728]" />
-              <span>MAP & Brand Protection Suite</span>
-            </a>
-            <a 
-              href="#security" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-colors font-bold flex items-center gap-2"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>CyberShield SOC & Security</span>
-            </a>
-            <a 
-              href="#features" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
-            >
-              Features
-            </a>
-            <a 
-              href="#simulator" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
-            >
-              How It Works
-            </a>
-            <a 
-              href="#architecture" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors font-bold text-[#979BF3] dark:text-[#979BF3]"
-            >
-              Architecture
-            </a>
-            <a 
-              href="#testimonials" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
-            >
-              Enterprise Proof
-            </a>
-            <a 
-              href="#pricing" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
-            >
-              Pricing
-            </a>
-            <a 
-              href="#faq" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="block py-2 px-3 rounded-lg hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors"
-            >
-              FAQ
-            </a>
+            <div className="space-y-1 pt-1">
+              <a 
+                href="#modules" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 transition-colors font-bold text-[#979BF3] dark:text-[#979BF3] flex items-center gap-2.5"
+              >
+                <Layers className="w-4 h-4 text-[#979BF3]" />
+                <span>5 Core Modules</span>
+              </a>
+              <a 
+                href="#brand-protection" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#E00728]/15 text-[#E00728] transition-colors font-bold flex items-center gap-2.5"
+              >
+                <ShieldAlert className="w-4 h-4 text-[#E00728]" />
+                <span>MAP & Brand Defense Suite</span>
+              </a>
+              <a 
+                href="#predict" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-purple-500/10 text-purple-400 transition-colors font-bold flex items-center gap-2.5"
+              >
+                <TrendingUp className="w-4 h-4 text-purple-400" />
+                <span>Predict &amp; Odds Engine</span>
+              </a>
+              <a 
+                href="#portals" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 text-[#979BF3] transition-colors font-bold flex items-center gap-2.5"
+              >
+                <Globe className="w-4 h-4 text-[#979BF3]" />
+                <span>Brand Portals &amp; Templates</span>
+              </a>
+              <a 
+                href="#security" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-colors font-bold flex items-center gap-2.5"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>CyberShield SOC &amp; Security</span>
+              </a>
+              <a 
+                href="#features" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors flex items-center"
+              >
+                Features
+              </a>
+              <a 
+                href="#simulator" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors flex items-center"
+              >
+                How It Works
+              </a>
+              <a 
+                href="#pricing" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors flex items-center font-bold text-[#979BF3]"
+              >
+                Pricing &amp; Modular Plans
+              </a>
+              <a 
+                href="#faq" 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 hover:text-[#979BF3] transition-colors flex items-center"
+              >
+                FAQ
+              </a>
+            </div>
           </div>
         )}
       </header>
@@ -653,51 +674,77 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               <span>Modular Architecture · Deploy Separately or Unified</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Three Specialized Power Engines. One Unified Ecosystem.
+              Five Specialized Power Engines. One Unified Ecosystem.
             </h2>
             <p className="mt-3 text-base text-slate-600 dark:text-slate-400">
               License the entire enterprise suite at one bundled monthly rate, or piece together only the specific modules your business operations require.
             </p>
 
             {/* Module Switcher Tabs */}
-            <div className="mt-8 flex flex-wrap justify-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm max-w-3xl mx-auto">
+            <div className="mt-8 flex flex-wrap justify-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm max-w-5xl mx-auto">
               <button
                 type="button"
                 onClick={() => setActiveModuleTab('ledger')}
-                className={`flex-1 min-w-[200px] py-2.5 px-4 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`flex-1 min-w-[170px] py-2.5 px-3 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   activeModuleTab === 'ledger'
-                    ? 'bg-[#979BF3] text-white shadow-md'
+                    ? 'bg-[#979BF3] text-[#1C1B21] font-extrabold shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                <span>01. General Ledger Engine</span>
+                <span>01. Ledger</span>
               </button>
               
               <button
                 type="button"
                 onClick={() => setActiveModuleTab('ingress')}
-                className={`flex-1 min-w-[200px] py-2.5 px-4 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`flex-1 min-w-[170px] py-2.5 px-3 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   activeModuleTab === 'ingress'
-                    ? 'bg-[#979BF3] text-white shadow-md'
+                    ? 'bg-[#979BF3] text-[#1C1B21] font-extrabold shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Zap className="w-4 h-4" />
-                <span>02. Commerce Ingress & AI</span>
+                <span>02. Ingress &amp; AI</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveModuleTab('procurement')}
-                className={`flex-1 min-w-[200px] py-2.5 px-4 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`flex-1 min-w-[170px] py-2.5 px-3 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   activeModuleTab === 'procurement'
-                    ? 'bg-[#979BF3] text-white shadow-md'
+                    ? 'bg-[#979BF3] text-[#1C1B21] font-extrabold shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>03. 3-Way Procurement</span>
+                <span>03. Procurement</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveModuleTab('map_protection')}
+                className={`flex-1 min-w-[170px] py-2.5 px-3 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  activeModuleTab === 'map_protection'
+                    ? 'bg-[#E00728] text-white font-extrabold shadow-md'
+                    : 'text-rose-600/90 dark:text-rose-400 hover:text-rose-700 dark:hover:text-white hover:bg-rose-50 dark:hover:bg-rose-950/30'
+                }`}
+              >
+                <ShieldAlert className="w-4 h-4" />
+                <span>04. MAP Defense</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveModuleTab('predict')}
+                className={`flex-1 min-w-[170px] py-2.5 px-3 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  activeModuleTab === 'predict'
+                    ? 'bg-purple-600 text-white font-extrabold shadow-md'
+                    : 'text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-purple-950/30'
+                }`}
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span>05. Predict Engine</span>
               </button>
             </div>
           </div>
@@ -1113,6 +1160,309 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     <div className="pt-3 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
                       <span>Mesh IPC: Direct Shared Memory</span>
                       <span>Health: Nominal</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Module 4: Brand Reputation & MAP Protection Details */}
+          {activeModuleTab === 'map_protection' && (
+            <div className={`p-8 sm:p-10 rounded-3xl border shadow-xl transition-all ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className="lg:col-span-7 space-y-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-extrabold uppercase bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      Module 04 · Autonomous Enforcement
+                    </span>
+                    <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      240+ Touchpoints Active
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    Brand Reputation Sentinel &amp; Autonomous MAP Defense Suite
+                  </h3>
+
+                  <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                    Protects your brand margins across major online marketplaces (Amazon, Walmart, TikTok Shop, eBay). Crawlers photograph price cuts in real time, cryptographically hash screenshot evidence for courtroom admissibility, and transmit certified Cease &amp; Desist warnings.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-mono">
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">Continuous Multi-Marketplace Sweeps</div>
+                        <div className="text-slate-500 text-[11px]">Amazon, Walmart, TikTok Shop, Mercari, eBay</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">Court-Ready Evidence Hashes</div>
+                        <div className="text-slate-500 text-[11px]">SHA-256 screenshot notarization &amp; DOM capture</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">1-Click Cease &amp; Desist Notice</div>
+                        <div className="text-slate-500 text-[11px]">Automated transmission &amp; email alert notifications</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">Sentinel AI Brand Bot</div>
+                        <div className="text-slate-500 text-[11px]">Multi-channel social, review &amp; news sentiment rate</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onLaunchApp('map_protection')}
+                      className="px-5 py-3 bg-[#E00728] hover:bg-rose-600 text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <ShieldAlert className="w-4 h-4" />
+                      <span>Launch MAP Protection Suite ➔</span>
+                    </button>
+                    <a
+                      href="#brand-protection"
+                      className="px-4 py-3 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-mono font-bold rounded-xl transition-all"
+                    >
+                      View Live Violation Evidence
+                    </a>
+                  </div>
+                </div>
+
+                {/* Right Interactive Telemetry Box */}
+                <div className="lg:col-span-5">
+                  <div className={`p-6 rounded-2xl border font-mono text-xs space-y-4 ${
+                    isDarkMode ? 'bg-[#1C1B21] border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                        <span className="font-bold uppercase tracking-wider text-rose-500">MAP Sentinel Node</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500">Live Crawl Active</span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-1">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">Target SKU:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">VNTG-TEE-BLK</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">Target MAP Floor:</span>
+                          <span className="font-bold text-emerald-500">$35.00</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">Breach Price:</span>
+                          <span className="font-bold text-rose-500">$26.99 (-$8.01)</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 space-y-1">
+                        <div className="flex items-center justify-between font-bold text-[11px]">
+                          <span>Cease &amp; Desist Dispatched</span>
+                          <span>CD-2026-MAP-0842</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                          To: legal@apexdeals.com · Lanham Act 15 U.S.C. § 1114 Warning Sent
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-center text-[11px]">
+                        <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                          <div className="text-slate-400 text-[10px]">Brand Sentiment</div>
+                          <div className="font-bold text-emerald-500 mt-0.5">94.2% Positive</div>
+                        </div>
+                        <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                          <div className="text-slate-400 text-[10px]">Active SKUs</div>
+                          <div className="font-bold text-slate-900 dark:text-white mt-0.5">240 Monitored</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+                      <span>Scraper Cycle: 100% Online</span>
+                      <span className="text-emerald-500 font-bold">Email Alerts Armed</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Module 5: CloudboyX Predict & Bayesian Odds Details */}
+          {activeModuleTab === 'predict' && (
+            <div className={`p-8 sm:p-10 rounded-3xl border shadow-xl transition-all ${
+              isDarkMode ? 'bg-[#24232B] border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className="lg:col-span-7 space-y-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-extrabold uppercase bg-purple-500/10 text-purple-600 dark:text-[#979BF3] border border-purple-500/20">
+                      Module 05 · Quantitative Intelligence
+                    </span>
+                    <span className="text-xs font-mono text-purple-500 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                      Live Prediction Feeds
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    Quantitative Forecasting &amp; Bayesian Prediction Engine
+                  </h3>
+
+                  <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                    Engineered from the ground up for high-velocity probability forecasting. Combines real-time Kalshi and Polymarket contract spreads, NFL player props statistical distribution models, Bayesian probability updates, and Kelly Criterion capital allocation.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-mono">
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">Bayesian Probability Calculus</div>
+                        <div className="text-slate-500 text-[11px]">Fair odds, Kelly Criterion bankroll sizing &amp; EV</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">Kalshi &amp; Polymarket Volatility</div>
+                        <div className="text-slate-500 text-[11px]">Real-time contract spreads, order book depth &amp; sentiment</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">NFL Player Props Edge Matrix</div>
+                        <div className="text-slate-500 text-[11px]">Poisson distribution &amp; sportsbook discrepancy finder</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">Backtesting &amp; Webhook Hub</div>
+                        <div className="text-slate-500 text-[11px]">Historical event replay, catalyst impact &amp; REST APIs</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onLaunchApp('predict')}
+                      className="px-5 py-3 bg-[#979BF3] hover:bg-[#B4B7F7] text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                      <span>Launch Predict &amp; Odds Engine ➔</span>
+                    </button>
+                    <a
+                      href="#predict"
+                      className="px-4 py-3 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-mono font-bold rounded-xl transition-all"
+                    >
+                      Explore Interactive Sandbox
+                    </a>
+                  </div>
+                </div>
+
+                {/* Right Interactive Telemetry Box */}
+                <div className="lg:col-span-5">
+                  <div className={`p-6 rounded-2xl border font-mono text-xs space-y-4 ${
+                    isDarkMode ? 'bg-[#1C1B21] border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
+                        <span className="font-bold uppercase tracking-wider text-[#979BF3]">Kelly Criterion Live Calculator</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-500 font-bold">+21.0% Edge</span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-slate-400">Market Implied Price:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">{sandboxMarketPrice}¢ (44% prob)</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="90"
+                          value={sandboxMarketPrice}
+                          onChange={(e) => setSandboxMarketPrice(Number(e.target.value))}
+                          className="w-full accent-purple-500 cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-slate-400">Model Bayesian Estimate:</span>
+                          <span className="font-bold text-[#979BF3]">{sandboxModelProb}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="90"
+                          value={sandboxModelProb}
+                          onChange={(e) => setSandboxModelProb(Number(e.target.value))}
+                          className="w-full accent-indigo-500 cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Computed Outcome */}
+                      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 space-y-1.5">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">Statistical Edge:</span>
+                          <span className="font-bold text-emerald-500">
+                            {sandboxModelProb > sandboxMarketPrice ? `+${sandboxModelProb - sandboxMarketPrice}% Alpha` : `${sandboxModelProb - sandboxMarketPrice}% Drift`}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">Optimal Kelly Sizing:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            {Math.max(0, Math.round(((sandboxModelProb / 100) - (sandboxMarketPrice / 100)) / (1 - (sandboxMarketPrice / 100)) * 100))}% Bankroll
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">Expected Value:</span>
+                          <span className="font-bold text-[#979BF3]">
+                            +${Math.max(0, Math.round(((sandboxModelProb - sandboxMarketPrice) / sandboxMarketPrice) * 100))}% ROI
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-center text-[11px]">
+                        <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                          <div className="text-slate-400 text-[10px]">Tracked Contracts</div>
+                          <div className="font-bold text-slate-900 dark:text-white mt-0.5">Kalshi + Poly</div>
+                        </div>
+                        <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                          <div className="text-slate-400 text-[10px]">NFL Props</div>
+                          <div className="font-bold text-emerald-500 mt-0.5">32 Teams Synced</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+                      <span>Engine: Bayesian MCMC Node</span>
+                      <span className="text-purple-400 font-bold">&lt; 2ms Inference</span>
                     </div>
                   </div>
                 </div>
@@ -1673,6 +2023,534 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* 3E. CLOUDBOYX PREDICT: QUANTITATIVE FORECASTING & ODDS     */}
+      {/* ────────────────────────────────────────────────────────── */}
+      <section id="predict" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-b relative overflow-hidden ${
+        isDarkMode ? 'bg-[#0f0c1b] border-slate-800' : 'bg-gradient-to-b from-purple-50/50 via-white to-slate-50 border-slate-200'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-[#979BF3] border border-purple-500/30 mb-3">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>MODULE 05 · QUANTITATIVE PREDICTION &amp; EVENT ENGINE</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Bayesian Probability Models &amp; Real-Time Market Intelligence
+            </h2>
+            <p className="mt-3 text-base text-slate-600 dark:text-slate-400">
+              Transform qualitative assumptions into mathematical conviction. Live Kalshi &amp; Polymarket spread feeds, NFL player props statistical edge detection, Bayesian probability updates, and algorithmic Kelly Criterion bankroll sizing.
+            </p>
+          </div>
+
+          {/* 4 Pillars of Predict Engine */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            
+            {/* Predict Pillar 1 */}
+            <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
+              isDarkMode ? 'bg-[#1C1B21] border-slate-800 hover:border-purple-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-purple-400'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-[#979BF3] flex items-center justify-center font-bold">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-[#979BF3] font-bold border border-purple-500/20">
+                    BAYESIAN
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Probability Studio</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Computes Bayesian probability adjustments as breaking news and earnings reports arrive, outputting fair probability distributions vs market price.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span>Real-time Invariant Scoring</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span>Kelly Criterion Stake Sizing</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span>Expected ROI Inversion</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-purple-500">
+                <span>Model Latency</span>
+                <span className="font-bold">&lt; 2ms Inference</span>
+              </div>
+            </div>
+
+            {/* Predict Pillar 2 */}
+            <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
+              isDarkMode ? 'bg-[#1C1B21] border-slate-800 hover:border-indigo-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-indigo-400'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/20">
+                    MARKETS
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Live Contract Volatility</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Continuous multi-source order book scraping across Kalshi event contracts and Polymarket crypto liquidity pools for macro, political, and economic events.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <span>Order Book Depth Feeds</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <span>Cross-Exchange Spread Arbitrage</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <span>Sentiment Momentum Tracking</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-indigo-500">
+                <span>Data Ingestion</span>
+                <span className="font-bold">Sub-Second WebSocket</span>
+              </div>
+            </div>
+
+            {/* Predict Pillar 3 */}
+            <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
+              isDarkMode ? 'bg-[#1C1B21] border-slate-800 hover:border-emerald-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-emerald-400'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                    <Trophy className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                    SPORTS MATRIX
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">NFL Props Edge Matrix</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Player prop projections (passing, rushing, receiving, touchdowns) with Poisson distribution modeling to identify statistical mispricings vs consensus books.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>32 NFL Teams Monitored</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Injury &amp; Weather Volatility</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Automated Edge Percentile</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-emerald-500">
+                <span>Edge Accuracy</span>
+                <span className="font-bold">+18.4% Mean Alpha</span>
+              </div>
+            </div>
+
+            {/* Predict Pillar 4 */}
+            <div className={`p-6 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
+              isDarkMode ? 'bg-[#1C1B21] border-slate-800 hover:border-cyan-500/50' : 'bg-white border-slate-200 shadow-sm hover:border-cyan-400'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20">
+                    HISTORICAL
+                  </span>
+                </div>
+                <h3 className="font-bold font-mono text-base mb-1">Catalysts &amp; Backtesting</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Chronological milestone calendars showing event resolution criteria, catalyst impact weights, and historical strategy backtests with Sharpe ratios.
+                </p>
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                    <span>5,000+ Replayed Events</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                    <span>Brier Score Calibration</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <Check className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                    <span>REST / Webhook Ingestion Hub</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-mono text-cyan-500">
+                <span>Backtest Set</span>
+                <span className="font-bold">2.4M Historical Ticks</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Interactive Predict Engine Simulator Bar */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#170a2a] via-[#100c28] to-[#0a1828] text-white border border-[#979BF3]/40 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start gap-2 text-xs font-mono font-bold text-purple-400">
+                <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                <span>PREDICT ENGINE WORKBENCH: READY TO EXECUTE</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold font-mono">
+                Experience Quantitative Event Analytics Inside CloudboyX
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                Run live probability calculations, inspect NFL prop discrepancies, replay historical resolution timelines, and configure automated data connectors.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full lg:w-auto">
+              <button
+                type="button"
+                onClick={() => onLaunchApp('predict')}
+                className="w-full sm:w-auto px-6 py-3.5 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-95 text-[#1C1B21] font-mono font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <TrendingUp className="w-4 h-4 text-[#1C1B21]" />
+                <span>Launch Predict Workbench ➔</span>
+              </button>
+              <a
+                href="#pricing"
+                className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-mono font-bold text-xs sm:text-sm rounded-xl transition-all text-center cursor-pointer"
+              >
+                <span>Add Module 05 to Plan</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* 3F. WHITE-LABEL BRAND PORTALS & INSTANT SITE BUILDER       */}
+      {/* ────────────────────────────────────────────────────────── */}
+      <section id="portals" className={`scroll-mt-20 sm:scroll-mt-24 py-16 sm:py-24 border-b relative overflow-hidden ${
+        isDarkMode ? 'bg-[#15141c] border-slate-800' : 'bg-slate-50 border-slate-200'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#979BF3]/15 text-[#979BF3] border border-[#979BF3]/30 mb-3">
+              <Globe className="w-3.5 h-3.5" />
+              <span>BRAND PORTALS &amp; INSTANT COMPILER · ZERO-RUNTIME OVERHEAD</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Enterprise White-Label Brand Portals &amp; Instant Site Builder
+            </h2>
+            <p className="mt-3 text-base text-slate-600 dark:text-slate-400">
+              Launch turnkey, responsive public portals for your resellers, logistics partners, and brand protection compliance teams. Visual drag-and-drop block composition, live multi-viewport preview, and 1-click static code exports with $0.00 recurring builder fees.
+            </p>
+          </div>
+
+          {/* Interactive Portal Showcase Matrix */}
+          <div className={`p-6 sm:p-8 rounded-3xl border shadow-xl mb-12 ${
+            isDarkMode ? 'bg-[#1C1B21] border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            
+            {/* Top Toolbar: Viewport & Template Selectors */}
+            <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
+              
+              {/* Template Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-mono text-slate-400 mr-1 hidden sm:inline">Portal Kit:</span>
+                {[
+                  { key: 'saas', label: 'SaaS Rocket Hub', icon: '🚀' },
+                  { key: 'logistics', label: 'SafeShip Cargo', icon: '🚚' },
+                  { key: 'brand', label: 'Brand MAP Shield', icon: '🛡️' },
+                  { key: 'agency', label: 'Creative Studio', icon: '⚡' },
+                  { key: 'wholesale', label: 'B2B Wholesale', icon: '🏢' },
+                ].map((tpl) => (
+                  <button
+                    key={tpl.key}
+                    type="button"
+                    onClick={() => setActivePortalTemplate(tpl.key as any)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      activePortalTemplate === tpl.key
+                        ? 'bg-[#979BF3] text-[#1C1B21] shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    <span>{tpl.icon}</span>
+                    <span>{tpl.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Viewport Toggles */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setPortalViewport('desktop')}
+                  className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    portalViewport === 'desktop'
+                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Desktop (1920)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPortalViewport('tablet')}
+                  className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    portalViewport === 'tablet'
+                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Tablet (768)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPortalViewport('mobile')}
+                  className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    portalViewport === 'mobile'
+                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Mobile (375)
+                </button>
+              </div>
+            </div>
+
+            {/* Live Interactive Portal Canvas Preview */}
+            <div className="py-6 sm:py-8 w-full overflow-x-auto">
+              <div className={`mx-auto w-full transition-all duration-300 ${
+                portalViewport === 'desktop' ? 'max-w-5xl' : portalViewport === 'tablet' ? 'max-w-xl' : 'max-w-xs'
+              }`}>
+                
+                {/* Mock Browser Frame */}
+                <div className="rounded-2xl border border-slate-700/60 overflow-hidden shadow-2xl bg-[#0F172A] text-white font-sans">
+                  
+                  {/* Browser Bar */}
+                  <div className="bg-[#0b101d] px-4 py-2.5 border-b border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                    </div>
+                    <div className="bg-slate-900 px-4 py-1 rounded-lg text-[11px] text-slate-300 border border-slate-800 truncate max-w-[280px]">
+                      https://portal.enterprise.cloudboyx.io/{activePortalTemplate}
+                    </div>
+                    <div className="text-[10px] text-emerald-400 font-bold">200 OK</div>
+                  </div>
+
+                  {/* Portal Body Preview */}
+                  <div className="p-6 sm:p-8 space-y-6">
+                    {activePortalTemplate === 'saas' && (
+                      <div className="space-y-6">
+                        <div className="text-center max-w-xl mx-auto space-y-3">
+                          <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            SaaS Deployment Autopilot
+                          </span>
+                          <h4 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                            Manage Complex Multi-Channel Logistics On Autopilot
+                          </h4>
+                          <p className="text-xs text-slate-300">
+                            Complete compliance auditing, sub-second latency reporting, and white-labeled exports.
+                          </p>
+                          <div className="flex justify-center gap-2 pt-2">
+                            <span className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold font-mono">
+                              Start Free 14-Day Trial
+                            </span>
+                            <span className="px-4 py-2 bg-slate-800 text-slate-200 rounded-lg text-xs font-mono">
+                              API Documentation
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 3-Column Bento */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4">
+                          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                            <div className="text-indigo-400 text-base mb-1">⚡</div>
+                            <div className="font-bold">Sub-Second Scrapes</div>
+                            <div className="text-[11px] text-slate-400 mt-1">Discovers pricing deviations in real time across 240+ touchpoints.</div>
+                          </div>
+                          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                            <div className="text-emerald-400 text-base mb-1">🛡️</div>
+                            <div className="font-bold">Ironclad Security</div>
+                            <div className="text-[11px] text-slate-400 mt-1">WAF shunts, HMAC signature validation, and Merkle root proofs.</div>
+                          </div>
+                          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                            <div className="text-purple-400 text-base mb-1">📈</div>
+                            <div className="font-bold">Reseller Analytics</div>
+                            <div className="text-[11px] text-slate-400 mt-1">Automated partner scorecards and Lanham Act legal notice templates.</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePortalTemplate === 'logistics' && (
+                      <div className="space-y-6">
+                        <div className="text-center max-w-xl mx-auto space-y-2">
+                          <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            Volumetric Courier Engine
+                          </span>
+                          <h4 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                            Multi-Carrier Dispatch &amp; Rate Optimizer
+                          </h4>
+                          <p className="text-xs text-slate-300">
+                            Compare dynamic FedEx, UPS, USPS, and DHL transit tariffs with instant automated label dispatch slips.
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                            <div className="text-xs font-mono text-slate-400">Ground Parcel</div>
+                            <div className="text-xl font-bold font-mono text-white mt-1">$12<span className="text-xs text-slate-400">/parcel</span></div>
+                            <div className="text-[10px] text-slate-400 mt-1">3-5 day transit delivery</div>
+                          </div>
+                          <div className="p-3.5 rounded-xl bg-slate-900 border-2 border-indigo-500 text-center relative">
+                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] bg-indigo-600 px-2 py-0.5 rounded-full font-bold">POPULAR</span>
+                            <div className="text-xs font-mono text-indigo-300">Priority Air Freight</div>
+                            <div className="text-xl font-bold font-mono text-white mt-1">$36<span className="text-xs text-slate-400">/parcel</span></div>
+                            <div className="text-[10px] text-slate-400 mt-1">Guaranteed 1-2 day air flight</div>
+                          </div>
+                          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                            <div className="text-xs font-mono text-slate-400">Overnight Hot-Shot</div>
+                            <div className="text-xl font-bold font-mono text-white mt-1">$72<span className="text-xs text-slate-400">/parcel</span></div>
+                            <div className="text-[10px] text-slate-400 mt-1">Next-day terminal routing</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePortalTemplate === 'brand' && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                          <div>
+                            <span className="text-[10px] font-mono text-rose-400 font-bold uppercase">MAP Compliance Incident Desk</span>
+                            <h4 className="text-lg font-bold">Rogue Price-Breaker Incident TRK-CD-9941</h4>
+                          </div>
+                          <span className="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 text-xs font-mono font-bold">
+                            EVIDENTIARY HASH READY
+                          </span>
+                        </div>
+                        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs font-mono">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Violator Domain:</span>
+                            <span className="text-white font-bold">Apex Deals LLC (Amazon US Storefront)</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Product SKU:</span>
+                            <span className="text-indigo-300">VNTG-TEE-BLK</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Price Deviation:</span>
+                            <span className="text-rose-400 font-bold">$26.99 (Target MAP: $35.00 · -$8.01)</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Remedy Action:</span>
+                            <span className="text-emerald-400">Certified Lanham Act C&amp;D Transmitted</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePortalTemplate === 'agency' && (
+                      <div className="text-center max-w-lg mx-auto space-y-3 py-2">
+                        <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                          Creative Engineering
+                        </span>
+                        <h4 className="text-2xl font-extrabold tracking-tight">
+                          We Engineer Bespoke Digital Products That Users Love
+                        </h4>
+                        <p className="text-xs text-slate-300">
+                          Modern UI engineering, real-time compliance workflows, and strategic positioning for ambitious ventures.
+                        </p>
+                        <div className="pt-2">
+                          <span className="px-5 py-2.5 bg-white text-slate-900 rounded-xl text-xs font-mono font-bold">
+                            Schedule Design Sprint ➔
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePortalTemplate === 'wholesale' && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                          <h4 className="text-base font-bold font-mono">B2B Authorized Reseller Whitelist</h4>
+                          <span className="text-xs font-mono text-emerald-400 font-bold">34 Partners Active</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                          <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
+                            <div>
+                              <div className="font-bold text-white">Nordic Commerce AS</div>
+                              <div className="text-[10px] text-slate-400">Tier: Platinum · Margin Lock: 42%</div>
+                            </div>
+                            <span className="text-emerald-400 font-bold">VERIFIED</span>
+                          </div>
+                          <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
+                            <div>
+                              <div className="font-bold text-white">Pacific Basin Retailers</div>
+                              <div className="text-[10px] text-slate-400">Tier: Gold · Margin Lock: 38%</div>
+                            </div>
+                            <span className="text-emerald-400 font-bold">VERIFIED</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Bottom 5 Key Advantages Grid */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+              <div className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white">100% Zero-Cloud Runtime</div>
+                  <div className="text-slate-500 text-[11px]">$0.00/mo self-hosting with no lock-in fees</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white">1-Click Static HTML Export</div>
+                  <div className="text-slate-500 text-[11px]">Download production HTML5, React TSX, or JSON</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white">Live Multi-Viewport Auditing</div>
+                  <div className="text-slate-500 text-[11px]">Test Desktop, Tablet, and Mobile layouts</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white">AI Copywriting Assistant</div>
+                  <div className="text-slate-500 text-[11px]">Drafts marketing copy &amp; legal notices in seconds</div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -2279,30 +3157,31 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </div>
 
             {/* Pricing Mode Toggle: Whole Suite vs Piece Them Together */}
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <div className="inline-flex p-1.5 rounded-2xl bg-slate-200/80 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow-inner">
+            {/* Pricing Mode Toggle: Whole Suite vs Piece Them Together */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xl mx-auto">
+              <div className="flex flex-col sm:inline-flex sm:flex-row p-1.5 rounded-2xl bg-slate-200/80 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow-inner w-full sm:w-auto gap-1">
                 <button
                   type="button"
                   onClick={() => setPricingMode('bundle')}
-                  className={`px-5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`min-h-[44px] px-4 sm:px-5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     pricingMode === 'bundle'
                       ? 'bg-[#979BF3] text-white shadow-md'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <PackageCheck className="w-4 h-4" />
+                  <PackageCheck className="w-4 h-4 shrink-0" />
                   <span>General Suite All-in-One ($959/mo)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPricingMode('modular')}
-                  className={`px-5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`min-h-[44px] px-4 sm:px-5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     pricingMode === 'modular'
-                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-md'
+                      ? 'bg-[#979BF3] text-[#1C1B21] shadow-md'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <Sliders className="w-4 h-4" />
+                  <Sliders className="w-4 h-4 shrink-0" />
                   <span>Piece Them Together (A La Carte)</span>
                 </button>
               </div>
@@ -2312,7 +3191,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setBillingCycle('monthly')}
-                  className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                  className={`min-h-[44px] px-4 py-2 rounded-lg font-bold transition-all cursor-pointer ${
                     billingCycle === 'monthly'
                       ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-400'
@@ -2323,9 +3202,9 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setBillingCycle('annual')}
-                  className={`px-3.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`min-h-[44px] px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     billingCycle === 'annual'
-                      ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-xs'
+                      ? 'bg-[#979BF3] text-[#1C1B21] shadow-xs'
                       : 'text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -2607,14 +3486,14 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                   <div className="flex items-center gap-2 self-start sm:self-center">
                     <span className="text-xs font-mono text-slate-500">Modules Selected:</span>
-                    <span className="px-2.5 py-1 rounded-full bg-[#979BF3] text-[#1C1B21] text-white text-xs font-mono font-bold">
-                      {selectedModules.length} of 3
+                    <span className="px-2.5 py-1 rounded-full bg-[#979BF3] text-[#1C1B21] font-extrabold text-xs font-mono">
+                      {selectedModules.length} of 5
                     </span>
                   </div>
                 </div>
 
-                {/* 3 Interactive Module Choice Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                {/* 5 Interactive Module Choice Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-6">
                   
                   {/* Module 1 Card */}
                   <div
@@ -2622,7 +3501,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                       selectedModules.includes('ledger')
                         ? isDarkMode
-                          ? 'bg-[#24232B] border-[#00b4d8] shadow-md'
+                          ? 'bg-[#24232B] border-[#979BF3] shadow-md'
                           : 'bg-blue-50/60 border-[#979BF3] shadow-md'
                         : isDarkMode
                           ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
@@ -2643,7 +3522,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                       <div className="flex items-center gap-2 mb-2">
                         <BookOpen className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
-                        <h4 className="font-bold text-sm">General Ledger & Balancing</h4>
+                        <h4 className="font-bold text-sm">General Ledger &amp; Balancing</h4>
                       </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -2665,7 +3544,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                       selectedModules.includes('ingress')
                         ? isDarkMode
-                          ? 'bg-[#24232B] border-[#00b4d8] shadow-md'
+                          ? 'bg-[#24232B] border-[#979BF3] shadow-md'
                           : 'bg-blue-50/60 border-[#979BF3] shadow-md'
                         : isDarkMode
                           ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
@@ -2686,7 +3565,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                       <div className="flex items-center gap-2 mb-2">
                         <Zap className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
-                        <h4 className="font-bold text-sm">Commerce Ingress & AI</h4>
+                        <h4 className="font-bold text-sm">Commerce Ingress &amp; AI</h4>
                       </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -2708,7 +3587,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                       selectedModules.includes('procurement')
                         ? isDarkMode
-                          ? 'bg-[#24232B] border-[#00b4d8] shadow-md'
+                          ? 'bg-[#24232B] border-[#979BF3] shadow-md'
                           : 'bg-blue-50/60 border-[#979BF3] shadow-md'
                         : isDarkMode
                           ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
@@ -2728,8 +3607,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 mb-2">
-                        <ShieldCheck className="w-4 h-4 text-[#979BF3] dark:text-[#979BF3]" />
-                        <h4 className="font-bold text-sm">3-Way Procurement & Ops</h4>
+                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                        <h4 className="font-bold text-sm">3-Way Procurement &amp; Ops</h4>
                       </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -2740,6 +3619,92 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                     <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                       <span className="text-xs font-mono text-slate-500">Standalone:</span>
                       <span className="font-mono font-bold text-sm text-[#979BF3] dark:text-[#979BF3]">
+                        ${billingCycle === 'annual' ? '399' : '499'}/mo
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Module 4 Card */}
+                  <div
+                    onClick={() => toggleModuleSelection('map_protection')}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                      selectedModules.includes('map_protection')
+                        ? isDarkMode
+                          ? 'bg-[#24232B] border-[#E00728] shadow-md'
+                          : 'bg-rose-50/60 border-rose-500 shadow-md'
+                        : isDarkMode
+                          ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
+                          : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[11px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                          Module 04
+                        </span>
+                        {selectedModules.includes('map_protection') ? (
+                          <CheckSquare className="w-5 h-5 text-[#E00728]" />
+                        ) : (
+                          <Square className="w-5 h-5 text-slate-400" />
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-2">
+                        <ShieldAlert className="w-4 h-4 text-[#E00728]" />
+                        <h4 className="font-bold text-sm">MAP Defense &amp; Brand</h4>
+                      </div>
+
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        240+ touchpoint multi-marketplace scrapers, screenshot SHA-256 evidence hashes, and 1-click Cease &amp; Desist email alerts.
+                      </p>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-xs font-mono text-slate-500">Standalone:</span>
+                      <span className="font-mono font-bold text-sm text-rose-500">
+                        ${billingCycle === 'annual' ? '399' : '499'}/mo
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Module 5 Card */}
+                  <div
+                    onClick={() => toggleModuleSelection('predict')}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                      selectedModules.includes('predict')
+                        ? isDarkMode
+                          ? 'bg-[#24232B] border-purple-500 shadow-md'
+                          : 'bg-purple-50/60 border-purple-500 shadow-md'
+                        : isDarkMode
+                          ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
+                          : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[11px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                          Module 05
+                        </span>
+                        {selectedModules.includes('predict') ? (
+                          <CheckSquare className="w-5 h-5 text-purple-500" />
+                        ) : (
+                          <Square className="w-5 h-5 text-slate-400" />
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-purple-400" />
+                        <h4 className="font-bold text-sm">Predict &amp; Bayesian Odds</h4>
+                      </div>
+
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Bayesian models, live Kalshi &amp; Polymarket contract volatility, NFL player props edge matrix, and backtest simulations.
+                      </p>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-xs font-mono text-slate-500">Standalone:</span>
+                      <span className="font-mono font-bold text-sm text-purple-500">
                         ${billingCycle === 'annual' ? '399' : '499'}/mo
                       </span>
                     </div>
@@ -2826,16 +3791,26 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                       <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                         <span className="text-xs font-mono font-bold uppercase text-slate-500">Configured Solution:</span>
                         <span className="font-bold text-sm text-slate-900 dark:text-white">
-                          {selectedModules.length === 3 ? 'Complete Platform Suite' : `${selectedModules.length} Selected Engine(s)`}
+                          {selectedModules.length === 5 ? 'All 5 Specialized Engines' : `${selectedModules.length} Selected Engine(s)`}
                         </span>
+                        {selectedModules.length === 5 && (
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">
+                            FULL 5-ENGINE BUNDLE DISCOUNT (-$696/mo)
+                          </span>
+                        )}
+                        {selectedModules.length === 4 && (
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">
+                            QUAD BUNDLE DISCOUNT (-$447/mo)
+                          </span>
+                        )}
                         {selectedModules.length === 3 && (
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">
-                            BUNDLE DISCOUNT APPLIED (-$298/mo)
+                            TRIPLE BUNDLE DISCOUNT (-$238/mo)
                           </span>
                         )}
                         {selectedModules.length === 2 && (
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-500 font-bold border border-cyan-500/20">
-                            DUAL BUNDLE DISCOUNT (-$99/mo)
+                            DUAL BUNDLE DISCOUNT (-$79/mo)
                           </span>
                         )}
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20">
@@ -2843,7 +3818,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                         </span>
                       </div>
                       <p className="text-xs text-slate-500">
-                        {selectedModules.map(m => m === 'ledger' ? 'General Ledger' : m === 'ingress' ? 'Commerce Ingress & AI' : '3-Way Procurement').join(' + ')}
+                        {selectedModules.map(m => m === 'ledger' ? 'General Ledger' : m === 'ingress' ? 'Commerce Ingress & AI' : m === 'procurement' ? '3-Way Procurement' : m === 'map_protection' ? 'MAP Defense' : 'Predict & Odds Engine').join(' + ')}
                         {selectedSecurityTier !== 'standard' && ` + ${selectedSecurityTier === 'cybershield_pro' ? 'CyberShield Pro SOC' : 'CyberShield Sovereign SOX-404 SOC'}`}
                       </p>
                     </div>

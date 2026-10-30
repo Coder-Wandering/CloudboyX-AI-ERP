@@ -22,13 +22,14 @@ import {
   X,
   Database,
   Cpu,
-  ArrowRight
+  ArrowRight,
+  TrendingUp
 } from 'lucide-react';
 
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { UserAccount } from './AuthModal';
 
-export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection';
+export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection' | 'predict';
 
 interface MegaNavbarProps {
   mainView: MainViewType;
@@ -99,14 +100,17 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
     if (view === 'cloudboy_x') return currentUser.selectedModules.includes('ingress');
     if (view === 'procurement' || view === 'multientity') return currentUser.selectedModules.includes('procurement');
     if (view === 'map_protection') return currentUser.selectedModules.includes('map_protection' as any);
+    if (view === 'predict') return currentUser.selectedModules.includes('predict' as any);
     return true;
   };
 
   const handleSelectView = (view: MainViewType, auditTitle: string) => {
     if (!isModulePermitted(view)) {
-      const modKey: 'ledger' | 'ingress' | 'procurement' = 
+      const modKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' = 
         view === 'erp' ? 'ledger' : 
-        view === 'cloudboy_x' ? 'ingress' : 'procurement';
+        view === 'cloudboy_x' ? 'ingress' : 
+        view === 'map_protection' ? 'map_protection' :
+        view === 'predict' ? 'predict' : 'procurement';
       onAttemptLockedModule?.(modKey);
       setActiveDropdown(null);
       setIsMobileMenuOpen(false);
@@ -139,6 +143,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
         return { label: 'Multi-Entity GAAP', category: 'Ledger', icon: <Globe className="w-3.5 h-3.5 text-teal-300" /> };
       case 'map_protection':
         return { label: 'MAP & Brand Defense', category: 'Defense', icon: <Shield className="w-3.5 h-3.5 text-[#E00728]" /> };
+      case 'predict':
+        return { label: 'Predict & Odds Engine', category: 'Predict', icon: <TrendingUp className="w-3.5 h-3.5 text-[#979BF3]" /> };
       default:
         return { label: 'System Gateway', category: 'Platform', icon: <Database className="w-3.5 h-3.5 text-sky-300" /> };
     }
@@ -256,25 +262,46 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               <Shield className="w-3.5 h-3.5 text-[#E00728]" />
               <span>MAP &amp; Brand Defense</span>
             </button>
+
+            {/* 6. Quantitative Predict & Event Intelligence Engine */}
+            <button
+              type="button"
+              onClick={() => handleSelectView('predict', 'CloudboyX Predict & Event Engine')}
+              className={`px-3 py-2 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                mainView === 'predict'
+                  ? 'text-[#1C1B21] bg-[#979BF3] font-bold border border-[#979BF3] shadow-xs'
+                  : 'text-purple-200/90 hover:text-white hover:bg-[#979BF3]/20'
+              }`}
+              title="Launch Quantitative Forecasting & Bayesian Prediction Engine"
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-[#979BF3]" />
+              <span>Predict Engine</span>
+            </button>
           </div>
 
-          {/* Mobile & Tablet Left Display: Clean Active Module Breadcrumb */}
-          <div className="flex lg:hidden items-center gap-2 py-1.5 px-3 bg-black/25 border border-white/10 rounded-lg text-xs font-mono text-[#979BF3] select-none">
+          {/* Mobile & Tablet Left Display: Interactive Module Switcher Button */}
+          <button
+            type="button"
+            id="mobile-active-module-trigger-btn"
+            onClick={onOpenModuleSwitcher || (() => setIsMobileMenuOpen(prev => !prev))}
+            className="flex lg:hidden items-center gap-2 py-1.5 px-2.5 sm:px-3 bg-black/40 hover:bg-black/60 border border-white/15 rounded-lg text-xs font-mono text-[#979BF3] cursor-pointer transition-all active:scale-95 select-none"
+            title="Tap to switch module"
+          >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <span className="text-white/50 text-[10px] hidden sm:inline">Active:</span>
-            <span className="font-bold text-white flex items-center gap-1.5 truncate max-w-[190px] sm:max-w-[320px]">
+            <span className="font-bold text-white flex items-center gap-1.5 truncate max-w-[140px] sm:max-w-[240px]">
               {activeViewInfo.icon}
               <span className="truncate">{activeViewInfo.label}</span>
             </span>
-          </div>
+            <ChevronDown className="w-3 h-3 text-[#979BF3] shrink-0" />
+          </button>
 
           {/* ============================================================== */}
           {/* RIGHT SECTION:                                                 */}
           {/* - Desktop: Active Pill, Theme Toggle, Admin Console Button     */}
-          {/* - Mobile/Tablet: Theme Toggle + Hamburger on FAR RIGHT         */}
-          {/*   (Admin navigation removed from bar and nested in menu)       */}
+          {/* - Mobile/Tablet: Hub Quick Button, Theme Toggle, Hamburger     */}
           {/* ============================================================== */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             
             {/* Active View Quick Indicator (Desktop Only) */}
             <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-black/25 border border-white/10 rounded-lg text-[11px] font-mono text-[#979BF3]/90">
@@ -292,7 +319,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 type="button"
                 id="desktop-module-switcher-btn"
                 onClick={onOpenModuleSwitcher}
-                className="hidden sm:flex px-3 py-2 text-xs font-mono font-bold rounded-lg border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 text-[#979BF3] hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                className="hidden sm:flex px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-mono font-bold rounded-lg border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 text-[#979BF3] hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 title="Open In-Suite Module Access Pop-Up Box"
               >
                 <Layers className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
@@ -302,16 +329,29 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
             {/* Central Access Menu Hub Button */}
             {onGoToHub && (
-              <button
-                type="button"
-                id="desktop-module-hub-btn"
-                onClick={onGoToHub}
-                className="hidden lg:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                title="Open Central Access Menu Hub"
-              >
-                <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
-                <span>Access Hub</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  id="desktop-module-hub-btn"
+                  onClick={onGoToHub}
+                  className="hidden lg:flex px-3 py-2 text-xs font-mono font-semibold rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  title="Open Central Access Menu Hub"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
+                  <span>Access Hub</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="mobile-quick-hub-btn"
+                  onClick={onGoToHub}
+                  className="flex lg:hidden px-2 py-1.5 sm:px-2.5 sm:py-2 text-xs font-mono font-semibold rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-all items-center gap-1 cursor-pointer active:scale-95"
+                  title="Return to Central Access Hub"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
+                  <span className="text-[11px] font-bold hidden sm:inline">Hub</span>
+                </button>
+              </>
             )}
 
             {/* Global Dark / Light Theme Toggle (Always Present on Bar) */}
@@ -319,7 +359,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               type="button"
               id="global-dark-mode-toggle-btn"
               onClick={() => setIsDarkMode(prev => !prev)}
-              className="px-2.5 py-2 sm:px-3 bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-mono font-bold text-white rounded-lg shadow-sm border border-white/20 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer backdrop-blur-xs select-none"
+              className="p-1.5 sm:px-2.5 sm:py-2 bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-mono font-bold text-white rounded-lg shadow-sm border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-xs select-none"
               title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
               aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
               aria-pressed={isDarkMode}
@@ -327,12 +367,12 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               {isDarkMode ? (
                 <>
                   <Sun className="w-4 h-4 text-amber-300 shrink-0" />
-                  <span className="hidden sm:inline">Light Mode</span>
+                  <span className="hidden sm:inline">Light</span>
                 </>
               ) : (
                 <>
                   <Moon className="w-4 h-4 text-sky-200 shrink-0" />
-                  <span className="hidden sm:inline">Dark Mode</span>
+                  <span className="hidden sm:inline">Dark</span>
                 </>
               )}
             </button>
@@ -351,7 +391,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               </button>
             )}
 
-            {/* Mobile & Tablet Hamburger Button (FAR RIGHT) - Houses Admin Console, Theme Toggle & Navigation */}
+            {/* Mobile & Tablet Hamburger Button */}
             <button
               type="button"
               id="mobile-nav-toggle-btn"
@@ -367,6 +407,107 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
           </div>
         </div>
+      </div>
+
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* MOBILE & TABLET QUICK MODULE SWITCHER RAIL (1-TAP ACCESS)  */}
+      {/* ────────────────────────────────────────────────────────── */}
+      <div 
+        id="mobile-quick-module-rail"
+        className="lg:hidden border-t border-[#3B3947]/70 bg-[#17161C] px-2.5 sm:px-4 py-2 overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-1.5 select-none touch-pan-x"
+        role="tablist"
+        aria-label="Mobile and Tablet Module Switcher"
+      >
+        <button
+          type="button"
+          onClick={() => handleSelectView('erp', 'ERP Ledger Gateway')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'erp'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/10'
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>01. Ledger</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('cloudboy_x', 'Cloudboy X Flow')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'cloudboy_x'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/10'
+          }`}
+        >
+          <Zap className="w-3.5 h-3.5 text-amber-300" />
+          <span>02. Ingress</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('procurement', 'Procurement Room')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'procurement'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/10'
+          }`}
+        >
+          <FileSpreadsheet className="w-3.5 h-3.5 text-pink-300" />
+          <span>03. Procurement</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('map_protection', 'MAP & Brand Protection')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'map_protection'
+              ? 'bg-[#E00728] text-white border-[#E00728] shadow-sm'
+              : 'bg-white/5 hover:bg-[#E00728]/20 text-rose-300 border-white/10'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5 text-[#E00728]" />
+          <span>04. MAP Defense</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('predict', 'Predict & Odds Engine')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'predict'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-[#979BF3]/20 text-purple-200 border-white/10'
+          }`}
+        >
+          <TrendingUp className="w-3.5 h-3.5 text-[#979BF3]" />
+          <span>05. Predict</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('troubleshooting', 'Diagnostics & Isolator')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'troubleshooting'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/10'
+          }`}
+        >
+          <Terminal className="w-3.5 h-3.5 text-emerald-300" />
+          <span>Diagnostics</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('admin', 'System Admin Console')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'admin'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/10'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5 text-indigo-300" />
+          <span>Admin</span>
+        </button>
       </div>
 
       {/* ────────────────────────────────────────────────────────── */}
@@ -1306,6 +1447,58 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     </div>
                   </div>
                   {mainView === 'admin' && <Check className="w-4 h-4 text-indigo-200 shrink-0" />}
+                </button>
+
+              </div>
+            </div>
+
+            {/* Group D: Brand Reputation & Predictive Intelligence */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-rose-300/80 font-bold block px-1">
+                Brand Defense &amp; Quantitative Predict
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                
+                {/* Module 7: MAP & Brand Defense */}
+                <button
+                  type="button"
+                  id="tab-view-map-mobile"
+                  onClick={() => handleSelectView('map_protection', 'MAP & Brand Protection Suite')}
+                  className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
+                    mainView === 'map_protection' 
+                      ? 'bg-[#E00728] text-white border-rose-300 shadow-md ring-1 ring-rose-300' 
+                      : 'bg-white/5 hover:bg-[#E00728]/20 text-white border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Shield className="w-4 h-4 text-[#E00728] shrink-0" />
+                    <div>
+                      <div className="text-xs font-bold">MAP &amp; Brand Defense</div>
+                      <div className="text-[10px] text-white/60 font-normal">240+ touchpoints &amp; C&amp;D notices</div>
+                    </div>
+                  </div>
+                  {mainView === 'map_protection' && <Check className="w-4 h-4 text-white shrink-0" />}
+                </button>
+
+                {/* Module 8: Predict Engine */}
+                <button
+                  type="button"
+                  id="tab-view-predict-mobile"
+                  onClick={() => handleSelectView('predict', 'CloudboyX Predict & Event Engine')}
+                  className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
+                    mainView === 'predict' 
+                      ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-md ring-1 ring-white' 
+                      : 'bg-white/5 hover:bg-[#979BF3]/20 text-white border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <TrendingUp className="w-4 h-4 text-[#979BF3] shrink-0" />
+                    <div>
+                      <div className="text-xs font-bold">Predict &amp; Odds Engine</div>
+                      <div className="text-[10px] text-white/60 font-normal">Bayesian models &amp; NFL props</div>
+                    </div>
+                  </div>
+                  {mainView === 'predict' && <Check className="w-4 h-4 text-[#1C1B21] shrink-0" />}
                 </button>
 
               </div>

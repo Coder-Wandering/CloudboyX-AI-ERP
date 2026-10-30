@@ -2980,11 +2980,11 @@ export default function MapProtectionModule({
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-white text-slate-800 flex flex-col md:flex-row font-sans selection:bg-indigo-500/30 selection:text-white animate-fade-in">
+    <div className="min-h-[calc(100vh-120px)] w-full bg-white text-slate-800 flex flex-col lg:flex-row font-sans selection:bg-indigo-500/30 selection:text-white animate-fade-in">
       
       {/* Sidebar: Desktop Navigation */}
       {isSidebarVisible && (
-        <aside className="w-64 shrink-0 bg-white border-r border-slate-200 hidden md:flex flex-col justify-between h-screen sticky top-0 font-sans z-20 shadow-xs">
+        <aside className="w-64 shrink-0 bg-white border-r border-slate-200 hidden lg:flex flex-col justify-between min-h-[calc(100vh-120px)] sticky top-0 font-sans z-20 shadow-xs">
           
           {/* Sidebar branding */}
           <div className="p-6">
@@ -3092,12 +3092,12 @@ export default function MapProtectionModule({
       )}
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-white">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white">
         
         {/* Mobile Header */}
         {isSidebarVisible && (
           <>
-            <header className="md:hidden border-b border-slate-200 bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 font-sans shadow-md">
+            <header className="lg:hidden border-b border-slate-200 bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 font-sans shadow-md">
               <div 
                 onClick={() => setIsQuickBrandModalOpen(true)}
                 className="flex items-center gap-2.5 cursor-pointer active:scale-95 transition-all group min-w-0"
@@ -3146,7 +3146,7 @@ export default function MapProtectionModule({
             {/* Mobile Navigation Drawer Sheet */}
             <AnimatePresence>
               {isMobileDrawerOpen && (
-                <div className="fixed inset-0 z-50 md:hidden font-sans">
+                <div className="fixed inset-0 z-50 lg:hidden font-sans">
                   {/* Backdrop */}
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -3263,7 +3263,7 @@ export default function MapProtectionModule({
 
         {/* Mobile Navigation (Compact touch tabs list with smooth touch scrolling) */}
         {isSidebarVisible && (
-          <div className="md:hidden bg-slate-100 border-b border-slate-200 p-2 sticky top-[53px] z-40 overflow-x-auto font-sans scrollbar-none snap-x">
+          <div className="lg:hidden bg-slate-100 border-b border-slate-200 p-2 sticky top-[53px] z-20 overflow-x-auto font-sans scrollbar-none snap-x">
             <nav className="flex gap-1.5 whitespace-nowrap items-center px-1">
               {tabItems.map((tab) => {
                 const Icon = tab.icon;
@@ -3289,7 +3289,7 @@ export default function MapProtectionModule({
 
         {/* Desktop Title & Header ribbon bar */}
         {isSidebarVisible && (
-          <header className="hidden md:flex h-20 border-b border-zinc-800/80 px-8 items-center justify-between bg-black sticky top-0 z-50 font-sans shadow-md">
+          <header className="hidden lg:flex h-20 border-b border-zinc-800/80 px-8 items-center justify-between bg-black sticky top-0 z-20 font-sans shadow-md">
             <div className="flex items-center gap-4">
               {whiteLabel.logoUrl ? (
                 <div className="flex items-center justify-center p-1 bg-white border border-zinc-700 rounded-lg shrink-0 w-11 h-11 shadow-inner">

@@ -12,7 +12,8 @@ import {
   PackageCheck, 
   ExternalLink,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  TrendingUp
 } from 'lucide-react';
 import { UserAccount } from './AuthModal';
 
@@ -20,11 +21,11 @@ interface ModuleSwitcherModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserAccount | null;
-  onSelectModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'suite') => void;
+  onSelectModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite') => void;
   onOpenUpgradeModal: () => void;
   onGoToHub: () => void;
   onExitToMarketing: () => void;
-  lockedAttemptModule?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | null;
+  lockedAttemptModule?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | null;
   isDarkMode: boolean;
 }
 
@@ -46,24 +47,24 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
     email: 'elena.vance@omniretail.global',
     company: 'OmniRetail Global Enterprise',
     planType: 'full_suite',
-    selectedModules: ['ledger', 'ingress', 'procurement'],
+    selectedModules: ['ledger', 'ingress', 'procurement', 'map_protection', 'predict'],
     billingCycle: 'annual',
     monthlyPrice: 959,
     signedIn: true,
     avatarInitials: 'EV'
   };
 
-  const isModuleUnlocked = (mod: 'ledger' | 'ingress' | 'procurement' | 'map_protection') => {
+  const isModuleUnlocked = (mod: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict') => {
     if (user.planType === 'full_suite') return true;
     return user.selectedModules.includes(mod as any);
   };
 
-  const unlockedCount = ['ledger', 'ingress', 'procurement', 'map_protection'].filter(m => isModuleUnlocked(m as any)).length;
+  const unlockedCount = ['ledger', 'ingress', 'procurement', 'map_protection', 'predict'].filter(m => isModuleUnlocked(m as any)).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div 
-        className={`relative w-full max-w-xl rounded-3xl border shadow-2xl overflow-hidden transition-all text-left ${
+        className={`relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-3xl border shadow-2xl overflow-hidden transition-all text-left ${
           isDarkMode 
             ? 'bg-[#1C1B21] border-slate-800 text-slate-100 shadow-cyan-950/20' 
             : 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
@@ -71,7 +72,7 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
         onClick={e => e.stopPropagation()}
       >
         {/* Header Ribbon */}
-        <div className="bg-[#24232B] text-white p-5 flex items-center justify-between border-b border-[#3B3947]">
+        <div className="bg-[#24232B] text-white p-4 sm:p-5 flex items-center justify-between border-b border-[#3B3947] shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/10 rounded-xl border border-white/20">
               <Layers className="w-5 h-5 text-[#979BF3]" />
@@ -81,7 +82,7 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
                 <span>My Module Access & Pop-Up Switcher</span>
               </h3>
               <p className="text-[11px] text-[#A6A5B2] font-mono">
-                {user.company} · {user.planType === 'full_suite' ? 'Complete Suite' : `${unlockedCount}/3 Modules Active`}
+                {user.company} · {user.planType === 'full_suite' ? 'Complete Suite (5/5 Modules)' : `${unlockedCount}/5 Modules Active`}
               </p>
             </div>
           </div>
@@ -97,7 +98,7 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
 
         {/* If user attempted to click a locked module, show paywall alert banner */}
         {lockedAttemptModule && (
-          <div className="p-4 bg-amber-500/10 border-b border-amber-500/30 text-amber-800 dark:text-amber-300 flex items-start gap-3 text-xs font-mono">
+          <div className="p-3.5 sm:p-4 bg-amber-500/10 border-b border-amber-500/30 text-amber-800 dark:text-amber-300 flex items-start gap-3 text-xs font-mono shrink-0">
             <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div>
               <div className="font-bold uppercase tracking-wider text-[11px]">Paywall Protected Module</div>
@@ -108,8 +109,8 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
           </div>
         )}
 
-        {/* 3 Modules Switcher Rows */}
-        <div className="p-5 space-y-3">
+        {/* 5 Modules Switcher Rows (Scrollable on small mobile and landscape viewports) */}
+        <div className="p-3 sm:p-5 space-y-3 overflow-y-auto flex-1">
           
           {/* Row 1: General Ledger */}
           <div className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 ${
@@ -307,6 +308,59 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
                 type="button"
                 onClick={() => { onSelectModule('map_protection'); onClose(); }}
                 className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-[#0077b6] hover:from-rose-500 hover:to-[#0096c7] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <span>Launch</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { onClose(); onOpenUpgradeModal(); }}
+                className="px-3.5 py-2 rounded-xl border border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Unlock ($399)</span>
+              </button>
+            )}
+          </div>
+
+          {/* Row 5: CloudboyX Predict & Bayesian Engine */}
+          <div className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 ${
+            isModuleUnlocked('predict')
+              ? isDarkMode ? 'bg-slate-900/60 border-slate-700/80 hover:border-purple-500' : 'bg-slate-50 border-slate-200 hover:border-purple-600'
+              : isDarkMode ? 'bg-slate-950/40 border-slate-800/80 opacity-70' : 'bg-slate-100/50 border-slate-200 opacity-70'
+          }`}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-xl bg-purple-500/15 text-purple-600 dark:text-[#979BF3] shrink-0">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-[#979BF3]">
+                    MOD 05
+                  </span>
+                  <h4 className="font-bold text-xs truncate">Quantitative Predict &amp; Bayesian Engine</h4>
+                  {isModuleUnlocked('predict') ? (
+                    <span className="text-[9px] font-mono font-bold text-emerald-500 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> ACTIVE
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-mono font-bold text-slate-400 flex items-center gap-1">
+                      <Lock className="w-2.5 h-2.5" /> LOCKED
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                  Kalshi &amp; Polymarket odds, NFL player props, backtesting simulations, Kelly sizing
+                </p>
+              </div>
+            </div>
+
+            {isModuleUnlocked('predict') ? (
+              <button
+                type="button"
+                onClick={() => { onSelectModule('predict'); onClose(); }}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-[#979BF3] hover:from-purple-500 hover:to-indigo-400 text-[#1C1B21] text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
               >
                 <span>Launch</span>
                 <ChevronRight className="w-3.5 h-3.5" />

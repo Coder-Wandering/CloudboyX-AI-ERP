@@ -17,6 +17,7 @@ import alasql from 'alasql';
 import { UniversalGateway } from './src/gateway';
 import { CanonicalOrder, CanonicalLineItem } from './src/canonical';
 import { registerMapProtectionRoutes } from './src/server/mapProtectionRoutes';
+import { registerPredictRoutes } from './src/server/predictRoutes';
 
 // Setup file URL helpers for ES Modules format
 const __filename = typeof import.meta !== 'undefined' && import.meta.url ? fileURLToPath(import.meta.url) : '';
@@ -1938,6 +1939,9 @@ Invoice Total Due Amount: $[TOTAL DUE]`
 
   // Mount CloudboyX MAP Protection & Brand Defense Suite Routes
   registerMapProtectionRoutes(app);
+
+  // Mount CloudboyX Quantitative Forecasting & Bayesian Prediction Engine Routes
+  registerPredictRoutes(app);
 
   // Vite development vs production asset serving pipeline
   if (process.env.NODE_ENV !== 'production') {

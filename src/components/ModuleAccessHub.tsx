@@ -20,14 +20,15 @@ import {
   Check, 
   Coins, 
   Activity,
-  PackageCheck
+  PackageCheck,
+  TrendingUp
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { UserAccount } from './AuthModal';
 
 interface ModuleAccessHubProps {
   currentUser: UserAccount | null;
-  onLaunchModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'suite') => void;
+  onLaunchModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite') => void;
   onExitToMarketing: () => void;
   onSignOut: () => void;
   onOpenUpgradeModal: () => void;
@@ -50,19 +51,19 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
     email: 'elena.vance@omniretail.global',
     company: 'OmniRetail Global Enterprise',
     planType: 'full_suite',
-    selectedModules: ['ledger', 'ingress', 'procurement'],
+    selectedModules: ['ledger', 'ingress', 'procurement', 'map_protection', 'predict'],
     billingCycle: 'annual',
     monthlyPrice: 959,
     signedIn: true,
     avatarInitials: 'EV'
   };
 
-  const isModuleUnlocked = (mod: 'ledger' | 'ingress' | 'procurement' | 'map_protection') => {
+  const isModuleUnlocked = (mod: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict') => {
     if (user.planType === 'full_suite') return true;
     return user.selectedModules.includes(mod as any);
   };
 
-  const unlockedCount = ['ledger', 'ingress', 'procurement', 'map_protection'].filter(m => isModuleUnlocked(m as any)).length;
+  const unlockedCount = ['ledger', 'ingress', 'procurement', 'map_protection', 'predict'].filter(m => isModuleUnlocked(m as any)).length;
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-200 ${
@@ -197,7 +198,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
             <div>
               <div className="text-slate-400 text-[10px] uppercase">Unlocked Modules</div>
               <div className="font-bold text-cyan-600 dark:text-[#979BF3] mt-0.5">
-                {unlockedCount} of 3 Available
+                {unlockedCount} of 5 Available
               </div>
             </div>
             <div>
@@ -210,7 +211,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
         </div>
 
         {/* ────────────────────────────────────────────────────────── */}
-        {/* THE 3 CORE MODULE CARDS (WHAT THEY ARE ABLE TO USE)        */}
+        {/* THE 5 CORE MODULE CARDS (WHAT THEY ARE ABLE TO USE)        */}
         {/* ────────────────────────────────────────────────────────── */}
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -223,7 +224,7 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
           </div>
 
           <span className="text-xs font-mono text-slate-500">
-            {unlockedCount === 3 ? '✓ Full Platform License' : `${unlockedCount}/3 Modules Enabled`}
+            {unlockedCount === 5 ? '✓ Full Platform License' : `${unlockedCount}/5 Modules Enabled`}
           </span>
         </div>
 
@@ -628,6 +629,107 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 >
                   <Lock className="w-3.5 h-3.5 text-amber-500" />
                   <span>Unlock Module 04 ($399/mo)</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* ──────────────── MODULE 5 CARD ──────────────── */}
+          <div className={`rounded-3xl border-2 flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
+            isModuleUnlocked('predict')
+              ? isDarkMode
+                ? 'bg-[#24232B] border-[#979BF3]/50 shadow-xl shadow-purple-950/20 hover:border-purple-400'
+                : 'bg-white border-[#979BF3] shadow-lg hover:border-purple-700'
+              : isDarkMode
+                ? 'bg-slate-900/40 border-slate-800 opacity-70 hover:opacity-100'
+                : 'bg-slate-100/70 border-slate-300 opacity-70 hover:opacity-100'
+          }`}>
+            <div className="p-7">
+              {/* Header Status */}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-mono font-extrabold uppercase px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                  MODULE 05 · QUANTITATIVE PREDICT
+                </span>
+
+                {isModuleUnlocked('predict') ? (
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>UNLOCKED & ACTIVE</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-500/10 text-slate-500 border border-slate-500/20 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>NOT INCLUDED</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Module Title */}
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-[#979BF3]">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold">Quantitative Predict & Bayesian Intelligence</h3>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                Event probability modelling, live Kalshi &amp; Polymarket price volatility tracking, NFL player props edge matrix, multi-catalyst resolution timelines, and automated backtesting engines.
+              </p>
+
+              {/* Features List */}
+              <div className="space-y-2 text-xs font-mono mb-6">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Bayesian Probability Calculus &amp; Kelly Sizing</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Kalshi &amp; Polymarket Real-Time Volatility Spreads</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>NFL Player Props Statistical Edge &amp; Industry Odds</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Historical Event Backtesting &amp; Webhook Ingest Hub</span>
+                </div>
+              </div>
+
+              {/* Operational Stats Preview */}
+              <div className={`p-4 rounded-xl border text-[11px] font-mono ${
+                isDarkMode ? 'bg-[#1C1B21] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-slate-400">Prediction Mesh:</span>
+                  <span className="font-bold text-purple-400">14 Active Markets Tracked</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Kelly Edge Precision:</span>
+                  <span className="font-bold text-emerald-500">+18.4% Mean Alpha</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Launch or Unlock Button */}
+            <div className="p-7 pt-0">
+              {isModuleUnlocked('predict') ? (
+                <button
+                  type="button"
+                  onClick={() => onLaunchModule('predict')}
+                  className="w-full py-3 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-98 text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Launch Predict Engine ➔</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onOpenUpgradeModal}
+                  className="w-full py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-mono font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Unlock Module 05 ($399/mo)</span>
                 </button>
               )}
             </div>
