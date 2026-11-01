@@ -54,8 +54,10 @@ export class UniversalGateway {
         }
       ];
 
-      const totalRaw = row['OrderTotal'] || row['Total'] || '0';
-      const total = totalRaw ? Math.round(parseFloat(totalRaw) * 100) : (unitPrice * quantity);
+      const totalRaw = row['OrderTotal'] ?? row['Total'];
+      const total = (totalRaw !== undefined && totalRaw !== null && totalRaw !== '') 
+        ? Math.round(parseFloat(totalRaw) * 100) 
+        : (unitPrice * quantity);
 
       return {
         sourceSystem: 'legacy_csv',
@@ -75,6 +77,10 @@ export class UniversalGateway {
   // Even translated EDI has weird structures (like loops, segments, qualifiers).
   static fromEDIPayload(payload: any): CanonicalOrder {
     try {
+      if (!payload || !payload.transaction_sets || !Array.isArray(payload.transaction_sets) || payload.transaction_sets.length === 0) {
+        throw new Error('Invalid EDI 850 payload: Missing transaction_sets');
+      }
+
       const rawItems = payload.transaction_sets?.[0]?.heading?.po1_loop || [];
       
       const items: CanonicalLineItem[] = rawItems.map((item: any) => ({

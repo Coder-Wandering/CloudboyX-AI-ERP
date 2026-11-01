@@ -63,7 +63,7 @@ import {
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { AuthModal, UserAccount } from './AuthModal';
-import WebsiteBuilderView from './WebsiteBuilderView';
+import CloudboyXDesignStudio from '../design/CloudboyXDesignStudio';
 
 interface MarketingLandingPageProps {
   onLaunchApp: (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'hub') => void;
@@ -226,49 +226,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
   if (isBuilderOpen) {
     return (
-      <div className={`w-full min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-[#1C1B21] text-white' : 'bg-[#FAFAF9] text-[#1C1B21]'}`}>
-        <header className="sticky top-0 z-50 bg-[#24232B] border-b border-[#3B3947] px-4 py-3 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              id="builder-back-to-website-btn"
-              onClick={() => setIsBuilderOpen(false)}
-              className="px-3 py-1.5 rounded-lg bg-[#1C1B21] hover:bg-[#2C2B35] text-white text-xs font-mono font-bold flex items-center gap-2 border border-[#3B3947] cursor-pointer transition-colors shadow-xs"
-            >
-              <ArrowLeft className="w-4 h-4 text-[#979BF3]" />
-              <span>Back to Public Website</span>
-            </button>
-            <div className="hidden sm:block h-5 w-px bg-[#3B3947]" />
-            <div className="flex items-center gap-2">
-              <Layout className="w-4 h-4 text-[#979BF3]" />
-              <h2 className="text-xs sm:text-sm font-bold font-mono tracking-tight text-white">
-                CloudboyX Bootstrap Website Builder
-              </h2>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsBuilderOpen(false);
-                onLaunchApp('suite');
-              }}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#979BF3] hover:bg-[#B4B7F7] text-[#1C1B21] font-mono font-bold text-xs rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span className="hidden sm:inline">Enter Enterprise Suite</span>
-              <span className="sm:hidden">Suite</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </header>
-
-        <div className="max-w-7xl mx-auto p-3 sm:p-6">
-          <WebsiteBuilderView
-            isStandaloneMode={true}
-            setIsStandaloneMode={(val) => setIsBuilderOpen(val)}
-            currentUser={currentUser}
-          />
-        </div>
+      <div className="w-full min-h-screen bg-slate-950 text-white">
+        <CloudboyXDesignStudio
+          initialView="builder"
+          onExit={() => setIsBuilderOpen(false)}
+        />
       </div>
     );
   }
@@ -323,13 +285,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </a>
             <button
               type="button"
-              id="header-nav-bootstrap-builder-btn"
+              id="header-nav-design-studio-btn"
               onClick={() => setIsBuilderOpen(true)}
               className="text-[#979BF3] hover:text-[#B4B7F7] hover:underline flex items-center gap-1.5 font-bold cursor-pointer transition-colors"
-              title="Launch Visual Bootstrap Landing Page & Portal Builder"
+              title="Launch CloudboyX Visual Design Studio & Page Builder"
             >
               <Layout className="w-3.5 h-3.5 text-[#979BF3]" />
-              <span>Bootstrap Builder</span>
+              <span>Design Studio</span>
             </button>
             <a href="#portals" className="text-[#979BF3] hover:underline flex items-center gap-1 font-bold">
               <Globe className="w-3.5 h-3.5 text-[#979BF3]" />
@@ -526,7 +488,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               </a>
               <button
                 type="button"
-                id="mobile-drawer-bootstrap-builder-btn"
+                id="mobile-drawer-design-studio-btn"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   setIsBuilderOpen(true);
@@ -534,7 +496,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 className="w-full text-left min-h-[44px] px-3.5 rounded-xl hover:bg-[#979BF3]/15 text-[#979BF3] transition-colors font-bold flex items-center gap-2.5 cursor-pointer"
               >
                 <Layout className="w-4 h-4 text-[#979BF3]" />
-                <span>Bootstrap Builder</span>
+                <span>Design Studio</span>
               </button>
               <a 
                 href="#portals" 

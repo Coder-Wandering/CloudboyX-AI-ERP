@@ -90,6 +90,7 @@ import { UserAccount, AuthModal } from './components/AuthModal';
 import SecurityAuditModule from './components/SecurityAuditModule';
 import MapProtectionModule from './components/MapProtectionModule';
 import { PredictModule } from './predict/PredictModule';
+import CloudboyXDesignStudio from './design/CloudboyXDesignStudio';
 
 export { CorporateBrandLogo };
 
@@ -312,7 +313,7 @@ export default function App() {
 
   // Feed source channels state
   const [activeTab, setActiveTab] = useState<'shopify' | 'legacy_csv' | 'edi' | 'ai_mapped'>('shopify');
-  const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection' | 'predict'>('erp');
+  const [mainView, setMainView] = useState<'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection' | 'predict' | 'design'>('erp');
   const [activeBot, setActiveBot] = useState<'erp_gateway' | 'cloudboy_transit' | 'backend_isolator'>('erp_gateway');
 
   // Trigger automated helper prompt from our connection assistant bot
@@ -10116,6 +10117,13 @@ export default function App() {
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
           />
+        </main>
+      )}
+
+      {/* CloudboyX Visual Design Studio Section */}
+      {mainView === 'design' && (
+        <main className="w-full">
+          <CloudboyXDesignStudio onExit={() => setMainView('erp')} />
         </main>
       )}
 

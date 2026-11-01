@@ -29,7 +29,7 @@ import {
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { UserAccount } from './AuthModal';
 
-export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection' | 'predict';
+export type MainViewType = 'erp' | 'cloudboy_x' | 'troubleshooting' | 'admin' | 'procurement' | 'multientity' | 'map_protection' | 'predict' | 'design';
 
 interface MegaNavbarProps {
   mainView: MainViewType;
@@ -145,6 +145,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
         return { label: 'MAP & Brand Defense', category: 'Defense', icon: <Shield className="w-3.5 h-3.5 text-[#E00728]" /> };
       case 'predict':
         return { label: 'Predict & Odds Engine', category: 'Predict', icon: <TrendingUp className="w-3.5 h-3.5 text-[#979BF3]" /> };
+      case 'design':
+        return { label: 'CloudboyX Design Studio', category: 'Studio', icon: <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3]" /> };
       default:
         return { label: 'System Gateway', category: 'Platform', icon: <Database className="w-3.5 h-3.5 text-sky-300" /> };
     }
@@ -481,6 +483,19 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
         >
           <TrendingUp className="w-3.5 h-3.5 text-[#979BF3]" />
           <span>05. Predict</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectView('design', 'CloudboyX Design Studio')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+            mainView === 'design'
+              ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-sm'
+              : 'bg-white/5 hover:bg-[#979BF3]/20 text-cyan-200 border-white/10'
+          }`}
+        >
+          <LayoutGrid className="w-3.5 h-3.5 text-[#979BF3]" />
+          <span>06. Design Studio</span>
         </button>
 
         <button

@@ -11,7 +11,7 @@ import AILabView from "./AILabView";
 import WhiteLabelView from "./WhiteLabelView";
 import OrderGatewayView from "./OrderGatewayView";
 import ShippingCoreView from "./ShippingCoreView";
-import WebsiteBuilderView from "./WebsiteBuilderView";
+import CloudboyXDesignStudio from "../design/CloudboyXDesignStudio";
 import { Product, Partner, ScanJob, WhiteLabelConfig, MapPolicy, NotificationAlert, MonitoringConfig } from "../types";
 import { 
   Shield, LayoutDashboard, Globe, Tag, Radio, AlertCircle, Sparkles,
@@ -2943,9 +2943,11 @@ export default function MapProtectionModule({
     return typeof window !== "undefined" && (window.location.search.includes("view=tracker") || window.location.pathname.includes("/tracker"));
   }, []);
 
+  const [isBuilderAppDismissed, setIsBuilderAppDismissed] = useState(false);
   const isBuilderApp = useMemo(() => {
+    if (isBuilderAppDismissed) return false;
     return typeof window !== "undefined" && (window.location.search.includes("app=builder") || window.location.pathname.includes("/builder"));
-  }, []);
+  }, [isBuilderAppDismissed]);
 
   const isSidebarVisible = useMemo(() => {
     const isBuilderStandaloneActive = activeTab === "website-builder" && isBuilderStandalone;
@@ -2971,10 +2973,9 @@ export default function MapProtectionModule({
 
   if (isBuilderApp) {
     return (
-      <WebsiteBuilderView 
-        isStandaloneMode={true}
-        setIsStandaloneMode={() => {}}
-        currentUser={currentUser}
+      <CloudboyXDesignStudio 
+        initialView="builder"
+        onExit={() => setIsBuilderAppDismissed(true)}
       />
     );
   }
@@ -3437,12 +3438,12 @@ export default function MapProtectionModule({
             )}
 
             {activeTab === "website-builder" && (
-              <WebsiteBuilderView 
-                isStandaloneMode={isBuilderStandalone}
-                setIsStandaloneMode={(val) => {
-                  setIsBuilderStandalone(val);
+              <CloudboyXDesignStudio 
+                initialView="builder"
+                onExit={() => {
+                  setIsBuilderStandalone(false);
+                  setActiveTab("dashboard");
                 }}
-                currentUser={currentUser}
               />
             )}
 
