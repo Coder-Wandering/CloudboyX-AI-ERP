@@ -13,7 +13,8 @@ import {
   ExternalLink,
   ChevronRight,
   ShieldAlert,
-  TrendingUp
+  TrendingUp,
+  Layout
 } from 'lucide-react';
 import { UserAccount } from './AuthModal';
 
@@ -21,7 +22,7 @@ interface ModuleSwitcherModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserAccount | null;
-  onSelectModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite') => void;
+  onSelectModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'design') => void;
   onOpenUpgradeModal: () => void;
   onGoToHub: () => void;
   onExitToMarketing: () => void;
@@ -375,6 +376,41 @@ export const ModuleSwitcherModal: React.FC<ModuleSwitcherModalProps> = ({
                 <span>Unlock ($399)</span>
               </button>
             )}
+          </div>
+
+          {/* Row 6: CloudboyX Design Studio & Page Builder */}
+          <div className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 ${
+            isDarkMode ? 'bg-slate-900/60 border-slate-700/80 hover:border-[#979BF3]' : 'bg-slate-50 border-slate-200 hover:border-[#979BF3]'
+          }`}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-xl bg-[#979BF3]/15 text-[#979BF3] shrink-0">
+                <Layout className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-[#979BF3]/15 text-[#979BF3]">
+                    MOD 06
+                  </span>
+                  <h4 className="font-bold text-xs truncate">Design Studio &amp; Page Builder</h4>
+                  <span className="text-[9px] font-mono font-bold text-emerald-500 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> ACTIVE
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                  Visual Bootstrap 5 canvas, block library, live styling panels, HTML &amp; PDF export
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="switcher-launch-design-btn"
+              onClick={() => { onSelectModule('design'); onClose(); }}
+              className="px-3.5 py-2 rounded-xl bg-[#979BF3] hover:bg-[#B4B7F7] text-[#1C1B21] text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <span>Launch</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
         </div>

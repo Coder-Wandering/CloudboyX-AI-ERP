@@ -18,6 +18,7 @@ import {
   Activity, 
   Check, 
   LayoutGrid,
+  Layout,
   Menu,
   X,
   Database,
@@ -279,6 +280,22 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               <TrendingUp className="w-3.5 h-3.5 text-[#979BF3]" />
               <span>Predict Engine</span>
             </button>
+
+            {/* 7. CloudboyX Visual Builder & Design Studio */}
+            <button
+              type="button"
+              id="enterprise-nav-builder-btn"
+              onClick={() => handleSelectView('design', 'CloudboyX Design Studio & Builder')}
+              className={`px-3 py-2 text-xs font-mono font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer border ${
+                mainView === 'design'
+                  ? 'text-[#1C1B21] bg-[#979BF3] border-[#979BF3] shadow-xs'
+                  : 'text-[#979BF3] hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
+              }`}
+              title="Launch CloudboyX Visual Page Builder & Design Studio"
+            >
+              <Layout className="w-3.5 h-3.5 text-[#979BF3]" />
+              <span>Builder</span>
+            </button>
           </div>
 
           {/* Mobile & Tablet Left Display: Interactive Module Switcher Button */}
@@ -355,6 +372,22 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 </button>
               </>
             )}
+
+            {/* Direct Builder Launch Button (Accessible everywhere in Suite) */}
+            <button
+              type="button"
+              id="desktop-header-builder-btn"
+              onClick={() => handleSelectView('design', 'CloudboyX Design Studio & Builder')}
+              className={`px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-mono font-bold rounded-lg border transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
+                mainView === 'design'
+                  ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3]'
+                  : 'border-[#979BF3]/40 bg-[#979BF3]/15 hover:bg-[#979BF3]/25 text-[#979BF3] hover:text-white'
+              }`}
+              title="Launch CloudboyX Visual Page Builder & Design Studio"
+            >
+              <Layout className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
+              <span>Builder</span>
+            </button>
 
             {/* Global Dark / Light Theme Toggle (Always Present on Bar) */}
             <button
@@ -1514,6 +1547,27 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     </div>
                   </div>
                   {mainView === 'predict' && <Check className="w-4 h-4 text-[#1C1B21] shrink-0" />}
+                </button>
+
+                {/* Module 9: CloudboyX Visual Builder & Design Studio */}
+                <button
+                  type="button"
+                  id="tab-view-design-mobile"
+                  onClick={() => handleSelectView('design', 'CloudboyX Design Studio & Builder')}
+                  className={`w-full p-3 text-left rounded-xl text-xs font-mono font-bold flex items-center justify-between transition-all cursor-pointer border ${
+                    mainView === 'design' 
+                      ? 'bg-[#979BF3] text-[#1C1B21] border-[#979BF3] shadow-md ring-1 ring-white' 
+                      : 'bg-white/5 hover:bg-[#979BF3]/20 text-white border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layout className="w-4 h-4 text-[#979BF3] shrink-0" />
+                    <div>
+                      <div className="text-xs font-bold">Design Studio &amp; Builder</div>
+                      <div className="text-[10px] text-white/60 font-normal">Visual Bootstrap page builder &amp; export</div>
+                    </div>
+                  </div>
+                  {mainView === 'design' && <Check className="w-4 h-4 text-[#1C1B21] shrink-0" />}
                 </button>
 
               </div>

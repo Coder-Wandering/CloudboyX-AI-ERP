@@ -92,6 +92,7 @@ interface CanvasFrameProps {
   isFitToScreen?: boolean;
   onToggleFitToScreen?: () => void;
   onZoomScaleChange?: (scale: number) => void;
+  onOpenTemplateGallery?: () => void;
 }
 
 const BREAKPOINT_DEVICE_ICONS: Record<Breakpoint, React.ElementType> = {
@@ -680,6 +681,7 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
   isFitToScreen = false,
   onToggleFitToScreen,
   onZoomScaleChange,
+  onOpenTemplateGallery,
 }) => {
   const outerContainerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -1625,6 +1627,26 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
                 {blocks.length}
               </span>
             </button>
+
+            {onOpenTemplateGallery && (
+              <button
+                type="button"
+                id="canvas-quick-open-template-gallery-btn"
+                onClick={onOpenTemplateGallery}
+                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-semibold transition cursor-pointer border ${
+                  isDark
+                    ? 'bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 border-blue-500/40 shadow-xs'
+                    : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 shadow-xs'
+                }`}
+                title="Browse CloudboyX Template Gallery (108+ Pre-built Bootstrap 5 Site Templates)"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                <span className="hidden sm:inline">Templates</span>
+                <span className="text-[9.5px] font-mono font-bold px-1 py-0.2 rounded bg-blue-500/20 text-blue-400">
+                  108+
+                </span>
+              </button>
+            )}
 
             {selectedBlock && onOpenCodeEditor && (
               <button

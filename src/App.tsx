@@ -278,7 +278,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'hub') => {
+  const navigateToSuite = (target?: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'hub' | 'design') => {
     if (target === 'hub') {
       navigateToHub();
       return;
@@ -293,6 +293,8 @@ export default function App() {
       setMainView('map_protection');
     } else if (target === 'predict') {
       setMainView('predict');
+    } else if (target === 'design') {
+      setMainView('design');
     }
     setAppMode('suite');
     try {
@@ -11610,6 +11612,8 @@ export default function App() {
             setMainView('map_protection');
           } else if (modKey === 'predict') {
             setMainView('predict');
+          } else if (modKey === 'design') {
+            setMainView('design');
           }
         }}
         onOpenUpgradeModal={() => {

@@ -45,6 +45,19 @@ export const CloudboyXDesignStudio: React.FC<CloudboyXDesignStudioProps> = ({
             </div>
 
             <div className="flex items-center gap-3 text-xs font-mono text-white/60">
+              <button
+                type="button"
+                id="design-studio-topbar-templates-btn"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-cloudboyx-template-gallery'))}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#979BF3]/20 hover:bg-[#979BF3]/35 text-[#979BF3] hover:text-white border border-[#979BF3]/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Open CloudboyX Template Gallery (108+ Pre-built Bootstrap 5 Templates)"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#979BF3]" />
+                <span>Template Gallery</span>
+                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] rounded-full bg-[#979BF3]/30 text-white font-mono">
+                  108+
+                </span>
+              </button>
               <span className="hidden md:inline">Ctrl+K / ⌘K Command Palette</span>
               <button
                 type="button"

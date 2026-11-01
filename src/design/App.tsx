@@ -213,6 +213,28 @@ export default function App({
     return initial.blocks;
   });
 
+  // Initial template snapshot state for Quick Reset to initial template state
+  const [initialTemplateSnapshot, setInitialTemplateSnapshot] = useState<{
+    blocks: BlockInstance[];
+    theme: SiteTheme;
+    title: string;
+  }>(() => {
+    const savedInitial = localStorage.getItem('cloudboyx_initial_template_snapshot');
+    if (savedInitial) {
+      try {
+        const parsed = JSON.parse(savedInitial);
+        if (Array.isArray(parsed.blocks) && parsed.blocks.length > 0) {
+          return parsed;
+        }
+      } catch {}
+    }
+    return {
+      blocks: initial.blocks,
+      theme: initial.theme,
+      title: initial.title,
+    };
+  });
+
   // Automatic Vertical Rhythm Spacing State
   const [autoVerticalRhythm, setAutoVerticalRhythm] = useState<boolean>(() => isAutoVerticalRhythmEnabled());
 
@@ -345,6 +367,27 @@ export default function App({
       return false;
     }
   });
+
+  // Listen for global and custom event triggers to open the Template Gallery
+  useEffect(() => {
+    const handleOpenGallery = () => setIsTemplateGalleryOpen(true);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Alt+T or Ctrl+Shift+T opens the Template Gallery modal
+      if (
+        (e.altKey && (e.key === 't' || e.key === 'T')) ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 't' || e.key === 'T'))
+      ) {
+        e.preventDefault();
+        setIsTemplateGalleryOpen(true);
+      }
+    };
+    window.addEventListener('open-cloudboyx-template-gallery', handleOpenGallery);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('open-cloudboyx-template-gallery', handleOpenGallery);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Clipboard Manager History State
   const CLIPBOARD_STORAGE_KEY = 'bootstrap5_block_clipboard';
@@ -1546,6 +1589,15 @@ export default function App({
     if (newBlocks[0]?.id) {
       triggerBlockAnimation(newBlocks[0].id, 'added');
     }
+    const newSnapshot = {
+      blocks: JSON.parse(JSON.stringify(newBlocks)),
+      theme: templateTheme || theme,
+      title: templateTitle,
+    };
+    setInitialTemplateSnapshot(newSnapshot);
+    try {
+      localStorage.setItem('cloudboyx_initial_template_snapshot', JSON.stringify(newSnapshot));
+    } catch {}
     showToast({
       title: `Applied "${templateTitle}"`,
       description: `Loaded ${newBlocks.length} Bootstrap 5 sections into your active project.`,
@@ -1553,6 +1605,38 @@ export default function App({
       onAction: handleUndo,
     });
   };
+
+  const handleQuickReset = useCallback(() => {
+    if (!initialTemplateSnapshot || !initialTemplateSnapshot.blocks.length) {
+      showToast({
+        title: 'Reset Notice',
+        description: 'No initial template snapshot found to revert to.',
+      });
+      return;
+    }
+
+    // 1. Push current state to undo history so user can undo anytime
+    pushHistory(blocks);
+
+    // 2. Clone pristine initial blocks
+    const restoredBlocks: BlockInstance[] = JSON.parse(
+      JSON.stringify(initialTemplateSnapshot.blocks)
+    );
+    setBlocks(restoredBlocks);
+    setProjectTitle(initialTemplateSnapshot.title);
+    if (initialTemplateSnapshot.theme) {
+      handleUpdateTheme(initialTemplateSnapshot.theme);
+    }
+    setSelectedBlockId(restoredBlocks[0]?.id || null);
+
+    // 3. User feedback toast with 1-click Undo button
+    showToast({
+      title: 'Quick Reset Completed',
+      description: `Reverted all blocks to the initial "${initialTemplateSnapshot.title}" template layout (${restoredBlocks.length} sections).`,
+      actionLabel: 'Undo',
+      onAction: handleUndo,
+    });
+  }, [initialTemplateSnapshot, blocks, pushHistory, handleUpdateTheme, handleUndo, showToast]);
 
   const handleCloneTemplate = (clonedBlocks: BlockInstance[], cloneTitle: string, cloneTheme?: SiteTheme) => {
     pushHistory(blocks);
@@ -1718,6 +1802,8 @@ export default function App({
         }}
         onOpenModules={() => setIsModulesModalOpen(true)}
         onCleanAll={handleCleanAll}
+        onQuickReset={handleQuickReset}
+        initialTemplateName={initialTemplateSnapshot.title}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         isFitToScreen={isFitToScreen}
         onToggleFitToScreen={handleToggleFitToScreen}
@@ -1824,6 +1910,7 @@ export default function App({
           isFitToScreen={isFitToScreen}
           onToggleFitToScreen={handleToggleFitToScreen}
           onZoomScaleChange={setZoomScale}
+          onOpenTemplateGallery={() => setIsTemplateGalleryOpen(true)}
         />
 
         {/* Embedded Design Mode Dock / Sidebar (Right side by default, toggleable to Left) */}
@@ -2058,6 +2145,7 @@ export default function App({
         onAddBlock={handleAddBlock}
         onAddBlockAtIndex={handleAddBlockAtIndex}
         onCleanAll={handleCleanAll}
+        onQuickReset={handleQuickReset}
         onExportHtml={handleExportHtml}
         onExportPdf={() => setIsPdfExportModalOpen(true)}
         onCopyCompiledHtml={handleCopyCompiledHtml}

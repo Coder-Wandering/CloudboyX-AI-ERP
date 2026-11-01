@@ -41,6 +41,7 @@ import {
   Minimize2,
   ArrowRight,
   BookOpen,
+  RotateCcw,
 } from 'lucide-react';
 import { BlockInstance, SiteTheme, SeoSettings, ViewportMode } from '../types';
 import { BLOCK_DEFINITIONS } from '../data/blockDefinitions';
@@ -70,6 +71,7 @@ export interface CommandPaletteProps {
   onAddBlock: (type: string) => void;
   onAddBlockAtIndex?: (type: string, targetIndex: number) => void;
   onCleanAll?: () => void;
+  onQuickReset?: () => void;
   onExportHtml: () => void;
   onExportPdf?: () => void;
   onCopyCompiledHtml?: () => void;
@@ -143,6 +145,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onAddBlock,
   onAddBlockAtIndex,
   onCleanAll,
+  onQuickReset,
   onExportHtml,
   onExportPdf,
   onCopyCompiledHtml,
@@ -213,6 +216,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         badgeColor: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
         perform: () => {
           onCleanAll();
+          onClose();
+        },
+      });
+    }
+
+    if (onQuickReset) {
+      items.push({
+        id: 'action-quick-reset',
+        category: 'action',
+        title: 'Quick Reset to Initial Template State',
+        subtitle: 'Revert all block modifications and reordering back to original template layout',
+        keywords: ['quick reset', 'reset', 'revert', 'template', 'initial', 'rollback', 'restore', 'undo changes'],
+        icon: RotateCcw,
+        iconColor: 'text-amber-500',
+        iconBg: isDark ? 'bg-amber-950/60' : 'bg-amber-50',
+        badge: 'Template',
+        badgeColor: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+        perform: () => {
+          onQuickReset();
           onClose();
         },
       });
@@ -1046,6 +1068,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return items;
   }, [
     onCleanAll,
+    onQuickReset,
     onExportHtml,
     onExportPdf,
     onCopyCompiledHtml,

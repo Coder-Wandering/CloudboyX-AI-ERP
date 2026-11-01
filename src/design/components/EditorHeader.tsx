@@ -32,6 +32,7 @@ import {
   Command,
   Maximize2,
   Minimize2,
+  RotateCcw,
 } from 'lucide-react';
 import { ViewportMode, BlockInstance } from '../types';
 import { Breakpoint, BREAKPOINT_LABELS, BREAKPOINT_ORDER } from '../engine/bootstrapCascade';
@@ -79,6 +80,8 @@ interface EditorHeaderProps {
   isFitToScreen?: boolean;
   onToggleFitToScreen?: () => void;
   zoomScale?: number;
+  onQuickReset?: () => void;
+  initialTemplateName?: string;
 }
 
 function formatHeaderSaveTime(timestamp: number, currentNow: number): string {
@@ -150,11 +153,14 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   isFitToScreen = false,
   onToggleFitToScreen,
   zoomScale = 1,
+  onQuickReset,
+  initialTemplateName = 'Starter Template',
 }) => {
   const { user, isDemoUnlocked, activeRole, permissions, agencyBranding, logOut } = useAuth();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isCleanAllConfirmOpen, setIsCleanAllConfirmOpen] = useState(false);
+  const [isQuickResetConfirmOpen, setIsQuickResetConfirmOpen] = useState(false);
   const [now, setNow] = useState<number>(Date.now());
   const [internalSaving, setInternalSaving] = useState<boolean>(false);
   const [justSaved, setJustSaved] = useState<boolean>(false);
@@ -204,6 +210,18 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isCleanAllConfirmOpen]);
+
+  // Keyboard shortcut: Escape to close Quick Reset dialog
+  useEffect(() => {
+    if (!isQuickResetConfirmOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsQuickResetConfirmOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isQuickResetConfirmOpen]);
 
   const isClient = activeRole.startsWith('client_');
   const isDark = themeMode === 'dark';
@@ -738,6 +756,33 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <Redo2 className="w-3.5 h-3.5" />
           </button>
 
+          {/* Quick Reset to Initial Template State */}
+          {onQuickReset && (
+            <>
+              <div
+                className={`w-px h-3.5 mx-0.5 ${
+                  isDark ? 'bg-slate-800' : 'bg-slate-300'
+                }`}
+              />
+              <button
+                type="button"
+                id="btn-quick-reset-template"
+                data-testid="btn-quick-reset-template"
+                onClick={() => setIsQuickResetConfirmOpen(true)}
+                className={`px-2 py-1 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1 select-none ${
+                  isDark
+                    ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/15'
+                    : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100/70'
+                }`}
+                title="Quick Reset: Instantly revert all block changes back to the initial template state without multiple undos"
+                aria-label="Quick Reset to Template State"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="hidden xl:inline text-[11px] font-bold">Quick Reset</span>
+              </button>
+            </>
+          )}
+
           {onCleanAll && (
             <>
               <div
@@ -776,15 +821,18 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             type="button"
             id="btn-open-template-gallery-modal"
             onClick={onOpenTemplateGallery}
-            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition cursor-pointer shadow-xs active:scale-95 ${
               isDark
-                ? 'bg-slate-900 hover:bg-slate-800 text-slate-100 border-slate-800 hover:border-slate-700'
-                : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+                ? 'bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 border-blue-500/40 hover:border-blue-400'
+                : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300'
             }`}
-            title="Browse 108+ Ready-to-Use Bootstrap 5 Templates"
+            title="Browse CloudboyX Template Gallery (108+ Pre-built Bootstrap 5 Site Templates)"
           >
             <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             <span>Templates</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-400 font-bold hidden sm:inline">
+              108+
+            </span>
           </button>
         )}
 
@@ -1034,6 +1082,82 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Clean All & Reset Theme</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Confirmation Dialog for Quick Reset */}
+    {isQuickResetConfirmOpen && (
+      <div
+        id="quick-reset-dialog-backdrop"
+        data-testid="quick-reset-dialog-backdrop"
+        onClick={() => setIsQuickResetConfirmOpen(false)}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150"
+      >
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="quick-reset-dialog-title"
+          aria-describedby="quick-reset-dialog-description"
+          onClick={(e) => e.stopPropagation()}
+          className={`w-full max-w-md rounded-2xl p-5 shadow-2xl border transition-all animate-in zoom-in-95 duration-150 ${
+            isDark
+              ? 'bg-slate-900 border-slate-700 text-white shadow-amber-950/40 ring-1 ring-amber-500/20'
+              : 'bg-white border-slate-200 text-slate-900 shadow-slate-900/25 ring-1 ring-amber-500/10'
+          }`}
+        >
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-500">
+              <RotateCcw className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 id="quick-reset-dialog-title" className="text-base font-bold leading-snug">
+                Revert to Initial Template State?
+              </h3>
+              <p id="quick-reset-dialog-description" className="text-xs text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">
+                This will instantly revert all block customizations, additions, reordering, and deleted sections back to the original layout of <strong className="text-amber-400 font-semibold font-mono">{initialTemplateName}</strong> without having to click undo multiple times.
+              </p>
+              <div className="mt-2.5 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-500 dark:text-blue-400 flex items-center gap-1.5 font-medium">
+                <Sparkles className="w-3.5 h-3.5 shrink-0 text-blue-400" />
+                <span>A snapshot is saved so you can still press Undo (Ctrl+Z) if needed.</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsQuickResetConfirmOpen(false)}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition cursor-pointer"
+              title="Close dialog"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="mt-5 flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200/60 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsQuickResetConfirmOpen(false)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
+                isDark
+                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+              }`}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              id="btn-confirm-quick-reset"
+              data-testid="btn-confirm-quick-reset"
+              onClick={() => {
+                setIsQuickResetConfirmOpen(false);
+                onQuickReset?.();
+              }}
+              className="px-4 py-1.5 rounded-xl text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 shadow-md shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 active:scale-98"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Confirm Quick Reset</span>
             </button>
           </div>
         </div>

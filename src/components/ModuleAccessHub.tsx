@@ -21,14 +21,15 @@ import {
   Coins, 
   Activity,
   PackageCheck,
-  TrendingUp
+  TrendingUp,
+  Layout
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { UserAccount } from './AuthModal';
 
 interface ModuleAccessHubProps {
   currentUser: UserAccount | null;
-  onLaunchModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite') => void;
+  onLaunchModule: (moduleKey: 'ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'suite' | 'design') => void;
   onExitToMarketing: () => void;
   onSignOut: () => void;
   onOpenUpgradeModal: () => void;
@@ -732,6 +733,51 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                   <span>Unlock Module 05 ($399/mo)</span>
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* ──────────────── MODULE 6 CARD: DESIGN STUDIO & BUILDER ──────────────── */}
+          <div className={`rounded-3xl border-2 flex flex-col justify-between transition-all duration-300 relative overflow-hidden md:col-span-2 ${
+            isDarkMode
+              ? 'bg-[#24232B] border-[#979BF3]/60 shadow-xl hover:border-[#B4B7F7]'
+              : 'bg-white border-[#979BF3] shadow-lg hover:border-indigo-600'
+          }`}>
+            <div className="p-7">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-mono font-extrabold uppercase px-2.5 py-1 rounded-md bg-[#979BF3]/20 text-[#979BF3] border border-[#979BF3]/30">
+                  MODULE 06 • DESIGN STUDIO & BUILDER
+                </span>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>INCLUDED IN PLATFORM</span>
+                </span>
+              </div>
+
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#979BF3]/20 text-[#979BF3] flex items-center justify-center shrink-0 border border-[#979BF3]/30">
+                  <Layout className="w-6 h-6 text-[#979BF3]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    CloudboyX Design Studio & Page Builder
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    Visual Bootstrap 5 canvas, drag-and-drop section blocks, responsive breakpoint inspection, live theme palettes, Google Fonts integration, and one-click clean HTML/CSS code export.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-7 pt-0">
+              <button
+                type="button"
+                id="hub-launch-design-studio-btn"
+                onClick={() => onLaunchModule('design')}
+                className="w-full py-3 bg-[#979BF3] hover:bg-[#B4B7F7] active:scale-98 text-[#1C1B21] font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Layout className="w-4 h-4" />
+                <span>Launch Design Studio & Builder ➔</span>
+              </button>
             </div>
           </div>
 
