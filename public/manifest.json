@@ -4,6 +4,12 @@
   "description": "Universal Transactional Gateway & Double-Entry General Ledger Suite",
   "icons": [
     {
+      "src": "/assets/aistudio/favicon-16x16_85714a47.png",
+      "type": "image/png",
+      "sizes": "16x16",
+      "purpose": "any"
+    },
+    {
       "src": "/assets/cloudboyx_logo_header.png",
       "type": "image/png",
       "sizes": "512x512",
