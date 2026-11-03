@@ -92,6 +92,7 @@ import MapProtectionModule from './components/MapProtectionModule';
 import { PredictModule } from './predict/PredictModule';
 import CloudboyXDesignStudio from './design/CloudboyXDesignStudio';
 import { ScanningInstructionsGuide } from './components/ScanningInstructionsGuide';
+import { ChromebookInstallerModal } from './components/ChromebookInstallerModal';
 
 export { CorporateBrandLogo };
 
@@ -232,6 +233,7 @@ export default function App() {
   const [isModuleSwitcherOpen, setIsModuleSwitcherOpen] = useState<boolean>(false);
   const [lockedAttemptModule, setLockedAttemptModule] = useState<'ledger' | 'ingress' | 'procurement' | null>(null);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState<boolean>(false);
+  const [isChromebookModalOpen, setIsChromebookModalOpen] = useState<boolean>(false);
 
   // Top-level site routing: Standalone Marketing Website vs Central Access Menu Hub vs Enterprise Operations Suite
   const [appMode, setAppMode] = useState<'marketing' | 'hub' | 'suite'>(() => {
@@ -872,6 +874,26 @@ export default function App() {
 
   // Filter within history pane to view only favorited patterns
   const [favoriteScansOnlyFilter, setFavoriteScansOnlyFilter] = useState<boolean>(false);
+  // Sort order within recent scans pane: date descending, date ascending, or favorites first
+  const [recentScansSort, setRecentScansSort] = useState<'date_desc' | 'date_asc' | 'favorites_first'>(() => {
+    try {
+      const stored = localStorage.getItem('cloudboyx_recent_scans_sort');
+      if (stored === 'date_desc' || stored === 'date_asc' || stored === 'favorites_first') {
+        return stored;
+      }
+    } catch (e) {
+      // fallback
+    }
+    return 'date_desc';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cloudboyx_recent_scans_sort', recentScansSort);
+    } catch (e) {
+      console.warn("Failed to persist recentScansSort to localStorage:", e);
+    }
+  }, [recentScansSort]);
 
   useEffect(() => {
     try {
@@ -3585,10 +3607,31 @@ export default function App() {
       );
     }
 
-    // When history pane is open
-    const displayedScans = favoriteScansOnlyFilter
+    // When history pane is open: filter and sort scans
+    const filteredScans = favoriteScansOnlyFilter
       ? recentScans.filter(item => item.isFavorite || item.favorite)
-      : recentScans;
+      : [...recentScans];
+
+    const displayedScans = filteredScans.sort((a, b) => {
+      const timeA = new Date(a.timestamp).getTime() || 0;
+      const timeB = new Date(b.timestamp).getTime() || 0;
+
+      if (recentScansSort === 'favorites_first') {
+        const favA = (a.isFavorite || a.favorite) ? 1 : 0;
+        const favB = (b.isFavorite || b.favorite) ? 1 : 0;
+        if (favA !== favB) {
+          return favB - favA; // favorited items first
+        }
+        return timeB - timeA; // secondary: newest first
+      }
+
+      if (recentScansSort === 'date_asc') {
+        return timeA - timeB; // oldest first
+      }
+
+      // Default: 'date_desc' (newest first)
+      return timeB - timeA;
+    });
 
     return (
       <div className="w-full max-w-[340px] mt-4 text-left border-t border-slate-800/90 pt-3.5">
@@ -3634,32 +3677,61 @@ export default function App() {
           </div>
         </div>
 
-        {/* Filter chips when user has favorited patterns */}
-        {recentScans.length > 0 && favoriteScansCount > 0 && (
-          <div className="flex items-center gap-1.5 mb-2">
-            <button
-              type="button"
-              onClick={() => setFavoriteScansOnlyFilter(false)}
-              className={`px-2 py-0.5 text-[8px] font-mono rounded-md border transition-all cursor-pointer ${
-                !favoriteScansOnlyFilter
-                  ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40 font-bold'
-                  : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
-              }`}
-            >
-              All Scans ({recentScans.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFavoriteScansOnlyFilter(true)}
-              className={`px-2 py-0.5 text-[8px] font-mono rounded-md border flex items-center gap-1 transition-all cursor-pointer ${
-                favoriteScansOnlyFilter
-                  ? 'bg-amber-950/80 text-amber-300 border-amber-500/40 font-bold'
-                  : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-amber-300'
-              }`}
-            >
-              <Star className="w-2 h-2 fill-amber-400 text-amber-400" />
-              Favorites Only ({favoriteScansCount})
-            </button>
+        {/* Filter chips and sorting controls */}
+        {recentScans.length > 0 && (
+          <div className="flex items-center justify-between gap-1.5 mb-2.5 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {favoriteScansCount > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setFavoriteScansOnlyFilter(false)}
+                    className={`px-2 py-0.5 text-[8px] font-mono rounded-md border transition-all cursor-pointer ${
+                      !favoriteScansOnlyFilter
+                        ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40 font-bold shadow-xs'
+                        : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
+                    }`}
+                  >
+                    All ({recentScans.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFavoriteScansOnlyFilter(true)}
+                    className={`px-2 py-0.5 text-[8px] font-mono rounded-md border flex items-center gap-1 transition-all cursor-pointer ${
+                      favoriteScansOnlyFilter
+                        ? 'bg-amber-950/80 text-amber-300 border-amber-500/40 font-bold shadow-xs'
+                        : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-amber-300'
+                    }`}
+                  >
+                    <Star className="w-2 h-2 fill-amber-400 text-amber-400" />
+                    Favorites ({favoriteScansCount})
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Sorting Dropdown */}
+            <div className="flex items-center gap-1 ml-auto">
+              <label
+                htmlFor="recent-scans-sort"
+                className="text-[7.5px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-0.5 shrink-0"
+              >
+                <ArrowUpDown className="w-2.5 h-2.5 text-indigo-400" />
+                <span>Sort:</span>
+              </label>
+              <select
+                id="recent-scans-sort"
+                value={recentScansSort}
+                onChange={(e) => setRecentScansSort(e.target.value as 'date_desc' | 'date_asc' | 'favorites_first')}
+                className="bg-slate-900/90 hover:bg-slate-850 text-slate-200 text-[8px] font-mono font-medium rounded-md px-1.5 py-0.5 border border-slate-700/80 focus:border-indigo-500 focus:outline-none cursor-pointer transition-colors"
+                title="Sort recent scans by date or favorite status"
+                aria-label="Sort recent scans by date or favorite status"
+              >
+                <option value="date_desc" className="bg-slate-900 text-slate-200">Date: Newest First</option>
+                <option value="date_asc" className="bg-slate-900 text-slate-200">Date: Oldest First</option>
+                <option value="favorites_first" className="bg-slate-900 text-slate-200">Favorites First ★</option>
+              </select>
+            </div>
           </div>
         )}
 
@@ -3695,7 +3767,14 @@ export default function App() {
 
               const formattedTime = (() => {
                 try {
-                  return new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const d = new Date(item.timestamp);
+                  if (isNaN(d.getTime())) return '';
+                  const now = new Date();
+                  const isToday = d.toDateString() === now.toDateString();
+                  if (isToday) {
+                    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  }
+                  return `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
                 } catch (e) {
                   return '';
                 }
@@ -4933,6 +5012,7 @@ export default function App() {
           onOpenUpgradeModal={() => setIsUpgradeModalOpen(true)}
           isDarkMode={isDarkMode}
           setIsDarkMode={setIsDarkMode}
+          onOpenChromebookInstaller={() => setIsChromebookModalOpen(true)}
         />
 
         {/* Upgrade / Account Configuration Modal */}
@@ -4952,6 +5032,13 @@ export default function App() {
           }}
           isDarkMode={isDarkMode}
         />
+
+        {/* Chromebook & Desktop App Installer Modal */}
+        <ChromebookInstallerModal
+          isOpen={isChromebookModalOpen}
+          onClose={() => setIsChromebookModalOpen(false)}
+          isDarkMode={isDarkMode}
+        />
       </>
     );
   }
@@ -4960,61 +5047,64 @@ export default function App() {
     <ClickToEditContext.Provider value={{ isClickToEditActive, setActiveEditorField, lockedFields, isAdminMode, onPostMessage: (text, type) => setLedgerMessage({ text, type }) }}>
       <div className={`min-h-screen font-sans antialiased pb-20 transition-colors duration-200 ${isDarkMode ? 'dark bg-[#1C1B21] text-white' : 'bg-[#FAFAF9] text-[#1C1B21]'}`}>
       
-      {/* Anchored / Sticky Header & Mega Menu Navigation Suite */}
-      <div id="anchored-header-container" className="sticky top-0 z-40 w-full shadow-lg transition-all">
-        {/* Banner/Header Workspace */}
-        <header className="bg-[#1C1B21] text-white border-b border-[#3B3947]">
-          <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div 
-                className="flex items-center justify-center shrink-0 h-12 sm:h-14 md:h-16 w-auto select-none cursor-pointer" 
-                id="header-brand-logo"
-                onClick={navigateToMarketing}
-                title="Click to visit standalone public marketing website"
-              >
-                <CorporateBrandLogo className="h-full w-auto max-w-[180px] sm:max-w-[210px] object-contain drop-shadow-md" />
+      {/* Anchored / Sticky Header & Mega Menu Navigation Suite (Hidden when in Design Studio full-screen workspace) */}
+      {mainView !== 'design' && (
+        <div id="anchored-header-container" className="sticky top-0 z-40 w-full shadow-lg transition-all">
+          {/* Banner/Header Workspace */}
+          <header className="bg-[#1C1B21] text-white border-b border-[#3B3947]">
+            <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5 sm:px-6 lg:px-8 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div 
+                  className="flex items-center justify-center shrink-0 h-12 sm:h-14 md:h-16 w-auto select-none cursor-pointer" 
+                  id="header-brand-logo"
+                  onClick={navigateToMarketing}
+                  title="Click to visit standalone public marketing website"
+                >
+                  <CorporateBrandLogo className="h-full w-auto max-w-[180px] sm:max-w-[210px] object-contain drop-shadow-md" />
+                </div>
+              </div>
+
+              {/* Exit to Public Marketing Website Button */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  id="header-exit-to-marketing-btn"
+                  onClick={navigateToMarketing}
+                  className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-[#979BF3] hover:text-white bg-[#24232B] hover:bg-[#2C2B35] border border-[#3B3947] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  title="Exit to the public CloudboyX marketing website"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 rotate-180 text-[#979BF3]" />
+                  <span>Public Website</span>
+                </button>
               </div>
             </div>
+          </header>
 
-            {/* Exit to Public Marketing Website Button */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                id="header-exit-to-marketing-btn"
-                onClick={navigateToMarketing}
-                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-[#979BF3] hover:text-white bg-[#24232B] hover:bg-[#2C2B35] border border-[#3B3947] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                title="Exit to the public CloudboyX marketing website"
-              >
-                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-[#979BF3]" />
-                <span>Public Website</span>
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* Mega Menu Navigation Bar with All Header Controls */}
-        <MegaNavbar
-          mainView={mainView}
-          setMainView={setMainView}
-          isDarkMode={isDarkMode}
-          setIsDarkMode={setIsDarkMode}
-          setIsAdminConsoleOpen={setIsAdminConsoleOpen}
-          addAuditEvent={addAuditEvent}
-          handleResetLedger={handleResetLedger}
-          onTriggerBotPrompt={handleTriggerBotPrompt}
-          onExitToMarketing={navigateToMarketing}
-          currentUser={currentUser}
-          onOpenModuleSwitcher={() => {
-            setLockedAttemptModule(null);
-            setIsModuleSwitcherOpen(true);
-          }}
-          onGoToHub={navigateToHub}
-          onAttemptLockedModule={(modKey) => {
-            setLockedAttemptModule(modKey);
-            setIsModuleSwitcherOpen(true);
-          }}
-        />
-      </div>
+          {/* Mega Menu Navigation Bar with All Header Controls */}
+          <MegaNavbar
+            mainView={mainView}
+            setMainView={setMainView}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+            setIsAdminConsoleOpen={setIsAdminConsoleOpen}
+            addAuditEvent={addAuditEvent}
+            handleResetLedger={handleResetLedger}
+            onTriggerBotPrompt={handleTriggerBotPrompt}
+            onExitToMarketing={navigateToMarketing}
+            currentUser={currentUser}
+            onOpenModuleSwitcher={() => {
+              setLockedAttemptModule(null);
+              setIsModuleSwitcherOpen(true);
+            }}
+            onGoToHub={navigateToHub}
+            onAttemptLockedModule={(modKey) => {
+              setLockedAttemptModule(modKey);
+              setIsModuleSwitcherOpen(true);
+            }}
+            onOpenChromebookInstaller={() => setIsChromebookModalOpen(true)}
+          />
+        </div>
+      )}
 
       {/* Main Grid Interface */}
       <main className={`max-w-7xl mx-auto px-4 mt-8 sm:px-6 lg:px-8 ${mainView === 'erp' ? 'block' : 'hidden'}`}>
@@ -10141,55 +10231,55 @@ export default function App() {
 
       {/* CloudboyX Visual Design Studio Section */}
       {mainView === 'design' && (
-        <main className="w-full">
-          <CloudboyXDesignStudio onExit={() => setMainView('erp')} />
-        </main>
+        <CloudboyXDesignStudio onExit={() => setMainView('erp')} />
       )}
 
       {/* Global Regulatory Compliance & Licensing Footer */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 pb-12 border-t border-slate-200">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-1 text-slate-400 grayscale scale-90">
-              <CorporateBrandLogo className="w-8 h-8" />
-            </div>
-            <div className="text-left">
-              <ClickToEditWrapper fieldKey="copyrightFooterText" fieldLabel="Copyright Copyright Footer Text">
-                <p className="text-xs font-sans text-slate-500 font-medium">
-                  {renderEditableText('copyrightFooterText', 'text-xs font-sans text-slate-500 font-medium')}
-                </p>
-              </ClickToEditWrapper>
-              <div className="mt-1">
-                <ClickToEditWrapper fieldKey="licenseFooterText" fieldLabel="Licensing Agreement Footer text" isTextArea={true}>
-                  <p className="text-[10px] font-mono text-slate-400 leading-relaxed">
-                    {renderEditableText('licenseFooterText', 'text-[10px] font-mono text-slate-400', true)}
+      {mainView !== 'design' && (
+        <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 pb-12 border-t border-slate-200">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-1 text-slate-400 grayscale scale-90">
+                <CorporateBrandLogo className="w-8 h-8" />
+              </div>
+              <div className="text-left">
+                <ClickToEditWrapper fieldKey="copyrightFooterText" fieldLabel="Copyright Copyright Footer Text">
+                  <p className="text-xs font-sans text-slate-500 font-medium">
+                    {renderEditableText('copyrightFooterText', 'text-xs font-sans text-slate-500 font-medium')}
                   </p>
                 </ClickToEditWrapper>
+                <div className="mt-1">
+                  <ClickToEditWrapper fieldKey="licenseFooterText" fieldLabel="Licensing Agreement Footer text" isTextArea={true}>
+                    <p className="text-[10px] font-mono text-slate-400 leading-relaxed">
+                      {renderEditableText('licenseFooterText', 'text-[10px] font-mono text-slate-400', true)}
+                    </p>
+                  </ClickToEditWrapper>
+                </div>
               </div>
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-bold font-mono px-2 py-1 rounded border bg-slate-100 border-slate-200 text-slate-500 flex items-center gap-1 shrink-0">
+                <Lock className="w-3 h-3 text-slate-400" />
+                GAAP Compliance Node
+              </span>
+              <span className={`text-[10px] font-bold font-mono px-2 py-1 rounded border flex items-center gap-1 shrink-0 transition-all ${
+                isAdminMode 
+                  ? 'bg-amber-500/10 border-amber-300 text-amber-700' 
+                  : lockedFields.includes('copyrightFooterText')
+                    ? 'bg-rose-500/10 border-rose-300 text-rose-700'
+                    : 'bg-emerald-500/10 border-emerald-300 text-emerald-700 animate-pulse'
+              }`}>
+                {isAdminMode 
+                  ? '🛡️ MASTER ADMIN STATUS (EDIT ALL)' 
+                  : lockedFields.includes('copyrightFooterText')
+                    ? '🏢 RESELLER MODE (FOOTER LOCKED)'
+                    : '🔓 RESELLER MODE (CO-BRANDING UNLOCKED)'
+                }
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-bold font-mono px-2 py-1 rounded border bg-slate-100 border-slate-200 text-slate-500 flex items-center gap-1 shrink-0">
-              <Lock className="w-3 h-3 text-slate-400" />
-              GAAP Compliance Node
-            </span>
-            <span className={`text-[10px] font-bold font-mono px-2 py-1 rounded border flex items-center gap-1 shrink-0 transition-all ${
-              isAdminMode 
-                ? 'bg-amber-500/10 border-amber-300 text-amber-700' 
-                : lockedFields.includes('copyrightFooterText')
-                  ? 'bg-rose-500/10 border-rose-300 text-rose-700'
-                  : 'bg-emerald-500/10 border-emerald-300 text-emerald-700 animate-pulse'
-            }`}>
-              {isAdminMode 
-                ? '🛡️ MASTER ADMIN STATUS (EDIT ALL)' 
-                : lockedFields.includes('copyrightFooterText')
-                  ? '🏢 RESELLER MODE (FOOTER LOCKED)'
-                  : '🔓 RESELLER MODE (CO-BRANDING UNLOCKED)'
-              }
-            </span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* ADMIN CONSOLE POP-UP MODAL */}
       {isAdminConsoleOpen && (
@@ -11454,6 +11544,13 @@ export default function App() {
           setCurrentUser(user);
           setIsUpgradeModalOpen(false);
         }}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* Chromebook & Desktop App Installer Modal */}
+      <ChromebookInstallerModal
+        isOpen={isChromebookModalOpen}
+        onClose={() => setIsChromebookModalOpen(false)}
         isDarkMode={isDarkMode}
       />
 

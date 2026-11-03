@@ -36,17 +36,18 @@ export const ThemeToggleSwitch: React.FC<ThemeToggleSwitchProps> = ({
     >
       {showLabel && (
         <span
-          className={`text-xs font-semibold tracking-tight transition-colors hidden xl:inline ${
-            isDark ? 'text-slate-300' : 'text-slate-600'
+          className={`text-xs font-semibold tracking-tight transition-colors hidden sm:inline ${
+            isDark ? 'text-slate-200' : 'text-slate-600'
           }`}
         >
-          {isDark ? 'Dark' : 'Light'}
+          {isDark ? 'Midnight Dark' : 'Light Mode'}
         </span>
       )}
 
       <button
         type="button"
         role="switch"
+        id="theme-mode-toggle-switch"
         aria-checked={isDark}
         aria-label={`Toggle light and dark theme. Current is ${themeMode}`}
         onClick={onToggle}
@@ -55,7 +56,7 @@ export const ThemeToggleSwitch: React.FC<ThemeToggleSwitchProps> = ({
           isSmall ? 'w-12 h-6.5 p-0.5' : 'w-14 h-7.5 p-1'
         } ${
           isDark
-            ? 'bg-[#0b0f19] border border-slate-700/90 ring-offset-[#0b0f19] shadow-inner'
+            ? 'bg-[#1C1C23] border border-[#191970] ring-offset-[#1C1C23] shadow-inner'
             : 'bg-slate-200 hover:bg-slate-300 border border-slate-300/80 ring-offset-white shadow-inner'
         }`}
       >

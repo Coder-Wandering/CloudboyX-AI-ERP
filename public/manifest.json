@@ -1,7 +1,15 @@
 {
+  "id": "/",
   "short_name": "CloudboyX",
-  "name": "CloudboyX Gateway & ERP Suite",
-  "description": "Universal Transactional Gateway & Double-Entry General Ledger Suite",
+  "name": "CloudboyX Enterprise Suite",
+  "description": "Autonomous ERP double-entry ledger, MAP brand defense, quantitative predict engine, and visual Bootstrap 5 website builder.",
+  "start_url": "/?mode=suite",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1C1B21",
+  "theme_color": "#1C1B21",
+  "categories": ["business", "finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "/assets/aistudio/favicon-16x16_85714a47.png",
@@ -10,16 +18,45 @@
       "purpose": "any"
     },
     {
-      "src": "/assets/cloudboyx_logo_header.png",
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "start_url": "/?mode=suite",
-  "background_color": "#03045e",
-  "theme_color": "#0077b6",
-  "display": "standalone",
-  "orientation": "portrait-primary",
-  "scope": "/"
+  "shortcuts": [
+    {
+      "name": "Financial Ledger",
+      "short_name": "Ledger",
+      "description": "Open double-entry General Ledger and balance sheet",
+      "url": "/?mode=suite#suite",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Design Studio",
+      "short_name": "Builder",
+      "description": "Open visual Bootstrap 5 website builder",
+      "url": "/?mode=suite#design",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "MAP Defense",
+      "short_name": "Defense",
+      "description": "Open Minimum Advertised Price brand protection suite",
+      "url": "/?mode=suite#map",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }

@@ -22,7 +22,8 @@ import {
   Activity,
   PackageCheck,
   TrendingUp,
-  Layout
+  Layout,
+  Laptop
 } from 'lucide-react';
 import { CorporateBrandLogo } from './CorporateBrandLogo';
 import { UserAccount } from './AuthModal';
@@ -35,6 +36,7 @@ interface ModuleAccessHubProps {
   onOpenUpgradeModal: () => void;
   isDarkMode: boolean;
   setIsDarkMode?: React.Dispatch<React.SetStateAction<boolean>>;
+  onOpenChromebookInstaller?: () => void;
 }
 
 export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
@@ -44,7 +46,8 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
   onSignOut,
   onOpenUpgradeModal,
   isDarkMode,
-  setIsDarkMode
+  setIsDarkMode,
+  onOpenChromebookInstaller
 }) => {
   // Fallback demo user if not logged in
   const user: UserAccount = currentUser || {
@@ -99,6 +102,19 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 <div className="text-[10px] text-[#979BF3] truncate max-w-[140px]">{user.company}</div>
               </div>
             </div>
+
+            {/* Chromebook Install Launcher Button */}
+            {onOpenChromebookInstaller && (
+              <button
+                type="button"
+                onClick={onOpenChromebookInstaller}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-300 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                title="Install CloudboyX on Chromebook / ChromeOS"
+              >
+                <Laptop className="w-3.5 h-3.5 text-indigo-300" />
+                <span className="hidden sm:inline">Chromebook App</span>
+              </button>
+            )}
 
             {/* Public Website Button */}
             <button
@@ -180,6 +196,18 @@ export const ModuleAccessHub: React.FC<ModuleAccessHubProps> = ({
                 <Sliders className="w-4 h-4 text-cyan-500" />
                 <span>Configure / Upgrade Modules</span>
               </button>
+
+              {onOpenChromebookInstaller && (
+                <button
+                  type="button"
+                  onClick={onOpenChromebookInstaller}
+                  className="px-4 py-3.5 border border-indigo-400/40 bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-300 hover:text-white text-xs font-mono font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
+                  title="Open Chromebook & Desktop App Installer"
+                >
+                  <Laptop className="w-4 h-4 text-indigo-400" />
+                  <span>Chromebook Install Center</span>
+                </button>
+              )}
             </div>
           </div>
 

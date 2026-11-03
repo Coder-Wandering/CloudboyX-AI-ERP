@@ -53,14 +53,6 @@ import {
 } from './utils/revisionHistory';
 import { ProjectRevision } from './types';
 import { ClipboardList, X } from 'lucide-react';
-import { ChromeSectionDivider } from './components/ChromeSectionDivider';
-import { CanonicalSchemaSyncModal } from './components/CanonicalSchemaSyncModal';
-import {
-  getStoredCanonicalSchema,
-  syncCanonicalSchemaWithGateway,
-  getLastCanonicalSyncTime,
-} from './engine/canonicalSchemaSync';
-import { CanonicalSchemaDefinition } from '../canonical';
 
 const STORAGE_KEY = 'bootstrap5_visual_editor_project';
 
@@ -68,12 +60,12 @@ function sanitizeLegacyBrand(str: string): string {
   return str.replace(/Mobirise\s+Studio/gi, 'CloudboyX Design').replace(/Mobirise/gi, 'CloudboyX');
 }
 
-export default function App({ 
-  initialView = 'builder', 
-  onExit 
-}: { 
-  initialView?: 'landing' | 'builder' | 'admin'; 
-  onExit?: () => void 
+export default function App({
+  initialView = 'builder',
+  onExit,
+}: {
+  initialView?: 'landing' | 'builder' | 'admin';
+  onExit?: () => void;
 } = {}) {
   const { user, loading, isDemoUnlocked, isAdmin } = useAuth();
   const [currentView, setCurrentView] = useState<'landing' | 'builder' | 'admin'>(() => {
@@ -160,19 +152,162 @@ export default function App({
   const handleToggleThemeMode = useCallback(() => {
     setThemeMode((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
-      setTheme((currentTheme) => ({
-        ...currentTheme,
-        colorMode: next,
-      }));
+
+      // 1. Immediately persist mode
+      try {
+        localStorage.setItem('cloudboyx_theme_mode', next);
+      } catch {}
+
+      // 2. Synchronize root classes and attributes
+      if (next === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+      }
+
+      // 3. Update project theme color palette settings
+      setTheme((currentTheme) => {
+        const updatedTheme: SiteTheme = {
+          ...currentTheme,
+          colorMode: next,
+          darkColor: '#1C1C23', // Midnight Obsidian
+          primaryColor: currentTheme.primaryColor || '#2222FF', // CloudboyX Electric Blue
+          secondaryColor: next === 'dark' ? (currentTheme.secondaryColor || '#00E5D1') : (currentTheme.secondaryColor || '#191970'),
+          lightColor: '#FFFFFF',
+        };
+        try {
+          localStorage.setItem('cloudboyx_site_theme', JSON.stringify(updatedTheme));
+        } catch {}
+        return updatedTheme;
+      });
+
+      // 4. Update the project theme color palette settings automatically for all blocks
+      setBlocks((prevBlocks) => {
+        return prevBlocks.map((block) => {
+          const currentSettings = block.settings || {};
+          const updatedSettings = { ...currentSettings };
+
+          if (next === 'dark') {
+            const isLightBg =
+              !updatedSettings.bgColor ||
+              updatedSettings.bgColor === '#ffffff' ||
+              updatedSettings.bgColor === '#FFFFFF' ||
+              updatedSettings.bgColor === '#f8f9fa' ||
+              updatedSettings.bgColor === '#f1f5f9' ||
+              updatedSettings.bgColor === 'bg-white' ||
+              updatedSettings.bgColor === 'bg-light' ||
+              updatedSettings.bgColor === 'bg-light-subtle';
+
+            if (isLightBg && updatedSettings.bgType !== 'image') {
+              updatedSettings.bgColor = '#1C1C23';
+              updatedSettings.bgType = 'color';
+            }
+            updatedSettings.textColor = 'light';
+            updatedSettings.darkSection = true;
+          } else {
+            const isMidnightBg =
+              updatedSettings.bgColor === '#1C1C23' ||
+              updatedSettings.bgColor === '#1C1B21' ||
+              updatedSettings.bgColor === '#111520' ||
+              updatedSettings.bgColor === '#0f172a' ||
+              updatedSettings.bgColor === 'bg-midnight' ||
+              updatedSettings.bgColor === 'bg-dark';
+
+            if (isMidnightBg && updatedSettings.bgType !== 'image') {
+              updatedSettings.bgColor = '#ffffff';
+              updatedSettings.bgType = 'color';
+            }
+            updatedSettings.textColor = 'dark';
+            updatedSettings.darkSection = false;
+          }
+
+          return {
+            ...block,
+            settings: updatedSettings,
+          };
+        });
+      });
+
       return next;
     });
   }, []);
 
   const handleUpdateTheme = useCallback((patch: Partial<SiteTheme>) => {
     if (patch.colorMode && (patch.colorMode === 'light' || patch.colorMode === 'dark')) {
-      setThemeMode(patch.colorMode);
+      const next = patch.colorMode;
+      setThemeMode(next);
+      try {
+        localStorage.setItem('cloudboyx_theme_mode', next);
+      } catch {}
+
+      if (next === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+      }
+
+      setBlocks((prevBlocks) => {
+        return prevBlocks.map((block) => {
+          const currentSettings = block.settings || {};
+          const updatedSettings = { ...currentSettings };
+
+          if (next === 'dark') {
+            const isLightBg =
+              !updatedSettings.bgColor ||
+              updatedSettings.bgColor === '#ffffff' ||
+              updatedSettings.bgColor === '#FFFFFF' ||
+              updatedSettings.bgColor === '#f8f9fa' ||
+              updatedSettings.bgColor === '#f1f5f9' ||
+              updatedSettings.bgColor === 'bg-white' ||
+              updatedSettings.bgColor === 'bg-light' ||
+              updatedSettings.bgColor === 'bg-light-subtle';
+
+            if (isLightBg && updatedSettings.bgType !== 'image') {
+              updatedSettings.bgColor = '#1C1C23';
+              updatedSettings.bgType = 'color';
+            }
+            updatedSettings.textColor = 'light';
+            updatedSettings.darkSection = true;
+          } else {
+            const isMidnightBg =
+              updatedSettings.bgColor === '#1C1C23' ||
+              updatedSettings.bgColor === '#1C1B21' ||
+              updatedSettings.bgColor === '#111520' ||
+              updatedSettings.bgColor === '#0f172a' ||
+              updatedSettings.bgColor === 'bg-midnight' ||
+              updatedSettings.bgColor === 'bg-dark';
+
+            if (isMidnightBg && updatedSettings.bgType !== 'image') {
+              updatedSettings.bgColor = '#ffffff';
+              updatedSettings.bgType = 'color';
+            }
+            updatedSettings.textColor = 'dark';
+            updatedSettings.darkSection = false;
+          }
+
+          return {
+            ...block,
+            settings: updatedSettings,
+          };
+        });
+      });
     }
-    setTheme((prev) => ({ ...prev, ...patch }));
+
+    setTheme((prev) => {
+      const nextTheme = { ...prev, ...patch };
+      try {
+        localStorage.setItem('cloudboyx_site_theme', JSON.stringify(nextTheme));
+      } catch {}
+      return nextTheme;
+    });
   }, []);
 
   const [seoSettings, setSeoSettings] = useState<SeoSettings>(() => {
@@ -221,28 +356,6 @@ export default function App({
     return initial.blocks;
   });
 
-  // Initial template snapshot state for Quick Reset to initial template state
-  const [initialTemplateSnapshot, setInitialTemplateSnapshot] = useState<{
-    blocks: BlockInstance[];
-    theme: SiteTheme;
-    title: string;
-  }>(() => {
-    const savedInitial = localStorage.getItem('cloudboyx_initial_template_snapshot');
-    if (savedInitial) {
-      try {
-        const parsed = JSON.parse(savedInitial);
-        if (Array.isArray(parsed.blocks) && parsed.blocks.length > 0) {
-          return parsed;
-        }
-      } catch {}
-    }
-    return {
-      blocks: initial.blocks,
-      theme: initial.theme,
-      title: initial.title,
-    };
-  });
-
   // Automatic Vertical Rhythm Spacing State
   const [autoVerticalRhythm, setAutoVerticalRhythm] = useState<boolean>(() => isAutoVerticalRhythmEnabled());
 
@@ -289,14 +402,8 @@ export default function App({
     }
   }, []);
 
-  // Canvas Zoom / Fit to Screen State
-  const [isFitToScreen, setIsFitToScreen] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('builder_fit_to_screen') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  // Canvas Zoom / Fit to Screen State (defaults to 100% full-screen scale)
+  const [isFitToScreen, setIsFitToScreen] = useState<boolean>(false);
   const [zoomScale, setZoomScale] = useState<number>(1);
 
   // Undo / Redo history
@@ -375,37 +482,6 @@ export default function App({
       return false;
     }
   });
-
-  // Canonical Schema Synchronization State from Universal Gateway
-  const [canonicalSchema, setCanonicalSchema] = useState<CanonicalSchemaDefinition>(() =>
-    getStoredCanonicalSchema()
-  );
-  const [isSchemaSyncing, setIsSchemaSyncing] = useState<boolean>(false);
-  const [isCanonicalSyncModalOpen, setIsCanonicalSyncModalOpen] = useState<boolean>(false);
-  const [lastCanonicalSyncTime, setLastCanonicalSyncTime] = useState<string | null>(() =>
-    getLastCanonicalSyncTime()
-  );
-
-  // Listen for global and custom event triggers to open the Template Gallery
-  useEffect(() => {
-    const handleOpenGallery = () => setIsTemplateGalleryOpen(true);
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Alt+T or Ctrl+Shift+T opens the Template Gallery modal
-      if (
-        (e.altKey && (e.key === 't' || e.key === 'T')) ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 't' || e.key === 'T'))
-      ) {
-        e.preventDefault();
-        setIsTemplateGalleryOpen(true);
-      }
-    };
-    window.addEventListener('open-cloudboyx-template-gallery', handleOpenGallery);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('open-cloudboyx-template-gallery', handleOpenGallery);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
 
   // Clipboard Manager History State
   const CLIPBOARD_STORAGE_KEY = 'bootstrap5_block_clipboard';
@@ -603,47 +679,6 @@ export default function App({
       description: `Choose a component from the library to insert at slot #${index + 1}.`,
     });
   }, [showToast]);
-
-  // Automated Canonical Schema Synchronization from Gateway
-  const handleAutomatedCanonicalSync = useCallback(async () => {
-    setIsSchemaSyncing(true);
-    try {
-      const result = await syncCanonicalSchemaWithGateway();
-      setCanonicalSchema(result.schema);
-      setLastCanonicalSyncTime(result.syncedAt);
-      showToast({
-        title: 'Gateway Schema Synced',
-        description: `Automated sync updated ${result.fieldsCount} Canonical Schema attributes to v${result.schema.version}. Block parameters are now aligned with live Gateway types.`,
-      });
-    } catch (err: any) {
-      showToast({
-        title: 'Schema Sync Failed',
-        description: err.message || 'Could not pull Canonical Schema from Gateway.',
-      });
-    } finally {
-      setIsSchemaSyncing(false);
-    }
-  }, [showToast]);
-
-  const handleApplyCanonicalBindings = useCallback((blockId: string, bindings: Record<string, string>) => {
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === blockId
-          ? {
-              ...b,
-              content: {
-                ...b.content,
-                ...bindings,
-                _schemaBindings: {
-                  ...((b.content as any)._schemaBindings || {}),
-                  ...bindings,
-                },
-              },
-            }
-          : b
-      )
-    );
-  }, []);
 
   // Restore shared project from URL hash if present
   useEffect(() => {
@@ -1458,9 +1493,15 @@ export default function App({
   };
 
   const handleAddBlockAtIndex = useCallback(
-    (type: string, targetIndex: number) => {
+    (type: string, targetIndex: number, contentPatch?: Record<string, any>) => {
       pushHistory(blocks);
       const newBlock = createNewBlock(type);
+      if (contentPatch) {
+        newBlock.content = { ...newBlock.content, ...contentPatch };
+        if (contentPatch.title) {
+          newBlock.name = contentPatch.title;
+        }
+      }
       const updated = [...blocks];
       const clamped = Math.max(0, Math.min(targetIndex, updated.length));
       updated.splice(clamped, 0, newBlock);
@@ -1648,15 +1689,6 @@ export default function App({
     if (newBlocks[0]?.id) {
       triggerBlockAnimation(newBlocks[0].id, 'added');
     }
-    const newSnapshot = {
-      blocks: JSON.parse(JSON.stringify(newBlocks)),
-      theme: templateTheme || theme,
-      title: templateTitle,
-    };
-    setInitialTemplateSnapshot(newSnapshot);
-    try {
-      localStorage.setItem('cloudboyx_initial_template_snapshot', JSON.stringify(newSnapshot));
-    } catch {}
     showToast({
       title: `Applied "${templateTitle}"`,
       description: `Loaded ${newBlocks.length} Bootstrap 5 sections into your active project.`,
@@ -1664,38 +1696,6 @@ export default function App({
       onAction: handleUndo,
     });
   };
-
-  const handleQuickReset = useCallback(() => {
-    if (!initialTemplateSnapshot || !initialTemplateSnapshot.blocks.length) {
-      showToast({
-        title: 'Reset Notice',
-        description: 'No initial template snapshot found to revert to.',
-      });
-      return;
-    }
-
-    // 1. Push current state to undo history so user can undo anytime
-    pushHistory(blocks);
-
-    // 2. Clone pristine initial blocks
-    const restoredBlocks: BlockInstance[] = JSON.parse(
-      JSON.stringify(initialTemplateSnapshot.blocks)
-    );
-    setBlocks(restoredBlocks);
-    setProjectTitle(initialTemplateSnapshot.title);
-    if (initialTemplateSnapshot.theme) {
-      handleUpdateTheme(initialTemplateSnapshot.theme);
-    }
-    setSelectedBlockId(restoredBlocks[0]?.id || null);
-
-    // 3. User feedback toast with 1-click Undo button
-    showToast({
-      title: 'Quick Reset Completed',
-      description: `Reverted all blocks to the initial "${initialTemplateSnapshot.title}" template layout (${restoredBlocks.length} sections).`,
-      actionLabel: 'Undo',
-      onAction: handleUndo,
-    });
-  }, [initialTemplateSnapshot, blocks, pushHistory, handleUpdateTheme, handleUndo, showToast]);
 
   const handleCloneTemplate = (clonedBlocks: BlockInstance[], cloneTitle: string, cloneTheme?: SiteTheme) => {
     pushHistory(blocks);
@@ -1807,7 +1807,7 @@ export default function App({
 
   return (
     <div
-      className={`h-screen w-screen flex flex-col overflow-hidden select-none font-sans transition-colors duration-200 ${
+      className={`w-full h-full flex-1 flex flex-col overflow-hidden select-none font-sans transition-colors duration-200 ${
         themeMode === 'dark' ? 'bg-[#0b0f19] text-slate-100' : 'bg-slate-100 text-slate-800'
       }`}
     >
@@ -1848,12 +1848,8 @@ export default function App({
         onOpenClipboard={() => setIsClipboardModalOpen(true)}
         clipboardCount={clipboardHistory.length}
         onBackToLanding={() => {
-          if (onExit) {
-            onExit();
-          } else {
-            setCurrentView('landing');
-            sessionStorage.setItem('builder_active_view', 'landing');
-          }
+          setCurrentView('landing');
+          sessionStorage.setItem('builder_active_view', 'landing');
         }}
         onOpenAdmin={() => {
           setCurrentView('admin');
@@ -1861,27 +1857,12 @@ export default function App({
         }}
         onOpenModules={() => setIsModulesModalOpen(true)}
         onCleanAll={handleCleanAll}
-        onQuickReset={handleQuickReset}
-        initialTemplateName={initialTemplateSnapshot.title}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         isFitToScreen={isFitToScreen}
         onToggleFitToScreen={handleToggleFitToScreen}
         zoomScale={zoomScale}
         lastModified={lastModified}
         isSaving={isSaving}
-        onOpenCanonicalSync={() => setIsCanonicalSyncModalOpen(true)}
-        isSchemaSyncing={isSchemaSyncing}
-        onSyncCanonicalSchema={handleAutomatedCanonicalSync}
-      />
-
-      {/* Responsive Section Divider between Top Header Controls and Breadcrumb Navigation Bar */}
-      <ChromeSectionDivider
-        themeMode={themeMode}
-        activeBreakpoint={activeBreakpoint}
-        isSchemaSyncing={isSchemaSyncing}
-        lastSyncTime={lastCanonicalSyncTime}
-        onSyncSchema={handleAutomatedCanonicalSync}
-        schemaVersion={canonicalSchema.version}
       />
 
       {/* Breadcrumb Navigation Bar below Header */}
@@ -1982,7 +1963,6 @@ export default function App({
           isFitToScreen={isFitToScreen}
           onToggleFitToScreen={handleToggleFitToScreen}
           onZoomScaleChange={setZoomScale}
-          onOpenTemplateGallery={() => setIsTemplateGalleryOpen(true)}
         />
 
         {/* Embedded Design Mode Dock / Sidebar (Right side by default, toggleable to Left) */}
@@ -2060,7 +2040,6 @@ export default function App({
         theme={theme}
         showToast={showToast}
         onSaveCustomCode={handleSaveBlockCustomCode}
-        onOpenCanonicalSync={() => setIsCanonicalSyncModalOpen(true)}
       />
 
       {/* CloudboyX Connected Custom Modules Modal */}
@@ -2218,7 +2197,6 @@ export default function App({
         onAddBlock={handleAddBlock}
         onAddBlockAtIndex={handleAddBlockAtIndex}
         onCleanAll={handleCleanAll}
-        onQuickReset={handleQuickReset}
         onExportHtml={handleExportHtml}
         onExportPdf={() => setIsPdfExportModalOpen(true)}
         onCopyCompiledHtml={handleCopyCompiledHtml}
@@ -2258,22 +2236,6 @@ export default function App({
         onCopyBlockStyle={handleCopyBlockStyle}
         onPasteBlockStyle={handlePasteBlockStyle}
         onCopyBlockJson={handleCopyBlockJson}
-        onOpenCanonicalSync={() => setIsCanonicalSyncModalOpen(true)}
-      />
-
-      {/* Canonical Schema Synchronization Modal from Universal Gateway */}
-      <CanonicalSchemaSyncModal
-        isOpen={isCanonicalSyncModalOpen}
-        onClose={() => setIsCanonicalSyncModalOpen(false)}
-        currentSchema={canonicalSchema}
-        onSchemaUpdated={(newSchema) => {
-          setCanonicalSchema(newSchema);
-          setLastCanonicalSyncTime(new Date().toISOString());
-        }}
-        themeMode={themeMode}
-        selectedBlock={blocks.find((b) => b.id === (parametersBlockId || selectedBlockId)) || null}
-        onApplyBindingsToBlock={handleApplyCanonicalBindings}
-        showToast={showToast}
       />
 
       {/* Floating Clipboard / Action Toast Notification */}

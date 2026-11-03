@@ -19,14 +19,14 @@ export const CloudboyXDesignStudio: React.FC<CloudboyXDesignStudioProps> = ({
 }) => {
   return (
     <AuthProvider>
-      <div className="relative min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <div className="fixed inset-0 z-50 w-full h-full bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden">
         {onExit && (
-          <header className="sticky top-0 z-50 bg-[#1C1B21] border-b border-white/10 px-4 py-2 flex items-center justify-between shadow-md">
+          <header className="shrink-0 bg-midnight bg-[#1C1C23] border-b border-white/10 px-4 py-2 flex items-center justify-between shadow-md z-40">
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={onExit}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-white/10 hover:bg-white/20 text-[#979BF3] hover:text-white transition-all cursor-pointer border border-white/10 shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-white/10 hover:bg-white/20 text-[#979BF3] hover:text-white transition-all cursor-pointer border border-white/10 shadow-xs active:scale-95"
                 title="Return to CloudboyX Main Application"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -62,14 +62,14 @@ export const CloudboyXDesignStudio: React.FC<CloudboyXDesignStudioProps> = ({
               <button
                 type="button"
                 onClick={onExit}
-                className="text-xs text-white/50 hover:text-white transition-colors cursor-pointer"
+                className="text-xs text-white/50 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded hover:bg-white/10"
               >
                 ✕ Close
               </button>
             </div>
           </header>
         )}
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full min-h-0 overflow-hidden relative flex flex-col">
           <DesignApp initialView={initialView as 'landing' | 'builder' | 'admin'} onExit={onExit} />
         </div>
       </div>

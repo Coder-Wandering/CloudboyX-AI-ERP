@@ -32,9 +32,6 @@ import {
   Command,
   Maximize2,
   Minimize2,
-  RotateCcw,
-  Database,
-  RefreshCw,
 } from 'lucide-react';
 import { ViewportMode, BlockInstance } from '../types';
 import { Breakpoint, BREAKPOINT_LABELS, BREAKPOINT_ORDER } from '../engine/bootstrapCascade';
@@ -82,11 +79,6 @@ interface EditorHeaderProps {
   isFitToScreen?: boolean;
   onToggleFitToScreen?: () => void;
   zoomScale?: number;
-  onQuickReset?: () => void;
-  initialTemplateName?: string;
-  onOpenCanonicalSync?: () => void;
-  isSchemaSyncing?: boolean;
-  onSyncCanonicalSchema?: () => void;
 }
 
 function formatHeaderSaveTime(timestamp: number, currentNow: number): string {
@@ -158,17 +150,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   isFitToScreen = false,
   onToggleFitToScreen,
   zoomScale = 1,
-  onQuickReset,
-  initialTemplateName = 'Starter Template',
-  onOpenCanonicalSync,
-  isSchemaSyncing = false,
-  onSyncCanonicalSchema,
 }) => {
   const { user, isDemoUnlocked, activeRole, permissions, agencyBranding, logOut } = useAuth();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isCleanAllConfirmOpen, setIsCleanAllConfirmOpen] = useState(false);
-  const [isQuickResetConfirmOpen, setIsQuickResetConfirmOpen] = useState(false);
   const [now, setNow] = useState<number>(Date.now());
   const [internalSaving, setInternalSaving] = useState<boolean>(false);
   const [justSaved, setJustSaved] = useState<boolean>(false);
@@ -219,18 +205,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isCleanAllConfirmOpen]);
 
-  // Keyboard shortcut: Escape to close Quick Reset dialog
-  useEffect(() => {
-    if (!isQuickResetConfirmOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsQuickResetConfirmOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isQuickResetConfirmOpen]);
-
   const isClient = activeRole.startsWith('client_');
   const isDark = themeMode === 'dark';
 
@@ -239,7 +213,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
       <header
       className={`h-14 border-b px-3.5 flex items-center justify-between gap-3 select-none shrink-0 z-30 transition-colors duration-200 ${
         isDark
-          ? 'border-slate-800 bg-[#111520] text-white'
+          ? 'border-slate-800/80 bg-midnight bg-[#1C1C23] text-white'
           : 'border-slate-200 bg-white text-slate-900'
       }`}
     >
@@ -261,14 +235,15 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
               <img
                 src={agencyBranding.agencyLogoUrl}
                 alt={agencyBranding.agencyName}
-                className="h-6 max-w-[90px] object-contain rounded"
+                className="h-6 max-w-[90px] object-contain"
               />
             ) : (
-              <img
-                src="/assets/cloudboyx_logo_header.png"
-                alt={agencyBranding.agencyName || 'CloudboyX'}
-                className="h-6 w-auto max-w-[90px] object-contain rounded shrink-0"
-              />
+              <div
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-white font-black text-xs tracking-tighter shadow-2xs shrink-0"
+                style={{ backgroundColor: agencyBranding.primaryBrandColor || '#2222FF' }}
+              >
+                {agencyBranding.agencyName.charAt(0) || 'C'}
+              </div>
             )}
             <span className="font-bold text-xs tracking-tight hidden sm:inline truncate max-w-[120px]">
               {agencyBranding.agencyName || 'CloudboyX'}
@@ -284,19 +259,12 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                   : 'bg-white border-slate-200 text-slate-800'
               }`}
             >
-              <div className="px-2.5 py-2 border-b border-slate-200/60 dark:border-slate-800 mb-1 flex items-center gap-2.5">
-                <img
-                  src={agencyBranding.agencyLogoUrl || '/assets/cloudboyx_logo_header.png'}
-                  alt="CloudboyX Logo"
-                  className="h-7 w-auto max-w-[70px] object-contain rounded shrink-0"
-                />
-                <div className="min-w-0">
-                  <div className="text-xs font-bold truncate">
-                    {agencyBranding.agencyName || 'CloudboyX Studio'}
-                  </div>
-                  <div className="text-[11px] text-slate-400">
-                    Bootstrap 5.3 Visual Workspace
-                  </div>
+              <div className="px-2.5 py-1.5 border-b border-slate-200/60 dark:border-slate-800 mb-1">
+                <div className="text-xs font-bold truncate">
+                  {agencyBranding.agencyName || 'CloudboyX Studio'}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  Bootstrap 5.3 Visual Workspace
                 </div>
               </div>
 
@@ -555,32 +523,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             </button>
           )}
 
-          {/* Automated Canonical Schema Sync Button */}
-          {(onOpenCanonicalSync || onSyncCanonicalSchema) && (
-            <button
-              type="button"
-              id="btn-sync-canonical-schema"
-              data-testid="btn-sync-canonical-schema"
-              onClick={onSyncCanonicalSchema || onOpenCanonicalSync}
-              disabled={isSchemaSyncing}
-              className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold border transition cursor-pointer select-none active:scale-95 ${
-                isSchemaSyncing
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 cursor-wait'
-                  : isDark
-                  ? 'bg-slate-900/80 hover:bg-slate-800 text-cyan-300 hover:text-white border-slate-800 hover:border-cyan-500/50 shadow-2xs'
-                  : 'bg-white hover:bg-cyan-50 text-cyan-700 hover:text-cyan-900 border-slate-200 shadow-2xs hover:border-cyan-300'
-              }`}
-              title="Automated Sync: Pull latest Canonical Schema definition from Universal Gateway and update block parameters"
-              aria-label="Automated Sync with Universal Gateway Canonical Schema"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isSchemaSyncing ? 'animate-spin' : ''}`} />
-              <span className="hidden xl:inline">Sync Schema</span>
-              <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
-                Gateway
-              </span>
-            </button>
-          )}
-
           {/* Global Command Palette Trigger Button (Ctrl+K / ⌘K) */}
           {onOpenCommandPalette && (
             <button
@@ -645,7 +587,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             title="Desktop View (lg — 992px+)"
           >
             <Monitor className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">Desktop</span>
+            <span className="hidden sm:inline">Desktop</span>
           </button>
           <button
             type="button"
@@ -662,7 +604,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             title="Tablet View (md — 768px)"
           >
             <Tablet className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">Tablet</span>
+            <span className="hidden sm:inline">Tablet</span>
           </button>
           <button
             type="button"
@@ -679,7 +621,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             title="Mobile View (xs — 390px)"
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">Mobile</span>
+            <span className="hidden sm:inline">Mobile</span>
           </button>
 
           {/* Compact Breakpoint Selector Dropdown */}
@@ -796,33 +738,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <Redo2 className="w-3.5 h-3.5" />
           </button>
 
-          {/* Quick Reset to Initial Template State */}
-          {onQuickReset && (
-            <>
-              <div
-                className={`w-px h-3.5 mx-0.5 ${
-                  isDark ? 'bg-slate-800' : 'bg-slate-300'
-                }`}
-              />
-              <button
-                type="button"
-                id="btn-quick-reset-template"
-                data-testid="btn-quick-reset-template"
-                onClick={() => setIsQuickResetConfirmOpen(true)}
-                className={`px-2 py-1 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1 select-none ${
-                  isDark
-                    ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/15'
-                    : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100/70'
-                }`}
-                title="Quick Reset: Instantly revert all block changes back to the initial template state without multiple undos"
-                aria-label="Quick Reset to Template State"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span className="hidden xl:inline text-[11px] font-bold">Quick Reset</span>
-              </button>
-            </>
-          )}
-
           {onCleanAll && (
             <>
               <div
@@ -861,18 +776,15 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             type="button"
             id="btn-open-template-gallery-modal"
             onClick={onOpenTemplateGallery}
-            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition cursor-pointer shadow-xs active:scale-95 ${
+            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition cursor-pointer ${
               isDark
-                ? 'bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 border-blue-500/40 hover:border-blue-400'
-                : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300'
+                ? 'bg-slate-900 hover:bg-slate-800 text-slate-100 border-slate-800 hover:border-slate-700'
+                : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
             }`}
-            title="Browse CloudboyX Template Gallery (108+ Pre-built Bootstrap 5 Site Templates)"
+            title="Browse 108+ Ready-to-Use Bootstrap 5 Templates"
           >
             <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             <span>Templates</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-400 font-bold hidden sm:inline">
-              108+
-            </span>
           </button>
         )}
 
@@ -1039,9 +951,14 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           </button>
         )}
 
-        {/* Theme Mode Toggle */}
+        {/* Theme Mode Toggle (Persistent Midnight Dark Mode) */}
         {onToggleThemeMode && (
-          <div className="pl-1">
+          <div 
+            className="pl-1 flex items-center"
+            id="design-studio-header-theme-toggle"
+            data-testid="design-studio-header-theme-toggle"
+            title={`Persistent Theme: ${isDark ? 'Midnight Dark Mode' : 'Light Mode'} (Overrides Bootstrap data-bs-theme & syncs block palettes)`}
+          >
             <ThemeToggleSwitch
               themeMode={themeMode}
               onToggle={onToggleThemeMode}
@@ -1122,82 +1039,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Clean All & Reset Theme</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-
-    {/* Confirmation Dialog for Quick Reset */}
-    {isQuickResetConfirmOpen && (
-      <div
-        id="quick-reset-dialog-backdrop"
-        data-testid="quick-reset-dialog-backdrop"
-        onClick={() => setIsQuickResetConfirmOpen(false)}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150"
-      >
-        <div
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="quick-reset-dialog-title"
-          aria-describedby="quick-reset-dialog-description"
-          onClick={(e) => e.stopPropagation()}
-          className={`w-full max-w-md rounded-2xl p-5 shadow-2xl border transition-all animate-in zoom-in-95 duration-150 ${
-            isDark
-              ? 'bg-slate-900 border-slate-700 text-white shadow-amber-950/40 ring-1 ring-amber-500/20'
-              : 'bg-white border-slate-200 text-slate-900 shadow-slate-900/25 ring-1 ring-amber-500/10'
-          }`}
-        >
-          <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-500">
-              <RotateCcw className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 id="quick-reset-dialog-title" className="text-base font-bold leading-snug">
-                Revert to Initial Template State?
-              </h3>
-              <p id="quick-reset-dialog-description" className="text-xs text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">
-                This will instantly revert all block customizations, additions, reordering, and deleted sections back to the original layout of <strong className="text-amber-400 font-semibold font-mono">{initialTemplateName}</strong> without having to click undo multiple times.
-              </p>
-              <div className="mt-2.5 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-500 dark:text-blue-400 flex items-center gap-1.5 font-medium">
-                <Sparkles className="w-3.5 h-3.5 shrink-0 text-blue-400" />
-                <span>A snapshot is saved so you can still press Undo (Ctrl+Z) if needed.</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsQuickResetConfirmOpen(false)}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition cursor-pointer"
-              title="Close dialog"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="mt-5 flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200/60 dark:border-slate-800">
-            <button
-              type="button"
-              onClick={() => setIsQuickResetConfirmOpen(false)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
-                isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-              }`}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              id="btn-confirm-quick-reset"
-              data-testid="btn-confirm-quick-reset"
-              onClick={() => {
-                setIsQuickResetConfirmOpen(false);
-                onQuickReset?.();
-              }}
-              className="px-4 py-1.5 rounded-xl text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 shadow-md shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 active:scale-98"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Confirm Quick Reset</span>
             </button>
           </div>
         </div>

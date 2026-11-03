@@ -92,7 +92,6 @@ interface CanvasFrameProps {
   isFitToScreen?: boolean;
   onToggleFitToScreen?: () => void;
   onZoomScaleChange?: (scale: number) => void;
-  onOpenTemplateGallery?: () => void;
 }
 
 const BREAKPOINT_DEVICE_ICONS: Record<Breakpoint, React.ElementType> = {
@@ -110,67 +109,79 @@ const BREAKPOINT_FRAME_CONFIG: Record<
     widthLabel: string;
     targetWidth: number;
     targetHeight: number;
+    aspectRatio: number;
+    aspectRatioLabel: string;
     containerClass: string;
     deviceType: string;
     hasBezel: boolean;
   }
 > = {
   xs: {
-    widthLabel: '390px',
+    widthLabel: '390px (Mobile)',
     targetWidth: 390,
     targetHeight: 844,
+    aspectRatio: 390 / 844,
+    aspectRatioLabel: '9:19.5',
     containerClass:
-      'w-[390px] h-[844px] my-5 rounded-[36px] shadow-2xl border-[8px] border-slate-800 bg-white ring-1 ring-slate-900/10 overflow-hidden',
+      'rounded-[36px] shadow-2xl border-[8px] border-slate-800 bg-white ring-1 ring-slate-900/10 overflow-hidden',
     deviceType: 'Mobile Phone (Portrait)',
     hasBezel: true,
   },
   sm: {
-    widthLabel: '576px',
+    widthLabel: '576px (Phablet)',
     targetWidth: 576,
     targetHeight: 840,
+    aspectRatio: 576 / 840,
+    aspectRatioLabel: '16:23',
     containerClass:
-      'w-[576px] h-[840px] my-5 rounded-[24px] shadow-2xl border-[6px] border-slate-800 bg-white ring-1 ring-slate-900/10 overflow-hidden',
+      'rounded-[24px] shadow-2xl border-[6px] border-slate-800 bg-white ring-1 ring-slate-900/10 overflow-hidden',
     deviceType: 'Large Mobile / Landscape',
     hasBezel: true,
   },
   md: {
-    widthLabel: '768px',
+    widthLabel: '768px (Tablet)',
     targetWidth: 768,
     targetHeight: 1024,
+    aspectRatio: 768 / 1024,
+    aspectRatioLabel: '3:4',
     containerClass:
-      'w-[768px] h-[1024px] my-5 rounded-[20px] shadow-2xl border-[6px] border-slate-800 bg-white ring-1 ring-slate-900/10 overflow-hidden',
+      'rounded-[20px] shadow-2xl border-[6px] border-slate-800 bg-white ring-1 ring-slate-900/10 overflow-hidden',
     deviceType: 'Tablet / iPad',
     hasBezel: true,
   },
   lg: {
-    widthLabel: '992px',
-    targetWidth: 1040,
-    targetHeight: 750,
-    containerClass:
-      'w-full max-w-[1040px] min-h-[750px] my-3 rounded-[12px] shadow-2xl border-[3px] border-slate-700 bg-white ring-1 ring-slate-900/10 overflow-hidden',
-    deviceType: 'Laptop / Netbook',
-    hasBezel: false,
-  },
-  xl: {
-    widthLabel: '1200px',
-    targetWidth: 1380,
-    targetHeight: 820,
-    containerClass:
-      'w-full max-w-[1380px] min-h-[820px] my-3 rounded-[8px] shadow-xl border-[2px] border-slate-600 bg-white ring-1 ring-slate-900/10 overflow-hidden',
+    widthLabel: 'Desktop (992px+)',
+    targetWidth: 1200,
+    targetHeight: 800,
+    aspectRatio: 1200 / 800,
+    aspectRatioLabel: '3:2',
+    containerClass: 'bg-white shadow-xs rounded-lg overflow-hidden',
     deviceType: 'Standard Desktop',
     hasBezel: false,
   },
-  xxl: {
-    widthLabel: '100% Fluid',
+  xl: {
+    widthLabel: 'Desktop (1200px+)',
     targetWidth: 1440,
     targetHeight: 900,
-    containerClass: 'w-full flex-1 min-h-0 bg-white shadow-xs',
+    aspectRatio: 1440 / 900,
+    aspectRatioLabel: '16:10',
+    containerClass: 'bg-white shadow-xs rounded-lg overflow-hidden',
+    deviceType: 'Large Desktop',
+    hasBezel: false,
+  },
+  xxl: {
+    widthLabel: '100% Fluid Desktop',
+    targetWidth: 1920,
+    targetHeight: 1080,
+    aspectRatio: 1920 / 1080,
+    aspectRatioLabel: '16:9',
+    containerClass: 'bg-white shadow-xs rounded-lg overflow-hidden',
     deviceType: 'Ultra-wide / Full Canvas',
     hasBezel: false,
   },
 };
 
-// Interactive Dropdown Menu for '+ Add Section Here' Divider Inserters
+// Interactive Dropdown Menu for '+ Quick Insert' Divider Inserters
 interface AddSectionDropdownMenuProps {
   index: number;
   isOpen: boolean;
@@ -179,10 +190,20 @@ interface AddSectionDropdownMenuProps {
   onAddFromLibrary: (index: number) => void;
   onPasteFromClipboard: (index: number) => void;
   onAddBlankContainer: (index: number) => void;
+  onAddBlockAtIndex?: (blockType: string, index: number) => void;
   clipboardCount?: number;
   isDark: boolean;
   align?: 'center' | 'left' | 'right';
 }
+
+const SUGGESTED_QUICK_TEMPLATES = [
+  { type: 'hero-split', label: 'Hero Split', icon: '⚡', desc: 'Header & CTA' },
+  { type: 'hero-centered', label: 'Hero Center', icon: '🎯', desc: 'Bold headline' },
+  { type: 'features-3col', label: 'Features 3-Col', icon: '✦', desc: 'Feature grid' },
+  { type: 'pricing-tiers', label: 'Pricing Tiers', icon: '💎', desc: '3 plans' },
+  { type: 'testimonials-cards', label: 'Testimonials', icon: '💬', desc: 'Reviews' },
+  { type: 'contact-split', label: 'Contact Form', icon: '✉', desc: 'Inquiry leads' },
+];
 
 const AddSectionDropdownMenu: React.FC<AddSectionDropdownMenuProps> = ({
   index,
@@ -192,6 +213,7 @@ const AddSectionDropdownMenu: React.FC<AddSectionDropdownMenuProps> = ({
   onAddFromLibrary,
   onPasteFromClipboard,
   onAddBlankContainer,
+  onAddBlockAtIndex,
   clipboardCount = 0,
   isDark,
   align = 'center',
@@ -237,18 +259,19 @@ const AddSectionDropdownMenu: React.FC<AddSectionDropdownMenuProps> = ({
     <div
       ref={menuRef}
       role="menu"
-      aria-label="Add Section Menu"
+      aria-label="Quick Insert Template Menu"
       onClick={(e) => e.stopPropagation()}
-      className={`absolute top-full mt-2.5 ${alignClass} z-50 min-w-[245px] rounded-2xl p-1.5 shadow-2xl border backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 select-none ${
+      className={`absolute top-full mt-2.5 ${alignClass} z-50 w-[280px] rounded-2xl p-2 shadow-2xl border backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 select-none ${
         isDark
           ? 'bg-slate-900/98 border-slate-700/80 text-slate-100 shadow-cyan-950/70 ring-1 ring-cyan-500/20'
           : 'bg-white/98 border-slate-200 text-slate-900 shadow-blue-500/15 ring-1 ring-blue-500/10'
       }`}
     >
       {/* Menu Header with Slot Number & Close Button */}
-      <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-slate-700/20 dark:border-slate-800/80 mb-1">
-        <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-400 dark:text-slate-400">
-          Insert Section • Slot #{index + 1}
+      <div className="flex items-center justify-between px-2 py-1 border-b border-slate-700/20 dark:border-slate-800/80 mb-1.5">
+        <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-blue-600 dark:text-cyan-400 flex items-center gap-1">
+          <Sparkles className="w-3 h-3 stroke-[2.4]" />
+          Quick Insert • Slot #{index + 1}
         </span>
         <button
           type="button"
@@ -263,7 +286,48 @@ const AddSectionDropdownMenu: React.FC<AddSectionDropdownMenuProps> = ({
         </button>
       </div>
 
-      <div className="flex flex-col gap-1">
+      {/* Suggested Template Blocks for immediate 1-click insertion */}
+      <div className="mb-2">
+        <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 px-1 mb-1 flex items-center justify-between">
+          <span>Suggested Templates</span>
+          <span className="text-[8.5px] font-mono text-emerald-500 dark:text-emerald-400 font-semibold">1-Click Insert</span>
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          {SUGGESTED_QUICK_TEMPLATES.map((tmpl) => (
+            <button
+              key={tmpl.type}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onAddBlockAtIndex) {
+                  onAddBlockAtIndex(tmpl.type, index);
+                } else if (onOpenQuickAdd) {
+                  onOpenQuickAdd(index);
+                }
+                onClose();
+              }}
+              className={`flex items-center gap-1.5 p-1.5 rounded-lg text-left transition cursor-pointer border group ${
+                isDark
+                  ? 'bg-slate-800/70 hover:bg-slate-750 border-slate-700/60 hover:border-cyan-400/50 text-slate-200'
+                  : 'bg-slate-50 hover:bg-blue-50 border-slate-200/80 hover:border-blue-300 text-slate-800'
+              }`}
+              title={`Quick insert ${tmpl.label} at slot #${index + 1}`}
+            >
+              <span className="text-sm shrink-0 group-hover:scale-110 transition-transform">{tmpl.icon}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[11px] font-bold leading-tight truncate group-hover:text-blue-600 dark:group-hover:text-cyan-300">
+                  {tmpl.label}
+                </div>
+                <div className="text-[9px] text-slate-400 truncate leading-tight">
+                  {tmpl.desc}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-slate-700/20 dark:border-slate-800/80 pt-1 flex flex-col gap-1">
         {/* Option 0: Direct Quick Add Popover with live search & categories */}
         {onOpenQuickAdd && (
           <button
@@ -274,30 +338,30 @@ const AddSectionDropdownMenu: React.FC<AddSectionDropdownMenuProps> = ({
               onOpenQuickAdd(index);
               onClose();
             }}
-            className={`w-full group flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left transition cursor-pointer border ${
+            className={`w-full group flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-left transition cursor-pointer border ${
               isDark
-                ? 'bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-200 border-cyan-500/30'
-                : 'bg-blue-50/90 hover:bg-blue-100 text-blue-800 border-blue-200'
+                ? 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-200 border-cyan-500/25'
+                : 'bg-blue-50/70 hover:bg-blue-100/80 text-blue-800 border-blue-200/80'
             }`}
           >
             <span
-              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+              className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${
                 isDark
                   ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/50'
                   : 'bg-blue-600 text-white shadow-xs'
               }`}
             >
-              <Sparkles className="w-4 h-4 stroke-[2.2]" />
+              <Sparkles className="w-3.5 h-3.5 stroke-[2.2]" />
             </span>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-bold leading-tight flex items-center justify-between">
-                <span>Quick Add Popover</span>
+                <span>All Templates Popover</span>
                 <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-500 dark:text-cyan-300">
-                  ⚡ 1-Click
+                  Search & Filter ↗
                 </span>
               </div>
-              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                Instant search & category cards
+              <div className="text-[9.5px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                Full search & category catalog
               </div>
             </div>
           </button>
@@ -512,13 +576,14 @@ const AddSectionPillDivider: React.FC<{
   );
 };
 
-// Interactive '+ Add Section Here' Divider component for vertical Canvas Sections Stack
+// Interactive '+ Quick Insert' Divider component for vertical Canvas Sections Stack
 const CanvasVerticalAddSectionDivider: React.FC<{
   index: number;
   onOpenQuickAdd?: (index: number) => void;
   onAddFromLibrary: (index: number) => void;
   onPasteFromClipboard: (index: number) => void;
   onAddBlankContainer: (index: number) => void;
+  onAddBlockAtIndex?: (blockType: string, index: number) => void;
   label?: string;
   slotNumber: number;
   isDark: boolean;
@@ -529,7 +594,8 @@ const CanvasVerticalAddSectionDivider: React.FC<{
   onAddFromLibrary,
   onPasteFromClipboard,
   onAddBlankContainer,
-  label = 'Add Section Here',
+  onAddBlockAtIndex,
+  label = 'Quick Insert',
   slotNumber,
   isDark,
   clipboardCount = 0,
@@ -541,8 +607,8 @@ const CanvasVerticalAddSectionDivider: React.FC<{
       className={`group relative h-8 my-1 z-20 flex items-center justify-center cursor-pointer select-none transition-all duration-300 ease-out ${
         isDropdownOpen ? 'z-30' : ''
       }`}
-      title={`Insert new section here (Slot #${slotNumber})`}
-      aria-label={`Insert new section here at slot #${slotNumber}`}
+      title={`Quick insert template block here (Slot #${slotNumber})`}
+      aria-label={`Quick insert template block here at slot #${slotNumber}`}
     >
       {/* Bi-directional Glowing Accent Line with Dashed Border on Hover */}
       <div
@@ -624,6 +690,7 @@ const CanvasVerticalAddSectionDivider: React.FC<{
         onAddFromLibrary={onAddFromLibrary}
         onPasteFromClipboard={onPasteFromClipboard}
         onAddBlankContainer={onAddBlankContainer}
+        onAddBlockAtIndex={onAddBlockAtIndex}
         clipboardCount={clipboardCount}
         isDark={isDark}
         align="center"
@@ -681,7 +748,6 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
   isFitToScreen = false,
   onToggleFitToScreen,
   onZoomScaleChange,
-  onOpenTemplateGallery,
 }) => {
   const outerContainerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -918,17 +984,22 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
   const currentFrameConfig = BREAKPOINT_FRAME_CONFIG[currentBp];
   const CurrentDeviceIcon = BREAKPOINT_DEVICE_ICONS[currentBp];
 
-  // Measure container dimensions for Fit-to-Screen dynamic zoom scaling
+  // Measure container dimensions for dynamic aspect-ratio responsive scaling
   useEffect(() => {
     const el = outerContainerRef.current;
     if (!el) return;
 
     const measure = () => {
       const rect = el.getBoundingClientRect();
+      const rulerEl = document.getElementById('bootstrap-breakpoint-canvas-ruler');
+      const hudEl = document.getElementById('canvas-bottom-breakpoint-hud-wrapper');
+      const rulerH = rulerEl ? rulerEl.getBoundingClientRect().height : 36;
+      const hudH = hudEl ? hudEl.getBoundingClientRect().height : 46;
+
       setContainerDimensions({
-        // Account for comfortable margins on left/right and top ruler / bottom HUD
-        width: Math.max(300, rect.width - 48),
-        height: Math.max(300, rect.height - 110),
+        // Account for comfortable horizontal and vertical gutters preventing any clipping
+        width: Math.max(300, rect.width - 32),
+        height: Math.max(240, rect.height - rulerH - hudH - 24),
       });
     };
 
@@ -949,22 +1020,113 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
     };
   }, []);
 
-  // Compute scale factor for Fit to Screen
-  const computedScale = useMemo(() => {
-    if (!isFitToScreen) return 1;
-    // For fluid xxl, no horizontal downscaling is needed
-    if (currentBp === 'xxl') return 1;
+  const isDesktopMode =
+    viewport === 'desktop' ||
+    (!activeBreakpoint && viewport !== 'mobile' && viewport !== 'tablet') ||
+    currentBp === 'lg' ||
+    currentBp === 'xl' ||
+    currentBp === 'xxl';
 
-    const targetW = currentFrameConfig.targetWidth || 1040;
-    const targetH = currentFrameConfig.targetHeight || 750;
+  // Responsive Aspect-Ratio Scaling Engine:
+  // Calculates the exact aspect ratio of the viewport instead of forcing a fixed size,
+  // ensuring the content scales proportionally in both dimensions without clipping.
+  const {
+    computedScale,
+    wrapperStyle,
+    frameStyle,
+    aspectRatioLabel,
+    isScaled,
+  } = useMemo(() => {
+    const targetW = currentFrameConfig.targetWidth || 1200;
+    const targetH = currentFrameConfig.targetHeight || 800;
+    const targetRatio = currentFrameConfig.aspectRatio || targetW / targetH;
 
-    const scaleW = containerDimensions.width / targetW;
-    const scaleH = containerDimensions.height / targetH;
-    // Uniformly scale down to fit within viewport
-    const rawScale = Math.min(scaleW, scaleH);
-    // Clamp scale: between 0.25 (readable minimum) and 1.0 (do not upscale beyond 100%)
-    return Math.min(1, Math.max(0.25, Math.round(rawScale * 100) / 100));
-  }, [isFitToScreen, currentBp, currentFrameConfig, containerDimensions]);
+    const availW = Math.max(280, containerDimensions.width);
+    const availH = Math.max(240, containerDimensions.height);
+    const containerRatio = availW / availH;
+
+    // Desktop view when Fit to Screen is disabled: Natural fluid 100% canvas
+    if (isDesktopMode && !isFitToScreen) {
+      return {
+        computedScale: 1,
+        wrapperStyle: {
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          minHeight: 0,
+        } as React.CSSProperties,
+        frameStyle: {
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          minHeight: 0,
+        } as React.CSSProperties,
+        aspectRatioLabel: 'Fluid',
+        isScaled: false,
+      };
+    }
+
+    // When Fit to Screen is active OR simulating mobile/tablet frames:
+    let scale: number;
+
+    if (isFitToScreen) {
+      // Calculate exact proportional scale to fit within both availW and availH without clipping
+      if (containerRatio > targetRatio) {
+        // Container is wider than the target frame -> height is the limiting factor
+        scale = availH / targetH;
+      } else {
+        // Container is taller/narrower than the target frame -> width is the limiting factor
+        scale = availW / targetW;
+      }
+      // Ergonomic bounds: allow downscaling or subtle upscaling to fit viewport
+      scale = Math.min(1.5, Math.max(0.25, Math.round(scale * 100) / 100));
+    } else {
+      // Non-fit mode for simulated mobile/tablet device frames:
+      // If the device frame exceeds available container width, scale proportionally to prevent horizontal clipping
+      if (availW < targetW) {
+        scale = Math.max(0.3, Math.round((availW / targetW) * 100) / 100);
+      } else {
+        scale = 1;
+      }
+    }
+
+    const isCurrentlyScaled = Math.abs(scale - 1) > 0.01;
+    const scaledWidth = Math.round(targetW * scale);
+    const scaledHeight = Math.round(targetH * scale);
+
+    return {
+      computedScale: scale,
+      wrapperStyle: isCurrentlyScaled
+        ? ({
+            width: `${scaledWidth}px`,
+            height: `${scaledHeight}px`,
+            margin: 'auto',
+            flexShrink: 0,
+            aspectRatio: `${targetW} / ${targetH}`,
+          } as React.CSSProperties)
+        : ({
+            width: `${targetW}px`,
+            height: `${targetH}px`,
+            margin: 'auto',
+            flexShrink: 0,
+            aspectRatio: `${targetW} / ${targetH}`,
+          } as React.CSSProperties),
+      frameStyle: isCurrentlyScaled
+        ? ({
+            width: `${targetW}px`,
+            height: `${targetH}px`,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          } as React.CSSProperties)
+        : ({
+            width: `${targetW}px`,
+            height: `${targetH}px`,
+          } as React.CSSProperties),
+      aspectRatioLabel: currentFrameConfig.aspectRatioLabel,
+      isScaled: isCurrentlyScaled,
+    };
+  }, [currentFrameConfig, containerDimensions, isDesktopMode, isFitToScreen]);
 
   // Synchronize computed zoom scale to parent
   useEffect(() => {
@@ -1438,8 +1600,8 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
                 }`}
                 title={
                   isFitToScreen
-                    ? `Fit to Screen: Canvas scaled to ${Math.round(computedScale * 100)}% to fit browser viewport (Click to reset to 100% zoom)`
-                    : 'Fit to Screen: Scale canvas to fit browser viewport without horizontal or vertical clipping (Click to activate)'
+                    ? `Fit to Screen: Scaled to ${Math.round(computedScale * 100)}% maintaining ${aspectRatioLabel} aspect ratio (${currentFrameConfig.targetWidth}×${currentFrameConfig.targetHeight}) without clipping (Click to reset to 100% zoom)`
+                    : 'Fit to Screen: Scale canvas to fit browser viewport preserving aspect ratio without clipping (Click to activate)'
                 }
                 aria-label="Toggle Fit to Screen canvas zoom mode"
               >
@@ -1628,26 +1790,6 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
               </span>
             </button>
 
-            {onOpenTemplateGallery && (
-              <button
-                type="button"
-                id="canvas-quick-open-template-gallery-btn"
-                onClick={onOpenTemplateGallery}
-                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-semibold transition cursor-pointer border ${
-                  isDark
-                    ? 'bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 border-blue-500/40 shadow-xs'
-                    : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 shadow-xs'
-                }`}
-                title="Browse CloudboyX Template Gallery (108+ Pre-built Bootstrap 5 Site Templates)"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                <span className="hidden sm:inline">Templates</span>
-                <span className="text-[9.5px] font-mono font-bold px-1 py-0.2 rounded bg-blue-500/20 text-blue-400">
-                  108+
-                </span>
-              </button>
-            )}
-
             {selectedBlock && onOpenCodeEditor && (
               <button
                 type="button"
@@ -1746,39 +1888,29 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
         </div>
       )}
 
-      {/* 2. SIMULATED VIEWPORT FRAME WITH FIT-TO-SCREEN ZOOM SCALING */}
+      {/* 2. SIMULATED VIEWPORT FRAME WITH EXACT ASPECT-RATIO RESPONSIVE SCALING */}
       <div
         id="canvas-fit-scaling-wrapper"
-        className="flex items-center justify-center transition-all duration-300"
-        style={
-          isFitToScreen && computedScale < 1
-            ? {
-                width: `${Math.round((currentFrameConfig.targetWidth || 1040) * computedScale)}px`,
-                height: `${Math.round((currentFrameConfig.targetHeight || 750) * computedScale)}px`,
-                margin: '16px auto',
-                flexShrink: 0,
-              }
-            : undefined
-        }
+        className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center transition-all duration-300 ${
+          isDesktopMode && !isFitToScreen ? 'h-full overflow-hidden' : 'overflow-auto p-3 sm:p-5'
+        }`}
       >
         <div
-          id="canvas-viewport-frame-container"
-          onMouseEnter={() => setIsHoveringCanvas(true)}
-          onMouseLeave={() => setIsHoveringCanvas(false)}
-          style={
-            isFitToScreen && computedScale < 1
-              ? {
-                  width: `${currentFrameConfig.targetWidth || 1040}px`,
-                  height: `${currentFrameConfig.targetHeight || 750}px`,
-                  transform: `scale(${computedScale})`,
-                  transformOrigin: 'top center',
-                  transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                  margin: 0,
-                }
-              : undefined
-          }
-          className={`transition-all duration-300 relative flex flex-col ${currentFrameConfig.containerClass}`}
+          id="canvas-aspect-ratio-frame-wrapper"
+          style={wrapperStyle}
+          className="relative transition-all duration-300 flex items-center justify-center shrink-0"
         >
+          <div
+            id="canvas-viewport-frame-container"
+            onMouseEnter={() => setIsHoveringCanvas(true)}
+            onMouseLeave={() => setIsHoveringCanvas(false)}
+            style={frameStyle}
+            className={`transition-all duration-300 relative flex flex-col ${
+              isDesktopMode && !isFitToScreen
+                ? 'w-full flex-1 h-full min-h-0 bg-white shadow-xs'
+                : currentFrameConfig.containerClass
+            }`}
+          >
         {/* Mobile / Tablet camera pill simulation */}
         {currentFrameConfig.hasBezel && (
           <div className="w-full bg-slate-800 py-1 flex justify-center items-center shrink-0 z-20">
@@ -1886,7 +2018,7 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
             </div>
 
             <div className="text-[10.5px] text-slate-400 px-1 pb-1">
-              Click any <strong>+ Add Section Here</strong> divider to insert at that slot:
+              Click any <strong>+ Quick Insert</strong> divider to insert at that slot:
             </div>
 
             {/* Inserter at slot 0 (Top) */}
@@ -1896,7 +2028,8 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
               onAddFromLibrary={handleExecuteAddFromLibrary}
               onPasteFromClipboard={handleExecutePasteFromClipboard}
               onAddBlankContainer={handleExecuteAddBlankContainer}
-              label="Add Section at Top"
+              onAddBlockAtIndex={onAddBlockAtIndex}
+              label="Quick Insert at Top"
               slotNumber={1}
               isDark={isDark}
               clipboardCount={clipboardCount}
@@ -1930,14 +2063,15 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
                     </span>
                   </div>
 
-                  {/* Interactive '+ Add Section Here' Divider between each block */}
+                  {/* Interactive '+ Quick Insert' Divider between each block */}
                   <CanvasVerticalAddSectionDivider
                     index={index + 1}
                     onOpenQuickAdd={handleOpenQuickAdd}
                     onAddFromLibrary={handleExecuteAddFromLibrary}
                     onPasteFromClipboard={handleExecutePasteFromClipboard}
                     onAddBlankContainer={handleExecuteAddBlankContainer}
-                    label="Add Section Here"
+                    onAddBlockAtIndex={onAddBlockAtIndex}
+                    label="Quick Insert"
                     slotNumber={index + 2}
                     isDark={isDark}
                     clipboardCount={clipboardCount}
@@ -1958,8 +2092,9 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
           }`}
           sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
         />
+          </div>
+        </div>
       </div>
-    </div>
 
       {/* 3. COMPACT BOTTOM RESPONSIVE CAPSULE */}
       <div
@@ -2160,8 +2295,8 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
               }`}
               title={
                 isFitToScreen
-                  ? `Fit to Screen: Scaled to ${Math.round(computedScale * 100)}% (Click to reset to 100% zoom)`
-                  : 'Fit Canvas to Screen (Click to activate)'
+                  ? `Fit to Screen: Scaled to ${Math.round(computedScale * 100)}% maintaining ${aspectRatioLabel} aspect ratio (${currentFrameConfig.targetWidth}×${currentFrameConfig.targetHeight}) without clipping (Click to reset to 100% zoom)`
+                  : `Fit Canvas to Screen: Scale proportionally preserving ${aspectRatioLabel} aspect ratio (Click to activate)`
               }
               aria-label="Toggle Fit to Screen in bottom HUD"
             >
@@ -2171,7 +2306,11 @@ export const CanvasFrame: React.FC<CanvasFrameProps> = ({
                 <Maximize2 className="w-2.5 h-2.5" />
               )}
               <span className="font-mono text-[9.5px]">
-                {isFitToScreen ? `${Math.round(computedScale * 100)}% Fit` : '100%'}
+                {isFitToScreen
+                  ? `${Math.round(computedScale * 100)}% (${aspectRatioLabel})`
+                  : isDesktopMode
+                  ? '100% Fluid'
+                  : `100% (${aspectRatioLabel})`}
               </span>
             </button>
           )}

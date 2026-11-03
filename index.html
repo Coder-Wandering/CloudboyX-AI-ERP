@@ -8,16 +8,31 @@
     <meta property="og:title" content="CloudboyX Gateway" />
     <meta property="og:description" content="An interactive playground that translates incoming sales feeds (Shopify, CSV, EDI, AI-assisted) into a Canonical Schema, then executes double-entry SQL transaction posting." />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0077b6" />
+    <meta name="theme-color" content="#1C1B21" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="CloudboyX" />
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/aistudio/favicon-16x16_85714a47.png" />
-    <link rel="apple-touch-icon" href="/assets/aistudio/favicon-16x16_85714a47.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" href="/pwa-512x512.png" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(reg) {
+              console.log('[CloudboyX PWA] ServiceWorker registered with scope:', reg.scope);
+            })
+            .catch(function(err) {
+              console.warn('[CloudboyX PWA] ServiceWorker registration notice:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
 

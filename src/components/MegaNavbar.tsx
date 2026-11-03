@@ -26,7 +26,8 @@ import {
   ArrowRight,
   TrendingUp,
   QrCode,
-  HelpCircle
+  HelpCircle,
+  Laptop
 } from 'lucide-react';
 
 import { CorporateBrandLogo } from './CorporateBrandLogo';
@@ -48,6 +49,7 @@ interface MegaNavbarProps {
   onOpenModuleSwitcher?: () => void;
   onGoToHub?: () => void;
   onAttemptLockedModule?: (mod: 'ledger' | 'ingress' | 'procurement') => void;
+  onOpenChromebookInstaller?: () => void;
 }
 
 export const MegaNavbar: React.FC<MegaNavbarProps> = ({
@@ -63,7 +65,8 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
   currentUser,
   onOpenModuleSwitcher,
   onGoToHub,
-  onAttemptLockedModule
+  onAttemptLockedModule,
+  onOpenChromebookInstaller
 }) => {
   // Active dropdown tab on desktop: 'ledger' | 'cloudboy' | 'diagnostics' | 'all' | null
   const [activeDropdown, setActiveDropdown] = useState<'ledger' | 'cloudboy' | 'diagnostics' | 'all' | null>(null);
@@ -460,6 +463,20 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
               <Layout className="w-3.5 h-3.5 text-[#979BF3] shrink-0" />
               <span>Builder</span>
             </button>
+
+            {/* Chromebook App Install Trigger (Desktop) */}
+            {onOpenChromebookInstaller && (
+              <button
+                type="button"
+                id="desktop-chromebook-install-btn"
+                onClick={onOpenChromebookInstaller}
+                className="hidden md:flex px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-mono font-bold rounded-lg border border-indigo-400/40 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 hover:text-white transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                title="Install CloudboyX on Chromebook / ChromeOS"
+              >
+                <Laptop className="w-3.5 h-3.5 text-indigo-300 shrink-0" />
+                <span>Chromebook App</span>
+              </button>
+            )}
 
             {/* Global Dark / Light Theme Toggle (Always Present on Bar) */}
             <button
@@ -1702,6 +1719,26 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 )}
               </div>
             </div>
+
+            {onOpenChromebookInstaller && (
+              <button
+                type="button"
+                id="mobile-chromebook-install-btn"
+                onClick={() => {
+                  onOpenChromebookInstaller();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 px-3 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-200 text-xs font-mono font-bold rounded-xl border border-indigo-500/40 flex items-center justify-between cursor-pointer transition-all active:scale-95"
+              >
+                <div className="flex items-center gap-2">
+                  <Laptop className="w-4 h-4 text-indigo-300 shrink-0" />
+                  <span>Install on Chromebook (PWA)</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-900/80 text-indigo-300 border border-indigo-500/40">
+                  ChromeOS
+                </span>
+              </button>
+            )}
 
             <div className="flex items-center justify-between gap-3">
               <button

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Coins, HelpCircle, BookOpen, Layers } from 'lucide-react';
+import { Coins, HelpCircle, BookOpen, Layers, Download } from 'lucide-react';
 
 export default function ReferenceManual() {
   return (
     <section className="bg-slate-900 text-slate-300 border border-slate-800 rounded-2xl p-6 relative overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl">
       <div className="absolute right-0 top-0 w-80 h-80 bg-indigo-500/15 rounded-full mix-blend-screen filter blur-3xl opacity-30 -mr-20 -mt-20"></div>
       
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-5 gap-3">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl">
             <BookOpen className="w-5 h-5" />
@@ -16,9 +16,20 @@ export default function ReferenceManual() {
             <p className="text-[11px] text-slate-400 font-mono mt-0.5">Statutory Rules & Relational Ledgers Protocol</p>
           </div>
         </div>
-        <span className="text-[9px] uppercase font-mono px-2 py-0.5 bg-indigo-900/40 text-indigo-300 border border-indigo-800 rounded bg-indigo-950">
-          GAAP COMPLIANT (v2.1)
-        </span>
+        <div className="flex items-center gap-2">
+          <a
+            href="/CloudboyX_Enterprise_Platform_Guide.pdf"
+            download="CloudboyX_Enterprise_Platform_Guide.pdf"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-all cursor-pointer active:scale-95"
+            title="Download Complete Module Breakdown & Operations Manual (PDF)"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Download PDF Manual</span>
+          </a>
+          <span className="text-[9px] uppercase font-mono px-2 py-1 bg-indigo-900/40 text-indigo-300 border border-indigo-800 rounded bg-indigo-950">
+            GAAP COMPLIANT (v4.2)
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-sans text-xs leading-relaxed">

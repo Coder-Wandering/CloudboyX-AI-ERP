@@ -1,0 +1,22 @@
+[Desktop Entry]
+Name=CloudboyX Enterprise Suite
+Comment=Autonomous ERP double-entry ledger, MAP brand defense, and visual website builder
+Exec=google-chrome --app="https://ais-dev-gvnmgxforveccxptmzkmm5-353544493497.us-west1.run.app/?mode=suite"
+Icon=application-x-executable
+Terminal=false
+Type=Application
+Categories=Office;Finance;Development;
+StartupWMClass=ais-dev-gvnmgxforveccxptmzkmm5-353544493497.us-west1.run.app
+Actions=Ledger;DesignStudio;MAPProtection;
+
+[Desktop Action Ledger]
+Name=Financial Ledger
+Exec=google-chrome --app="https://ais-dev-gvnmgxforveccxptmzkmm5-353544493497.us-west1.run.app/?mode=suite#suite"
+
+[Desktop Action DesignStudio]
+Name=Design Studio & Builder
+Exec=google-chrome --app="https://ais-dev-gvnmgxforveccxptmzkmm5-353544493497.us-west1.run.app/?mode=suite#design"
+
+[Desktop Action MAPProtection]
+Name=MAP & Brand Defense
+Exec=google-chrome --app="https://ais-dev-gvnmgxforveccxptmzkmm5-353544493497.us-west1.run.app/?mode=suite#map"
