@@ -206,7 +206,7 @@
     {
       "id": "pol-1",
       "name": "Standard Strict MAP Clause",
-      "description": "Zero advertised discounts allowed below product's specific MAP threshold.",
+      "description": "Zero advertised discounts permitted below product's specific MAP threshold.",
       "allowedDiscountPercent": 0
     },
     {
@@ -236,8 +236,16 @@
       "contactEmail": "compliance@bestbuy.com",
       "contactPerson": "Sarah Jenkins",
       "contactPhone": "+1 (555) 234-5678",
-      "associatedPolicies": ["pol-1"],
-      "associatedProducts": ["1", "2", "3", "7", "14"],
+      "associatedPolicies": [
+        "pol-1"
+      ],
+      "associatedProducts": [
+        "1",
+        "2",
+        "3",
+        "7",
+        "14"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-01-15T10:00:00.000Z",
       "notes": "Tier-1 national retail partner fully compliant with standard core catalog policies.",
@@ -251,8 +259,17 @@
       "contactEmail": "partner-relations@gizmomart.com",
       "contactPerson": "David Miller",
       "contactPhone": "+1 (555) 876-5432",
-      "associatedPolicies": ["pol-2"],
-      "associatedProducts": ["1", "3", "4", "8", "12", "18"],
+      "associatedPolicies": [
+        "pol-2"
+      ],
+      "associatedProducts": [
+        "1",
+        "3",
+        "4",
+        "8",
+        "12",
+        "18"
+      ],
       "complianceStatus": "violating",
       "onboardingDate": "2026-02-05T14:30:00.000Z",
       "notes": "Aggressive algorithmic repricer causing frequent automatic MAP violations on peripherals and storage.",
@@ -266,8 +283,16 @@
       "contactEmail": "merchant@walmart-partner.com",
       "contactPerson": "Amanda Ross",
       "contactPhone": "+1 (555) 345-6789",
-      "associatedPolicies": ["pol-1", "pol-3"],
-      "associatedProducts": ["2", "5", "10", "11"],
+      "associatedPolicies": [
+        "pol-1",
+        "pol-3"
+      ],
+      "associatedProducts": [
+        "2",
+        "5",
+        "10",
+        "11"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-02-18T09:15:00.000Z",
       "notes": "Participates in authorized seasonal promotional pricing campaigns under policy pol-3.",
@@ -281,8 +306,15 @@
       "contactEmail": "procurement@pixelperfect.com",
       "contactPerson": "Robert Chen",
       "contactPhone": "+1 (555) 456-7890",
-      "associatedPolicies": ["pol-4"],
-      "associatedProducts": ["1", "4", "6", "13"],
+      "associatedPolicies": [
+        "pol-4"
+      ],
+      "associatedProducts": [
+        "1",
+        "4",
+        "6",
+        "13"
+      ],
       "complianceStatus": "pending",
       "onboardingDate": "2026-03-01T11:00:00.000Z",
       "notes": "Onboarding under high-security enterprise SKU distribution agreement.",
@@ -296,8 +328,18 @@
       "contactEmail": "compliance@discountdepot.com",
       "contactPerson": "Marcus Vance",
       "contactPhone": "+1 (555) 567-8901",
-      "associatedPolicies": ["pol-2"],
-      "associatedProducts": ["1", "2", "3", "4", "5", "8", "9"],
+      "associatedPolicies": [
+        "pol-2"
+      ],
+      "associatedProducts": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "8",
+        "9"
+      ],
       "complianceStatus": "warning",
       "onboardingDate": "2026-03-15T16:45:00.000Z",
       "notes": "Secondary marketplace vendor flagged for unauthorized gray-market bundling.",
@@ -311,8 +353,16 @@
       "contactEmail": "b2b-compliance@microcenter.com",
       "contactPerson": "Jessica Liu",
       "contactPhone": "+1 (555) 678-9012",
-      "associatedPolicies": ["pol-1"],
-      "associatedProducts": ["11", "12", "14", "17", "18"],
+      "associatedPolicies": [
+        "pol-1"
+      ],
+      "associatedProducts": [
+        "11",
+        "12",
+        "14",
+        "17",
+        "18"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-03-20T11:30:00.000Z",
       "notes": "Brick-and-mortar technology superstore maintaining 100% pricing hygiene.",
@@ -326,8 +376,18 @@
       "contactEmail": "vendor-relations@bhphotovideo.com",
       "contactPerson": "Eli Goldberg",
       "contactPhone": "+1 (555) 789-0123",
-      "associatedPolicies": ["pol-1", "pol-4"],
-      "associatedProducts": ["3", "7", "8", "9", "16", "19"],
+      "associatedPolicies": [
+        "pol-1",
+        "pol-4"
+      ],
+      "associatedProducts": [
+        "3",
+        "7",
+        "8",
+        "9",
+        "16",
+        "19"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-04-01T08:45:00.000Z",
       "notes": "Authorized pro AV and broadcast channel. Excellent policy compliance record.",
@@ -341,8 +401,17 @@
       "contactEmail": "commercial-partner@cdw.com",
       "contactPerson": "Gregory Hayes",
       "contactPhone": "+1 (555) 890-1234",
-      "associatedPolicies": ["pol-4"],
-      "associatedProducts": ["6", "10", "13", "15", "17", "20"],
+      "associatedPolicies": [
+        "pol-4"
+      ],
+      "associatedProducts": [
+        "6",
+        "10",
+        "13",
+        "15",
+        "17",
+        "20"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-04-10T13:20:00.000Z",
       "notes": "Fortune 500 IT distributor handling high-end infrastructure SKUs.",
@@ -356,8 +425,15 @@
       "contactEmail": "compliance@adorama.com",
       "contactPerson": "Rachel Klein",
       "contactPhone": "+1 (555) 901-2345",
-      "associatedPolicies": ["pol-2"],
-      "associatedProducts": ["3", "7", "9", "16"],
+      "associatedPolicies": [
+        "pol-2"
+      ],
+      "associatedProducts": [
+        "3",
+        "7",
+        "9",
+        "16"
+      ],
       "complianceStatus": "warning",
       "onboardingDate": "2026-04-22T15:10:00.000Z",
       "notes": "Temporary warning issued for unauthorized open-box promotion on ChronoLens 4K.",
@@ -371,8 +447,15 @@
       "contactEmail": "sales-ops@tigerdirect.com",
       "contactPerson": "Brian Gallagher",
       "contactPhone": "+1 (555) 012-3456",
-      "associatedPolicies": ["pol-1"],
-      "associatedProducts": ["6", "10", "12", "15"],
+      "associatedPolicies": [
+        "pol-1"
+      ],
+      "associatedProducts": [
+        "6",
+        "10",
+        "12",
+        "15"
+      ],
       "complianceStatus": "violating",
       "onboardingDate": "2026-05-02T10:00:00.000Z",
       "notes": "Breached floor price by $89 on StratoWave Wi-Fi 7 AP; Cease & Desist sent.",
@@ -386,8 +469,15 @@
       "contactEmail": "europe-sales@amazon.de",
       "contactPerson": "Klaus Weber",
       "contactPhone": "+49 30 1234567",
-      "associatedPolicies": ["pol-1"],
-      "associatedProducts": ["1", "2", "4", "18"],
+      "associatedPolicies": [
+        "pol-1"
+      ],
+      "associatedProducts": [
+        "1",
+        "2",
+        "4",
+        "18"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-05-15T09:00:00.000Z",
       "notes": "European Union distribution partner adhering to cross-border MAP commitments.",
@@ -401,8 +491,15 @@
       "contactEmail": "compliance@amazon.co.uk",
       "contactPerson": "Oliver Thorne",
       "contactPhone": "+44 20 7946 0912",
-      "associatedPolicies": ["pol-1"],
-      "associatedProducts": ["2", "8", "9", "14"],
+      "associatedPolicies": [
+        "pol-1"
+      ],
+      "associatedProducts": [
+        "2",
+        "8",
+        "9",
+        "14"
+      ],
       "complianceStatus": "compliant",
       "onboardingDate": "2026-06-01T14:00:00.000Z",
       "notes": "United Kingdom retail channel in full compliance.",
@@ -417,8 +514,8 @@
       "productName": "Apex Pro Mechanical Keyboard",
       "mapPrice": 199.99,
       "status": "completed",
-      "startedAt": "2026-11-02T18:00:00.000Z",
-      "finishedAt": "2026-11-02T18:05:00.000Z",
+      "startedAt": "2026-11-03T15:27:37.857Z",
+      "finishedAt": "2026-11-03T15:33:37.857Z",
       "items": [
         {
           "id": "item-1",
@@ -468,8 +565,8 @@
       "productName": "CloudShield Edge 10GbE Security Gateway",
       "mapPrice": 899,
       "status": "completed",
-      "startedAt": "2026-11-02T14:00:00.000Z",
-      "finishedAt": "2026-11-02T14:04:00.000Z",
+      "startedAt": "2026-11-03T11:27:37.857Z",
+      "finishedAt": "2026-11-03T11:33:37.857Z",
       "items": [
         {
           "id": "item-5",
@@ -499,8 +596,8 @@
       "productName": "Titan Acoustics Lossless Hi-Fi DAC Amp",
       "mapPrice": 429,
       "status": "completed",
-      "startedAt": "2026-11-02T08:00:00.000Z",
-      "finishedAt": "2026-11-02T08:06:00.000Z",
+      "startedAt": "2026-11-03T05:27:37.857Z",
+      "finishedAt": "2026-11-03T05:39:37.857Z",
       "items": [
         {
           "id": "item-7",
@@ -540,8 +637,8 @@
       "productName": "UltraView 34\" Curved QD-OLED Master Display",
       "mapPrice": 1199.99,
       "status": "completed",
-      "startedAt": "2026-11-02T02:00:00.000Z",
-      "finishedAt": "2026-11-02T02:05:00.000Z",
+      "startedAt": "2026-11-02T23:27:37.857Z",
+      "finishedAt": "2026-11-02T23:33:37.857Z",
       "items": [
         {
           "id": "item-10",
@@ -571,8 +668,8 @@
       "productName": "StratoWave Wi-Fi 7 Tri-Band Enterprise AP",
       "mapPrice": 449,
       "status": "completed",
-      "startedAt": "2026-11-01T20:00:00.000Z",
-      "finishedAt": "2026-11-01T20:04:00.000Z",
+      "startedAt": "2026-11-02T17:27:37.857Z",
+      "finishedAt": "2026-11-02T17:39:37.857Z",
       "items": [
         {
           "id": "item-12",
@@ -595,6 +692,119 @@
           "status": "violating"
         }
       ]
+    },
+    {
+      "id": "scan-mock-06",
+      "productId": "3",
+      "productName": "ProFocus 4K Ultra Webcam",
+      "mapPrice": 149.99,
+      "status": "completed",
+      "startedAt": "2026-11-02T11:27:37.857Z",
+      "finishedAt": "2026-11-02T11:39:37.857Z",
+      "items": [
+        {
+          "id": "item-14",
+          "partnerId": "p1",
+          "partnerName": "TechDelight Electronics",
+          "partnerDomain": "bestbuy.com",
+          "detectedPrice": 149.99,
+          "detectedUrl": "https://www.bestbuy.com/site/profocus-4k",
+          "snippet": "ProFocus 4K webcam official price $149.99.",
+          "status": "compliant"
+        },
+        {
+          "id": "item-15",
+          "partnerId": "p2",
+          "partnerName": "GizmoMart Prime Marketplace",
+          "partnerDomain": "amazon.com",
+          "detectedPrice": 134.99,
+          "detectedUrl": "https://www.amazon.com/dp/B07PROFOCUS",
+          "snippet": "Amazon Choice Deal: $134.99 for limited time.",
+          "status": "violating"
+        },
+        {
+          "id": "item-16",
+          "partnerId": "p7",
+          "partnerName": "ProPhoto & Studio Depot",
+          "partnerDomain": "bhphotovideo.com",
+          "detectedPrice": 149.99,
+          "detectedUrl": "https://www.bhphotovideo.com/c/product/profocus-4k",
+          "snippet": "In stock. Price is $149.99.",
+          "status": "compliant"
+        }
+      ]
+    },
+    {
+      "id": "scan-mock-07",
+      "productId": "2",
+      "productName": "SoundWave Active ANC Headphones",
+      "mapPrice": 299.99,
+      "status": "completed",
+      "startedAt": "2026-11-02T05:27:37.857Z",
+      "finishedAt": "2026-11-02T05:39:37.857Z",
+      "items": [
+        {
+          "id": "item-17",
+          "partnerId": "p1",
+          "partnerName": "TechDelight Electronics",
+          "partnerDomain": "bestbuy.com",
+          "detectedPrice": 299.99,
+          "detectedUrl": "https://www.bestbuy.com/site/soundwave-anc",
+          "snippet": "SoundWave ANC headphones: $299.99.",
+          "status": "compliant"
+        },
+        {
+          "id": "item-18",
+          "partnerId": "p3",
+          "partnerName": "NewEgg Partner World",
+          "partnerDomain": "walmart.com",
+          "detectedPrice": 299.99,
+          "detectedUrl": "https://www.walmart.com/ip/soundwave-anc",
+          "snippet": "Walmart official listing: $299.99.",
+          "status": "compliant"
+        },
+        {
+          "id": "item-19",
+          "partnerId": "p11",
+          "partnerName": "EuroGadgets Direct DE",
+          "partnerDomain": "amazon.de",
+          "detectedPrice": 299.99,
+          "detectedUrl": "https://www.amazon.de/dp/B08SOUNDWAVE",
+          "snippet": "Unverbindliche Preisempfehlung: €279.00 (~$299.99).",
+          "status": "compliant"
+        }
+      ]
+    },
+    {
+      "id": "scan-mock-08",
+      "productId": "12",
+      "productName": "HyperDrive 4TB PCIe Gen5 NVMe SSD",
+      "mapPrice": 319.99,
+      "status": "completed",
+      "startedAt": "2026-11-01T23:27:37.857Z",
+      "finishedAt": "2026-11-01T23:39:37.857Z",
+      "items": [
+        {
+          "id": "item-20",
+          "partnerId": "p6",
+          "partnerName": "Apex Micro Electronics",
+          "partnerDomain": "microcenter.com",
+          "detectedPrice": 319.99,
+          "detectedUrl": "https://www.microcenter.com/product/hyperdrive-4tb",
+          "snippet": "Micro Center DIY Component price: $319.99.",
+          "status": "compliant"
+        },
+        {
+          "id": "item-21",
+          "partnerId": "p2",
+          "partnerName": "GizmoMart Prime Marketplace",
+          "partnerDomain": "amazon.com",
+          "detectedPrice": 299.99,
+          "detectedUrl": "https://www.amazon.com/dp/B0CHYPER4TB",
+          "snippet": "Underpricing breach: $299.99 instant coupon applied.",
+          "status": "violating"
+        }
+      ]
     }
   ],
   "auditLogs": [
@@ -604,7 +814,7 @@
       "sku": "APEX-PRO-MK1",
       "type": "compliance_update",
       "message": "Automated scan finished: 2 violations detected on amazon.com ($174.99) and ebay.com ($179.99).",
-      "timestamp": "2026-11-02T18:05:00.000Z",
+      "timestamp": "2026-11-03T15:27:37.857Z",
       "details": "bestbuy.com (compliant), amazon.com (violating), walmart.com (compliant), ebay.com (violating)",
       "user": "Automated Protection Engine"
     },
@@ -614,7 +824,7 @@
       "sku": "CLD-EDGE-RTR",
       "type": "enforcement",
       "message": "Cease & Desist warning letter dispatched to Wholesale Digital Hub (tigerdirect.com).",
-      "timestamp": "2026-11-02T14:05:00.000Z",
+      "timestamp": "2026-11-03T11:27:37.857Z",
       "details": "Detected: $819.00 | Floor: $899.00 | Gap: -$80.00",
       "user": "Compliance Operations Daemon"
     },
@@ -624,7 +834,7 @@
       "sku": "TITAN-DAC-99",
       "type": "compliance_update",
       "message": "Compliance scan finished: 1 breach flagged on amazon.com ($389.00).",
-      "timestamp": "2026-11-02T08:06:00.000Z",
+      "timestamp": "2026-11-03T05:27:37.857Z",
       "details": "bhphotovideo.com (compliant), amazon.com (violating), amazon.co.uk (compliant)",
       "user": "Automated Protection Engine"
     },
@@ -634,7 +844,7 @@
       "sku": "VISION-OLED",
       "type": "compliance_update",
       "message": "Ecosystem scan verified 100% price integrity across Best Buy and Micro Center.",
-      "timestamp": "2026-11-02T02:05:00.000Z",
+      "timestamp": "2026-11-02T23:27:37.857Z",
       "details": "All monitored channels listing at or above $1,199.99",
       "user": "Automated Protection Engine"
     },
@@ -644,7 +854,7 @@
       "sku": "STRATO-AP7",
       "type": "price_change",
       "message": "MAP Threshold updated from $429.00 to $449.00.",
-      "timestamp": "2026-10-31T12:00:00.000Z",
+      "timestamp": "2026-11-01T17:27:37.857Z",
       "oldPrice": 429,
       "newPrice": 449,
       "user": "Sarah Vance, Compliance Lead"
@@ -655,7 +865,7 @@
       "sku": "HYPER-NVME-4",
       "type": "registry",
       "message": "SKU registered into real-time MAP Shield with $319.99 threshold floor.",
-      "timestamp": "2026-10-30T10:00:00.000Z",
+      "timestamp": "2026-10-31T17:27:37.857Z",
       "user": "Catalog Operations Admin"
     }
   ],
@@ -670,7 +880,7 @@
       "partnerDomain": "amazon.com",
       "mapPrice": 199.99,
       "detectedPrice": 174.99,
-      "sentAt": "2026-11-02T18:05:00.000Z",
+      "sentAt": "2026-11-03T15:27:37.857Z",
       "recipientEmail": "partner-relations@gizmomart.com",
       "recipientType": "partner",
       "subject": "URGENT: Formal Minimum Advertised Price (MAP) Infraction Notice - APEX-PRO-MK1",
@@ -687,7 +897,7 @@
       "partnerDomain": "amazon.com",
       "mapPrice": 199.99,
       "detectedPrice": 174.99,
-      "sentAt": "2026-11-02T18:05:00.000Z",
+      "sentAt": "2026-11-03T15:27:37.857Z",
       "recipientEmail": "compliance@cloudboyx.com",
       "recipientType": "admin",
       "subject": "CRITICAL ALERT: Automated Cease & Desist Triggered for GizmoMart Online",
@@ -704,7 +914,7 @@
       "partnerDomain": "tigerdirect.com",
       "mapPrice": 899,
       "detectedPrice": 819,
-      "sentAt": "2026-11-02T14:05:00.000Z",
+      "sentAt": "2026-11-03T11:27:37.857Z",
       "recipientEmail": "sales-ops@tigerdirect.com",
       "recipientType": "partner",
       "subject": "CEASE & DESIST: MAP Policy Violation Notice - CLD-EDGE-RTR",
@@ -721,7 +931,7 @@
       "partnerDomain": "tigerdirect.com",
       "mapPrice": 449,
       "detectedPrice": 389,
-      "sentAt": "2026-11-01T20:05:00.000Z",
+      "sentAt": "2026-11-02T17:27:37.857Z",
       "recipientEmail": "sales-ops@tigerdirect.com",
       "recipientType": "partner",
       "subject": "SECOND NOTICE: Critical Price Violation on StratoWave AP7",

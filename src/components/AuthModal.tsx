@@ -24,7 +24,7 @@ export interface UserAccount {
   email: string;
   company: string;
   planType: 'full_suite' | 'modular_custom';
-  selectedModules: ('ledger' | 'ingress' | 'procurement')[];
+  selectedModules: ('ledger' | 'ingress' | 'procurement' | 'map_protection' | 'predict' | 'design')[];
   securityTier?: 'standard' | 'cybershield_pro' | 'cybershield_sovereign';
   billingCycle: 'monthly' | 'annual';
   monthlyPrice: number;
@@ -35,7 +35,7 @@ export interface UserAccount {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'signin' | 'signup';
+  initialMode?: 'signin' | 'signup' | 'test_sandbox';
   selectedPlan: {
     planType: 'full_suite' | 'modular_custom';
     selectedModules: ('ledger' | 'ingress' | 'procurement')[];
@@ -68,12 +68,12 @@ async function sha256Browser(str: string): Promise<string> {
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
-  initialMode = 'signin',
+  initialMode = 'test_sandbox',
   selectedPlan,
   onAuthSuccess,
   isDarkMode
 }) => {
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [mode, setMode] = useState<'signin' | 'signup' | 'test_sandbox'>(initialMode);
   
   // Sign In state
   const [loginEmail, setLoginEmail] = useState('');
@@ -179,7 +179,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
     } catch {}
 
-    // Special allowance for demo login
+    // Special allowance for test & demo sandbox logins
+    if (loginEmail.toLowerCase().trim() === 'test@cloudboyx.com' || loginEmail.toLowerCase().trim() === 'test@cloudboyx.net') {
+      setIsLoading(false);
+      handleQuickTestAdminLogin();
+      return;
+    }
+
     if (loginEmail.toLowerCase().trim() === 'elena.vance@omniretail.global') {
       setIsLoading(false);
       handleQuickDemoLogin();
@@ -296,8 +302,55 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleQuickDemoLogin = () => {
+  const handleQuickTestAdminLogin = async () => {
     setIsLoading(true);
+    try {
+      localStorage.setItem('cloudboyx_env_mode', 'test');
+      await fetch('/api/env/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'test' })
+      }).catch(() => {});
+    } catch {}
+
+    setTimeout(() => {
+      setIsLoading(false);
+      const testAdminUser: UserAccount = {
+        name: 'CloudboyX Test Administrator',
+        email: 'test@cloudboyx.com',
+        company: 'CloudboyX Enterprise Test Lab',
+        planType: 'full_suite',
+        selectedModules: ['ledger', 'ingress', 'procurement', 'map_protection', 'predict', 'design'],
+        securityTier: 'cybershield_sovereign',
+        billingCycle: 'annual',
+        monthlyPrice: 959,
+        signedIn: true,
+        avatarInitials: 'TA'
+      };
+
+      try {
+        localStorage.setItem('cloudboyx_auth_user', JSON.stringify(testAdminUser));
+      } catch {}
+
+      setSuccessMessage('Authenticated as Test Administrator (Expanded Test Sandbox Active)');
+      setTimeout(() => {
+        onAuthSuccess(testAdminUser);
+        onClose();
+      }, 350);
+    }, 250);
+  };
+
+  const handleQuickDemoLogin = async () => {
+    setIsLoading(true);
+    try {
+      localStorage.setItem('cloudboyx_env_mode', 'test');
+      await fetch('/api/env/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'test' })
+      }).catch(() => {});
+    } catch {}
+
     setTimeout(() => {
       setIsLoading(false);
       const demoUser: UserAccount = {
@@ -305,7 +358,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         email: 'elena.vance@omniretail.global',
         company: 'OmniRetail Global Enterprise',
         planType: 'full_suite',
-        selectedModules: ['ledger', 'ingress', 'procurement'],
+        selectedModules: ['ledger', 'ingress', 'procurement', 'map_protection', 'predict'],
         securityTier: 'cybershield_sovereign',
         billingCycle: 'annual',
         monthlyPrice: 959,
@@ -317,12 +370,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         localStorage.setItem('cloudboyx_auth_user', JSON.stringify(demoUser));
       } catch {}
 
-      setSuccessMessage('Authenticated as Elena Vance, CPA (Demo Profile)');
+      setSuccessMessage('Authenticated as Elena Vance, CPA (Expanded Test Sandbox Active)');
       setTimeout(() => {
         onAuthSuccess(demoUser);
         onClose();
-      }, 400);
-    }, 300);
+      }, 350);
+    }, 250);
   };
 
   const moduleNamesMap: Record<string, { name: string; icon: React.ReactNode }> = {
@@ -422,34 +475,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </span>
         </div>
 
-        {/* Tab Toggle: Sign In vs Sign Up */}
+        {/* Tab Toggle: Test Sandbox vs Real Sign In vs Real Sign Up */}
         <div className="p-5 pb-2">
-          <div className={`grid grid-cols-2 p-1 rounded-xl border text-xs font-mono font-bold ${
+          <div className={`grid grid-cols-3 p-1 rounded-xl border text-xs font-mono font-bold ${
             isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
           }`}>
             <button
               type="button"
+              onClick={() => { setMode('test_sandbox'); setErrorMessage(''); }}
+              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                mode === 'test_sandbox' 
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' 
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Test Sandbox</span>
+            </button>
+            <button
+              type="button"
               onClick={() => { setMode('signin'); setErrorMessage(''); }}
-              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 mode === 'signin' 
                   ? 'bg-white dark:bg-slate-800 text-[#979BF3] dark:text-[#979BF3] shadow-sm' 
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span>Sign In</span>
+              <span>Real Sign In</span>
             </button>
             <button
               type="button"
               onClick={() => { setMode('signup'); setErrorMessage(''); }}
-              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 mode === 'signup' 
                   ? 'bg-[#979BF3] text-[#1C1B21] text-white shadow-sm' 
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span>Sign Up / Create Account</span>
+              <span>Register Real</span>
             </button>
           </div>
         </div>
@@ -471,8 +536,71 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Body Content */}
         <div className="px-5 pb-5">
-          {mode === 'signin' ? (
-            /* ──────────────── SIGN IN FORM ──────────────── */
+          {mode === 'test_sandbox' ? (
+            /* ──────────────── TEST SANDBOX ACCESS VIEW ──────────────── */
+            <div className="space-y-3.5">
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-left space-y-1.5">
+                <div className="flex items-center gap-2 text-amber-300 font-mono text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span>Retained AI Studio Test Dataset (Expanded)</span>
+                </div>
+                <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                  This test environment contains the expanded simulation dataset: <strong>20+ MAP SKUs</strong>, <strong>12 partner marketplaces</strong>, <strong>15+ automated crawl scans</strong>, and <strong>double-entry general ledger transactions</strong>.
+                </p>
+                <div className="pt-1 text-[10px] text-amber-400/90 font-mono flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>Persisted in <code>map_state.json</code> &amp; <code>db_state.json</code> across GitHub exports.</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleQuickTestAdminLogin}
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-3 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-between cursor-pointer border border-cyan-400/40"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                    <div>
+                      <div className="font-extrabold text-white">Enter as Test Administrator</div>
+                      <div className="text-[10px] text-cyan-200 font-mono">test@cloudboyx.com · Full Suite Access</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-mono font-bold">Instant ➔</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleQuickDemoLogin}
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-3 bg-slate-800/80 hover:bg-slate-750 text-slate-200 font-mono font-bold text-xs rounded-xl border border-slate-700 transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <BookOpen className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div>
+                      <div className="font-extrabold text-white">Enter as Elena Vance, CPA</div>
+                      <div className="text-[10px] text-slate-400 font-mono">elena.vance@omniretail.global · Financial Lead</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded font-mono font-bold">Instant ➔</span>
+                </button>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-black/30 border border-slate-800 text-[10px] font-mono text-slate-400 space-y-1">
+                <div className="text-slate-300 font-bold uppercase tracking-wider">Manual Credentials for Testing:</div>
+                <div className="flex justify-between">
+                  <span>Test Admin:</span>
+                  <span className="text-cyan-400">test@cloudboyx.com / test1234</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Demo CPA:</span>
+                  <span className="text-emerald-400">elena.vance@omniretail.global / demo1234</span>
+                </div>
+              </div>
+            </div>
+          ) : mode === 'signin' ? (
+            /* ──────────────── REAL SIGN IN FORM ──────────────── */
             <form onSubmit={handleSignIn} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -522,24 +650,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   className="w-full py-2.5 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] hover:from-[#03045e] hover:to-[#0077b6] active:scale-98 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#48cae4]/50 disabled:opacity-50"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>{isLoading ? 'Authenticating...' : 'Sign In to Workspace'}</span>
+                  <span>{isLoading ? 'Authenticating...' : 'Sign In to Real Workspace'}</span>
                 </button>
               </div>
 
-              {/* Quick Demo Login Option */}
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-center">
                 <button
                   type="button"
-                  onClick={handleQuickDemoLogin}
-                  disabled={isLoading}
-                  className="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-mono font-semibold rounded-xl border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  onClick={() => setMode('test_sandbox')}
+                  className="text-xs text-amber-400 hover:text-amber-300 font-mono underline cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>One-Click Demo Sign In (Elena Vance, CPA)</span>
+                  Looking for the test version? Switch to Test Sandbox ➔
                 </button>
-                <div className="mt-2 text-center text-[10px] text-slate-400 font-mono">
-                  Self-hosted native auth · Zero Google Cloud & Firebase dependencies
-                </div>
               </div>
             </form>
           ) : (

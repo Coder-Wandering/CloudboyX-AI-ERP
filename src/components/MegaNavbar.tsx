@@ -24,7 +24,9 @@ import {
   Database,
   Cpu,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  QrCode,
+  HelpCircle
 } from 'lucide-react';
 
 import { CorporateBrandLogo } from './CorporateBrandLogo';
@@ -70,6 +72,58 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const navRef = useRef<HTMLDivElement>(null);
 
+  // Environment Mode State ('test' Sandbox vs 'real' Production)
+  const [envMode, setEnvMode] = useState<'test' | 'real'>(() => {
+    return (localStorage.getItem('cloudboyx_env_mode') as 'test' | 'real') || 'test';
+  });
+  const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
+  const [isResettingTest, setIsResettingTest] = useState(false);
+  const [resetSuccessNotice, setResetSuccessNotice] = useState<string | null>(null);
+
+  // Sync environment mode with server
+  useEffect(() => {
+    fetch('/api/env/mode')
+      .then(r => r.json())
+      .then(data => {
+        if (data?.mode && (data.mode === 'test' || data.mode === 'real')) {
+          setEnvMode(data.mode);
+          localStorage.setItem('cloudboyx_env_mode', data.mode);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleEnvMode = async (newMode: 'test' | 'real') => {
+    try {
+      await fetch('/api/env/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: newMode })
+      });
+      setEnvMode(newMode);
+      localStorage.setItem('cloudboyx_env_mode', newMode);
+      window.dispatchEvent(new CustomEvent('cloudboyx_env_changed', { detail: { mode: newMode } }));
+      setIsEnvModalOpen(false);
+    } catch (err) {
+      console.error('Failed to change environment mode:', err);
+    }
+  };
+
+  const handleResetTestData = async () => {
+    setIsResettingTest(true);
+    try {
+      const res = await fetch('/api/env/reset-test', { method: 'POST' });
+      const data = await res.json();
+      setResetSuccessNotice('Test dataset reset! 20 SKUs & 12 Marketplaces restored.');
+      window.dispatchEvent(new CustomEvent('cloudboyx_env_changed', { detail: { mode: 'test' } }));
+      setTimeout(() => setResetSuccessNotice(null), 3500);
+    } catch (err) {
+      console.error('Failed to reset test dataset:', err);
+    } finally {
+      setIsResettingTest(false);
+    }
+  };
+
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -88,6 +142,7 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
       if (event.key === 'Escape') {
         setActiveDropdown(null);
         setIsMobileMenuOpen(false);
+        setIsEnvModalOpen(false);
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -331,6 +386,23 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                 {activeViewInfo.label}
               </span>
             </div>
+
+            {/* Environment Mode Switcher Button (Desktop) */}
+            <button
+              type="button"
+              id="desktop-env-mode-btn"
+              onClick={() => setIsEnvModalOpen(true)}
+              className={`hidden sm:flex px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-mono font-bold rounded-lg border transition-all items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
+                envMode === 'test'
+                  ? 'border-emerald-400/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 hover:text-white'
+                  : 'border-blue-400/40 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 hover:text-white'
+              }`}
+              title="Switch Environment: Test Sandbox vs Live Production"
+            >
+              <span className={`w-2 h-2 rounded-full ${envMode === 'test' ? 'bg-emerald-400 animate-pulse' : 'bg-blue-400'}`} />
+              <span>{envMode === 'test' ? '🧪 Test Sandbox' : '🟢 Live Production'}</span>
+              <ChevronDown className="w-3 h-3 opacity-70" />
+            </button>
 
             {/* My Modules Pop-Up Box Button (Shows what user is able to use) */}
             {onOpenModuleSwitcher && (
@@ -1111,6 +1183,27 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
                     </button>
                   </div>
 
+                  {/* Optical Scanner Instructions Guide */}
+                  <div>
+                    <span className="text-[10px] font-mono text-white/60 uppercase block mb-1">Optical Help &amp; Field Guide</span>
+                    <button
+                      type="button"
+                      id="mega-menu-scanning-instructions-btn"
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('open_scanning_instructions'));
+                        setActiveDropdown(null);
+                      }}
+                      className="w-full py-2 px-3 bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-200 text-xs font-mono font-bold rounded-lg border border-indigo-500/40 flex items-center justify-between cursor-pointer shadow-xs transition-colors"
+                      title="Open Dedicated Camera QR Code Scanning Instructions Guide"
+                    >
+                      <span className="flex items-center gap-2">
+                        <QrCode className="w-3.5 h-3.5 text-indigo-400" />
+                        Scanning Instructions
+                      </span>
+                      <HelpCircle className="w-3.5 h-3.5 text-indigo-300" />
+                    </button>
+                  </div>
+
                   {/* Dark Mode Theme Toggle */}
                   <div>
                     <span className="text-[10px] font-mono text-white/60 uppercase block mb-1">Theme Preference</span>
@@ -1575,22 +1668,233 @@ export const MegaNavbar: React.FC<MegaNavbarProps> = ({
 
           </div>
 
-          {/* Quick Ledger Reset on Tablet & Mobile */}
-          <div className="pt-2 border-t border-white/15 flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                handleResetLedger();
-                setIsMobileMenuOpen(false);
-              }}
-              className="py-2 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-200 text-xs font-mono font-bold rounded-lg border border-rose-400/30 flex items-center gap-2 cursor-pointer transition-colors active:scale-95"
-            >
-              <RefreshCw className="w-3.5 h-3.5 text-[#E00728] shrink-0" />
-              <span>Reset General Ledger</span>
-            </button>
-            <span className="text-[10px] font-mono text-[#979BF3]/50">Double-Entry Mode</span>
+          {/* Environment Mode & Quick Ledger Reset on Tablet & Mobile */}
+          <div className="pt-3 border-t border-white/15 space-y-2.5">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-black/40 border border-white/10 font-mono text-xs">
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${envMode === 'test' ? 'bg-emerald-400 animate-pulse' : 'bg-blue-400'}`} />
+                <span className="text-white font-bold">
+                  {envMode === 'test' ? '🧪 Test Sandbox Active' : '🟢 Live Production Active'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleToggleEnvMode(envMode === 'test' ? 'real' : 'test');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="px-2.5 py-1 text-[11px] rounded bg-white/10 hover:bg-white/20 text-white font-semibold cursor-pointer transition active:scale-95"
+                >
+                  Switch to {envMode === 'test' ? 'Live Production' : 'Test Sandbox'}
+                </button>
+                {envMode === 'test' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleResetTestData();
+                    }}
+                    disabled={isResettingTest}
+                    className="px-2 py-1 text-[11px] rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold cursor-pointer transition active:scale-95"
+                  >
+                    ↺ Reset
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  handleResetLedger();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="py-2 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-200 text-xs font-mono font-bold rounded-lg border border-rose-400/30 flex items-center gap-2 cursor-pointer transition-colors active:scale-95"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-[#E00728] shrink-0" />
+                <span>Reset General Ledger</span>
+              </button>
+              <span className="text-[10px] font-mono text-[#979BF3]/50">Double-Entry Mode</span>
+            </div>
           </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* ENVIRONMENT MODE & DATA RETENTION SELECTOR MODAL          */}
+      {/* ────────────────────────────────────────────────────────── */}
+      {isEnvModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div 
+            className="w-full max-w-2xl bg-[#1C1B21] border border-white/20 rounded-2xl shadow-2xl overflow-hidden font-sans text-white flex flex-col max-h-[90vh]"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-5 border-b border-white/10 flex items-center justify-between bg-black/40">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-indigo-500/20 text-[#979BF3] border border-indigo-500/30">
+                  <Database className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                    Environment &amp; Data Retention Selector
+                  </h2>
+                  <p className="text-xs text-slate-400 font-mono mt-0.5">
+                    Toggle between persistent Test Sandbox and Live Production
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEnvModalOpen(false)}
+                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Reset Notice Banner */}
+            {resetSuccessNotice && (
+              <div className="px-5 py-2.5 bg-emerald-950/80 border-b border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2 animate-fadeIn">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{resetSuccessNotice}</span>
+              </div>
+            )}
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-4">
+              
+              {/* Option 1: Test Sandbox */}
+              <div className={`p-5 rounded-xl border transition-all ${
+                envMode === 'test'
+                  ? 'bg-emerald-950/30 border-emerald-500/60 ring-1 ring-emerald-500/30'
+                  : 'bg-white/5 border-white/10 hover:border-white/20'
+              }`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-base font-bold text-white">🧪 Test Sandbox Mode</span>
+                      {envMode === 'test' && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          CURRENTLY ACTIVE
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Retains the comprehensive AI Studio demonstration dataset across GitHub exports and deployments on any server.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] text-emerald-300">
+                      <span className="px-2 py-0.5 bg-emerald-950/60 rounded border border-emerald-800/60">✓ 20 Enterprise SKUs</span>
+                      <span className="px-2 py-0.5 bg-emerald-950/60 rounded border border-emerald-800/60">✓ 12 Partner Marketplaces</span>
+                      <span className="px-2 py-0.5 bg-emerald-950/60 rounded border border-emerald-800/60">✓ 15+ Automated Sweeps</span>
+                      <span className="px-2 py-0.5 bg-emerald-950/60 rounded border border-emerald-800/60">✓ Persistent JSON State</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    {envMode === 'test' ? (
+                      <button
+                        type="button"
+                        onClick={handleResetTestData}
+                        disabled={isResettingTest}
+                        className="px-3 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 rounded-lg text-xs font-mono font-bold cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+                        title="Restores original 20 SKUs and 12 marketplaces"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isResettingTest ? 'animate-spin' : ''}`} />
+                        <span>{isResettingTest ? 'Resetting...' : '↺ Reset Test Data'}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleEnvMode('test')}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-mono font-bold cursor-pointer transition active:scale-95 shadow-md"
+                      >
+                        Switch to Test
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 2: Live Production */}
+              <div className={`p-5 rounded-xl border transition-all ${
+                envMode === 'real'
+                  ? 'bg-blue-950/30 border-blue-500/60 ring-1 ring-blue-500/30'
+                  : 'bg-white/5 border-white/10 hover:border-white/20'
+              }`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-base font-bold text-white">🟢 Live Production Mode</span>
+                      {envMode === 'real' && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                          CURRENTLY ACTIVE
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Clean corporate workspace with zero mock records. Ready for your live catalog, production merchant credentials, and official corporate ledger entries.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] text-blue-300">
+                      <span className="px-2 py-0.5 bg-blue-950/60 rounded border border-blue-800/60">✓ Clean Initial Slate</span>
+                      <span className="px-2 py-0.5 bg-blue-950/60 rounded border border-blue-800/60">✓ Real Channel APIs</span>
+                      <span className="px-2 py-0.5 bg-blue-950/60 rounded border border-blue-800/60">✓ Production Audit Trail</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    {envMode === 'real' ? (
+                      <span className="px-3 py-1.5 text-xs font-mono text-blue-300 font-bold bg-blue-950/60 border border-blue-800/60 rounded-lg">
+                        ✓ Active
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleEnvMode('real')}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-mono font-bold cursor-pointer transition active:scale-95 shadow-md"
+                      >
+                        Switch to Live
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Login Credentials Callout Box */}
+              <div className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-2">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold block">
+                  Dedicated Demo &amp; Test Logins (Retained on Any Server)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    <span className="text-[#979BF3] font-bold block">Test Administrator</span>
+                    <span className="text-slate-300 text-[11px]">Email: test@cloudboyx.com</span>
+                    <span className="text-slate-400 text-[11px] block">Password: test1234</span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    <span className="text-teal-300 font-bold block">Elena Vance, CPA</span>
+                    <span className="text-slate-300 text-[11px]">Email: elena.vance@omniretail.global</span>
+                    <span className="text-slate-400 text-[11px] block">Password: password123</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-white/10 bg-black/40 flex items-center justify-between">
+              <span className="text-xs font-mono text-slate-400">
+                Mode saved to disk (<code className="text-[#979BF3]">map_state.json</code>)
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsEnvModalOpen(false)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-mono font-bold transition cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

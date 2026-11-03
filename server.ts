@@ -16,6 +16,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import alasql from 'alasql';
 import { UniversalGateway } from './src/gateway';
 import { CanonicalOrder, CanonicalLineItem } from './src/canonical';
+import { EXPANDED_RESELLERS, EXPANDED_PROCUREMENT_POS, DEMO_TEST_USERS } from './src/data/expandedSeedData';
 import { registerMapProtectionRoutes } from './src/server/mapProtectionRoutes';
 import { registerPredictRoutes } from './src/server/predictRoutes';
 
@@ -236,8 +237,28 @@ function initDatabase() {
     alasql('CREATE TABLE IF NOT EXISTS users (id STRING, name STRING, email STRING, password_hash STRING, salt STRING, company STRING, plan_type STRING, modules STRING, billing_cycle STRING, created_at STRING)');
     
     // Seed default demo account if no accounts exist
-    const userCount = (alasql('SELECT COUNT(*) as cnt FROM users') as any[])[0]?.cnt || 0;
-    if (userCount === 0) {
+    // Seed default demo & test accounts
+    const existingTestUser = (alasql('SELECT id FROM users WHERE email = ?', ['test@cloudboyx.com']) as any[]) || [];
+    if (existingTestUser.length === 0) {
+      const testSalt = 'cloudboyx_test_salt_99';
+      const testHash = hashPassword('test1234', testSalt);
+      alasql('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+        'usr-test-01',
+        'CloudboyX Test Administrator',
+        'test@cloudboyx.com',
+        testHash,
+        testSalt,
+        'CloudboyX Enterprise Test Lab',
+        'full_suite',
+        JSON.stringify(['ledger', 'ingress', 'procurement', 'map_protection', 'predict', 'design']),
+        'annual',
+        new Date().toISOString()
+      ]);
+      console.log('✓ Seeded default zero-cost test sandbox account (test@cloudboyx.com)');
+    }
+
+    const existingElena = (alasql('SELECT id FROM users WHERE email = ?', ['elena.vance@omniretail.global']) as any[]) || [];
+    if (existingElena.length === 0) {
       const demoSalt = 'cloudboyx_salt_demo';
       const demoHash = hashPassword('demo1234', demoSalt);
       alasql('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
@@ -248,7 +269,7 @@ function initDatabase() {
         demoSalt,
         'OmniRetail Global Enterprise',
         'full_suite',
-        JSON.stringify(['ledger', 'ingress', 'procurement']),
+        JSON.stringify(['ledger', 'ingress', 'procurement', 'map_protection', 'predict']),
         'annual',
         new Date().toISOString()
       ]);
@@ -373,7 +394,8 @@ function seedInitialTransactions(forceRefresh = false) {
   });
 
   // Seed default resellers
-  const initialResellers = [
+  // Seed expanded resellers
+  const initialResellers = Array.isArray(EXPANDED_RESELLERS) && EXPANDED_RESELLERS.length > 0 ? EXPANDED_RESELLERS : [
     { id: 'resell-1', name: 'Acme Distribution', domain: 'acme-reselling.com', status: 'Authorized', rate_limit: 500, orders_count: 142, last_active: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
     { id: 'resell-2', name: 'Global Apex Prime', domain: 'apex-import.co.uk', status: 'Authorized', rate_limit: 1000, orders_count: 87, last_active: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
     { id: 'resell-3', name: 'Shadow Wholesale Inc.', domain: 'shadow-bulk.net', status: 'Pending', rate_limit: 100, orders_count: 0, last_active: 'Never' },
@@ -386,46 +408,119 @@ function seedInitialTransactions(forceRefresh = false) {
     ]);
   });
 
-  const shopifySeed: CanonicalOrder = {
-    sourceSystem: 'shopify',
-    sourceOrderId: 'SH-84920',
-    customerEmail: 'alice.miller@icloud.com',
-    items: [
-      { sku: 'VNTG-TEE-BLK', quantity: 2, unitPrice: 3500, currency: 'USD' },
-      { sku: 'DENIM-JKT-L', quantity: 1, unitPrice: 12000, currency: 'USD' }
-    ],
-    totalAmount: 20520, // $190 + $15.20 tax
-    taxAmount: 1520,
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
-  };
+  const ordersToSeed: { order: CanonicalOrder; cash: boolean }[] = [
+    {
+      cash: true,
+      order: {
+        sourceSystem: 'shopify',
+        sourceOrderId: 'SH-84920',
+        customerEmail: 'alice.miller@icloud.com',
+        items: [
+          { sku: 'VNTG-TEE-BLK', quantity: 2, unitPrice: 3500, currency: 'USD' },
+          { sku: 'DENIM-JKT-L', quantity: 1, unitPrice: 12000, currency: 'USD' }
+        ],
+        totalAmount: 20520, // $190 + $15.20 tax
+        taxAmount: 1520,
+        createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)
+      }
+    },
+    {
+      cash: false,
+      order: {
+        sourceSystem: 'legacy_csv',
+        sourceOrderId: 'REC-30911',
+        customerEmail: 'b2b-purchaser@industrial.corp',
+        items: [
+          { sku: 'STEEL-RIVET-100', quantity: 5, unitPrice: 8000, currency: 'USD' }
+        ],
+        totalAmount: 40000,
+        taxAmount: 0,
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+      }
+    },
+    {
+      cash: false,
+      order: {
+        sourceSystem: 'edi',
+        sourceOrderId: 'EDIPO-904128',
+        customerEmail: 'edi-partner@b2b.system',
+        items: [
+          { sku: 'BULK-PALLET-A', quantity: 3, unitPrice: 25000, currency: 'USD' },
+        ],
+        totalAmount: 75000,
+        taxAmount: 0,
+        createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
+      }
+    },
+    {
+      cash: true,
+      order: {
+        sourceSystem: 'shopify',
+        sourceOrderId: 'SH-85011',
+        customerEmail: 'marcus.vance@techgear.net',
+        items: [
+          { sku: 'APEX-PRO-MK1', quantity: 1, unitPrice: 19999, currency: 'USD' },
+          { sku: 'QG-PRO-MS', quantity: 1, unitPrice: 8999, currency: 'USD' }
+        ],
+        totalAmount: 31317,
+        taxAmount: 2319,
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+      }
+    },
+    {
+      cash: false,
+      order: {
+        sourceSystem: 'edi',
+        sourceOrderId: 'EDIPO-904200',
+        customerEmail: 'enterprise-procurement@cdw.com',
+        items: [
+          { sku: 'CLD-EDGE-RTR', quantity: 4, unitPrice: 89900, currency: 'USD' },
+          { sku: 'STRATO-AP7', quantity: 6, unitPrice: 44900, currency: 'USD' }
+        ],
+        totalAmount: 629000,
+        taxAmount: 0,
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+      }
+    },
+    {
+      cash: true,
+      order: {
+        sourceSystem: 'shopify',
+        sourceOrderId: 'SH-85102',
+        customerEmail: 'studio-creative@agency.org',
+        items: [
+          { sku: 'VISION-OLED', quantity: 1, unitPrice: 119999, currency: 'USD' },
+          { sku: 'DOCK-TB5-PR', quantity: 1, unitPrice: 34900, currency: 'USD' }
+        ],
+        totalAmount: 167291,
+        taxAmount: 12392,
+        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+      }
+    },
+    {
+      cash: false,
+      order: {
+        sourceSystem: 'legacy_csv',
+        sourceOrderId: 'REC-31045',
+        customerEmail: 'audio-master@soundworks.io',
+        items: [
+          { sku: 'TITAN-DAC-99', quantity: 2, unitPrice: 42900, currency: 'USD' },
+          { sku: 'AUDIO-REF-5', quantity: 1, unitPrice: 59900, currency: 'USD' }
+        ],
+        totalAmount: 145700,
+        taxAmount: 0,
+        createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000)
+      }
+    }
+  ];
 
-  const csvSeed: CanonicalOrder = {
-    sourceSystem: 'legacy_csv',
-    sourceOrderId: 'REC-30911',
-    customerEmail: 'b2b-purchaser@industrial.corp',
-    items: [
-      { sku: 'STEEL-RIVET-100', quantity: 5, unitPrice: 8000, currency: 'USD' }
-    ],
-    totalAmount: 40000,
-    taxAmount: 0,
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-  };
-
-  const ediSeed: CanonicalOrder = {
-    sourceSystem: 'edi',
-    sourceOrderId: 'EDIPO-904128',
-    customerEmail: 'edi-partner@b2b.system',
-    items: [
-      { sku: 'BULK-PALLET-A', quantity: 3, unitPrice: 25000, currency: 'USD' },
-    ],
-    totalAmount: 75000,
-    taxAmount: 0,
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
-  };
-
-  postOrderToSimulatedLedger(shopifySeed, true); // True posts to Cash
-  postOrderToSimulatedLedger(csvSeed, false);   // False posts to Accounts Receivable (invoice terms)
-  postOrderToSimulatedLedger(ediSeed, false);   // B2B purchases go to A/R
+  ordersToSeed.forEach(({ order, cash }) => {
+    try {
+      postOrderToSimulatedLedger(order, cash);
+    } catch (e) {
+      // Ignore if order was already present
+    }
+  });
 
   // Save the newly seeded data structure to snapshot
   saveDatabaseToFile();
@@ -612,56 +707,36 @@ async function startServer() {
       console.error('Failed to read procurement state', e);
     }
 
-    // Default Seed Data
-    const defaultPOs = [
-      {
-        id: 'PO-2026-608',
-        entity: 'CloudboyX Americas LLC',
-        department: 'Operations & Engineering',
-        costCenter: 'CC-900',
-        vendorName: 'Apex Logistics Supply',
-        vendorEmail: 'billing@apexlogistics.com',
-        items: [
-          { id: 'i-1', sku: 'STEEL-RIVET-100', name: 'Industrial Grade Reinforced Steel Rivets', quantity: 500, unitPrice: 15 }, // $75.00
-          { id: 'i-2', sku: 'CAB-FBR-OP', name: 'Fiber Optic High-Speed Network Cabling (100m)', quantity: 15, unitPrice: 3200 } // $480.00
-        ],
-        totalAmount: 55500, // $555.00 in cents
-        status: 'PAID',
-        approvalChain: [
-          { role: 'Requestor (Engineer Julie)', approverEmail: 'julie@cloudboyx.net', status: 'APPROVED', comment: 'Network expansion materials', actionDate: '2026-06-15T09:00:00Z' },
-          { role: 'Department Chief (Head of Ops)', approverEmail: 'ops-boss@cloudboyx.net', status: 'APPROVED', comment: 'Approved. Essential infrastructure.', actionDate: '2026-06-15T10:15:00Z' },
-          { role: 'CFO (Financial Director)', approverEmail: 'clara-cfo@cloudboyx.net', status: 'APPROVED', comment: 'Verified budget availability.', actionDate: '2026-06-15T11:00:00Z' }
-        ],
-        currentApprovalLevel: 3,
-        createdAt: '2026-06-15T08:30:00Z',
-        updatedAt: '2026-06-15T11:30:00Z',
-        commitmentTxId: 'tx-po-commit-608',
-        matchingTxId: 'tx-po-gr-608',
-        paymentTxId: 'tx-po-pay-608'
-      },
-      {
-        id: 'PO-2026-724',
-        entity: 'CloudboyX Europe GmbH',
-        department: 'Research & Development',
-        costCenter: 'CC-801',
-        vendorName: 'München Lab Instruments',
-        vendorEmail: 'europe@munichlab.de',
-        items: [
-          { id: 'i-3', sku: 'LAB-PH-SENS', name: 'Precision pH Electrochemical Sensor probes', quantity: 4, unitPrice: 12500 } // $500.00
-        ],
-        totalAmount: 50000, // $500.00
-        status: 'COMMITTED',
-        approvalChain: [
-          { role: 'Requestor (Lab Tech)', approverEmail: 'tech-clara@cloudboyx.net', status: 'APPROVED', comment: 'pH probes calibration replenishment', actionDate: '2026-06-16T14:22:00Z' },
-          { role: 'Department Chief (Head of R&D)', approverEmail: 'rd-chief@cloudboyx.net', status: 'APPROVED', comment: 'Crucial for clinical test stream.', actionDate: '2026-06-16T15:10:00Z' },
-          { role: 'CFO (Financial Director)', approverEmail: 'clara-cfo@cloudboyx.net', status: 'PENDING', comment: '', actionDate: '' }
-        ],
-        currentApprovalLevel: 2,
-        createdAt: '2026-06-16T14:00:00Z',
-        updatedAt: '2026-06-16T15:10:00Z',
-        commitmentTxId: ''
-      }
-    ];
+    // Default Seed Data from master expanded dataset
+    const defaultPOs = Array.isArray(EXPANDED_PROCUREMENT_POS) && EXPANDED_PROCUREMENT_POS.length > 0 
+      ? EXPANDED_PROCUREMENT_POS 
+      : [
+          {
+            id: 'PO-2026-608',
+            entity: 'CloudboyX Americas LLC',
+            department: 'Operations & Engineering',
+            costCenter: 'CC-900',
+            vendorName: 'Apex Logistics Supply',
+            vendorEmail: 'billing@apexlogistics.com',
+            items: [
+              { id: 'i-1', sku: 'STEEL-RIVET-100', name: 'Industrial Grade Reinforced Steel Rivets', quantity: 500, unitPrice: 15 },
+              { id: 'i-2', sku: 'CAB-FBR-OP', name: 'Fiber Optic High-Speed Network Cabling (100m)', quantity: 15, unitPrice: 3200 }
+            ],
+            totalAmount: 55500,
+            status: 'PAID',
+            approvalChain: [
+              { role: 'Requestor (Engineer Julie)', approverEmail: 'julie@cloudboyx.net', status: 'APPROVED', comment: 'Network expansion materials', actionDate: '2026-06-15T09:00:00Z' },
+              { role: 'Department Chief (Head of Ops)', approverEmail: 'ops-boss@cloudboyx.net', status: 'APPROVED', comment: 'Approved. Essential infrastructure.', actionDate: '2026-06-15T10:15:00Z' },
+              { role: 'CFO (Financial Director)', approverEmail: 'clara-cfo@cloudboyx.net', status: 'APPROVED', comment: 'Verified budget availability.', actionDate: '2026-06-15T11:00:00Z' }
+            ],
+            currentApprovalLevel: 3,
+            createdAt: '2026-06-15T08:30:00Z',
+            updatedAt: '2026-06-15T11:30:00Z',
+            commitmentTxId: 'tx-po-commit-608',
+            matchingTxId: 'tx-po-gr-608',
+            paymentTxId: 'tx-po-pay-608'
+          }
+        ];
 
     try {
       fs.writeFileSync(PROCUREMENT_FILE_PATH, JSON.stringify(defaultPOs, null, 2), 'utf8');

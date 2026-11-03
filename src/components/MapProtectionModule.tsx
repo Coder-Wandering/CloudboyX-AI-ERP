@@ -19,7 +19,7 @@ import {
   AlertTriangle, Layers, LogOut, Upload, FileImage, Download, Volume2, VolumeX, FileText,
   Copy, Check, Mail, ExternalLink, UserPlus, Users, Clock, Filter, Bell, BellOff, Calendar, ChevronDown, Share,
   Menu, ChevronRight, Pin, Edit3, Trash2, Bookmark, CheckCircle2, MessageSquare, Info,
-  Edit2, Plus, ArrowLeft
+  Edit2, Plus, ArrowLeft, RefreshCw, Database
 } from "lucide-react";
 import { 
   auth, 
@@ -338,6 +338,55 @@ export default function MapProtectionModule({
   const [scans, setScans] = useState<ScanJob[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [feedError, setFeedError] = useState<string | null>(null);
+
+  // Environment Mode State ('test' Sandbox vs 'real' Live Production)
+  const [envMode, setEnvMode] = useState<'test' | 'real'>(() => {
+    return (localStorage.getItem("cloudboyx_env_mode") as 'test' | 'real') || 'test';
+  });
+  const [isResettingTest, setIsResettingTest] = useState(false);
+  const [resetBannerNotice, setResetBannerNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleEnvChange = (e: any) => {
+      const mode = e?.detail?.mode || localStorage.getItem("cloudboyx_env_mode") || "test";
+      setEnvMode(mode);
+      fetchData();
+    };
+    window.addEventListener("cloudboyx_env_changed", handleEnvChange);
+    return () => window.removeEventListener("cloudboyx_env_changed", handleEnvChange);
+  }, []);
+
+  const handleSwitchEnvMode = async (mode: 'test' | 'real') => {
+    try {
+      await fetch("/api/env/mode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode })
+      });
+      setEnvMode(mode);
+      localStorage.setItem("cloudboyx_env_mode", mode);
+      window.dispatchEvent(new CustomEvent("cloudboyx_env_changed", { detail: { mode } }));
+      fetchData();
+    } catch (e) {
+      console.error("Failed to switch environment mode:", e);
+    }
+  };
+
+  const handleResetTestEnvironment = async () => {
+    setIsResettingTest(true);
+    try {
+      const res = await fetch("/api/env/reset-test", { method: "POST" });
+      const data = await res.json();
+      setResetBannerNotice("Test dataset restored to pristine expanded master seed (20 SKUs, 12 channels).");
+      window.dispatchEvent(new CustomEvent("cloudboyx_env_changed", { detail: { mode: "test" } }));
+      await fetchData();
+      setTimeout(() => setResetBannerNotice(null), 4000);
+    } catch (e) {
+      console.error("Failed to reset test dataset:", e);
+    } finally {
+      setIsResettingTest(false);
+    }
+  };
 
   // Trendline Notes State & Models
   interface TrendNoteItem {
@@ -2531,13 +2580,14 @@ export default function MapProtectionModule({
     };
 
     try {
-      const [pData, ptData, scData, mdPolicies, notifData, mConfigData] = await Promise.all([
+      const [pData, ptData, scData, mdPolicies, notifData, mConfigData, envData] = await Promise.all([
         fetchSafeJson("/api/products", null),
         fetchSafeJson("/api/partners", null),
         fetchSafeJson("/api/scans", null),
         fetchSafeJson("/api/policies", null),
         fetchSafeJson("/api/notifications", null),
-        fetchSafeJson("/api/monitoring/config", null)
+        fetchSafeJson("/api/monitoring/config", null),
+        fetchSafeJson("/api/env/mode", null)
       ]);
 
       if (Array.isArray(pData)) setProducts(pData);
@@ -2546,6 +2596,10 @@ export default function MapProtectionModule({
       if (Array.isArray(mdPolicies)) setPolicies(mdPolicies);
       if (Array.isArray(notifData)) setNotifications(notifData);
       if (mConfigData) setMonitoringConfig(mConfigData);
+      if (envData?.mode && (envData.mode === "test" || envData.mode === "real")) {
+        setEnvMode(envData.mode);
+        localStorage.setItem("cloudboyx_env_mode", envData.mode);
+      }
 
       setFeedError(null);
     } catch (err: any) {
@@ -3339,6 +3393,91 @@ export default function MapProtectionModule({
 
         {/* Main Body */}
         <main className="p-3 sm:p-6 md:p-8 flex-1 overflow-y-auto w-full min-w-0 font-sans">
+          
+          {/* Environment Mode Banner (Test Sandbox vs Live Production) */}
+          {envMode === 'test' ? (
+            <div className="mb-6 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-950/70 via-slate-900 to-indigo-950/70 border border-emerald-500/40 text-xs font-mono shadow-md flex flex-col md:flex-row md:items-center justify-between gap-3 animate-fadeIn">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shrink-0">
+                  <Database className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="text-white font-bold text-sm tracking-tight font-sans">
+                      Test Sandbox Active
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      AI Studio Demo Dataset Retained
+                    </span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] mt-0.5">
+                    Loaded with 20 Enterprise SKUs, 12 Partner Channels &amp; continuous sweep history. Persists automatically across GitHub exports &amp; new server deploys.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                <button
+                  type="button"
+                  onClick={handleResetTestEnvironment}
+                  disabled={isResettingTest}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 font-bold transition cursor-pointer active:scale-95 flex items-center gap-1.5"
+                  title="Reset test data back to original 20 SKUs and 12 marketplaces"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isResettingTest ? 'animate-spin' : ''}`} />
+                  <span>{isResettingTest ? 'Restoring...' : '↺ Reset Test Data'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchEnvMode('real')}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold transition cursor-pointer active:scale-95"
+                >
+                  Switch to Live
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 via-slate-900 to-slate-950 border border-blue-500/40 text-xs font-mono shadow-md flex flex-col md:flex-row md:items-center justify-between gap-3 animate-fadeIn">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/40 shrink-0">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0" />
+                    <span className="text-white font-bold text-sm tracking-tight font-sans">
+                      Live Production Workspace Active
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                      Clean Corporate State
+                    </span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] mt-0.5">
+                    Production mode active with no demo mock data. Add your company's real SKUs and connect live merchant API integrations.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                <button
+                  type="button"
+                  onClick={() => handleSwitchEnvMode('test')}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition cursor-pointer active:scale-95 shadow-sm"
+                >
+                  Switch to Test Sandbox
+                </button>
+              </div>
+            </div>
+          )}
+
+          {resetBannerNotice && (
+            <div className="mb-4 p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2 animate-fadeIn">
+              <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{resetBannerNotice}</span>
+            </div>
+          )}
+
           {/* System Notification alerts */}
           {feedError && (
             <div className="p-4 mb-6 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
