@@ -42,6 +42,8 @@ import {
   ArrowRight,
   BookOpen,
   RotateCcw,
+  Database,
+  RefreshCw,
 } from 'lucide-react';
 import { BlockInstance, SiteTheme, SeoSettings, ViewportMode } from '../types';
 import { BLOCK_DEFINITIONS } from '../data/blockDefinitions';
@@ -106,6 +108,7 @@ export interface CommandPaletteProps {
   onCopyBlockStyle?: (block: BlockInstance) => void;
   onPasteBlockStyle?: (block: BlockInstance) => void;
   onCopyBlockJson?: (block: BlockInstance) => void;
+  onOpenCanonicalSync?: () => void;
 }
 
 interface PaletteItem {
@@ -180,6 +183,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onCopyBlockStyle,
   onPasteBlockStyle,
   onCopyBlockJson,
+  onOpenCanonicalSync,
 }) => {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CommandCategory>('all');
@@ -309,6 +313,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         badgeColor: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
         perform: () => {
           onShareProject();
+          onClose();
+        },
+      });
+    }
+
+    if (onOpenCanonicalSync) {
+      items.push({
+        id: 'action-sync-canonical-schema',
+        category: 'action',
+        title: 'Sync Canonical Schema with Universal Gateway',
+        subtitle: 'Pull latest CanonicalOrder schema definition from Gateway and update block parameters',
+        keywords: ['canonical schema', 'gateway sync', 'database', 'schema definition', 'parameters', 'types'],
+        icon: Database,
+        iconColor: 'text-cyan-400',
+        iconBg: isDark ? 'bg-cyan-950/60' : 'bg-cyan-50',
+        badge: 'Gateway',
+        badgeColor: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
+        perform: () => {
+          onOpenCanonicalSync();
           onClose();
         },
       });

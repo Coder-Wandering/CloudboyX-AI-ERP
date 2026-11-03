@@ -33,3 +33,23 @@ export interface RecentScanItem {
   isFavorite?: boolean; // Flag for frequently scanned order patterns
   favorite?: boolean;
 }
+
+export interface CanonicalFieldDefinition {
+  field: string;
+  type: 'string' | 'number' | 'date' | 'array' | 'enum' | 'boolean';
+  description: string;
+  example: string | number;
+  required: boolean;
+  unit?: string;
+  enumValues?: string[];
+  subFields?: Record<string, CanonicalFieldDefinition>;
+}
+
+export interface CanonicalSchemaDefinition {
+  version: string;
+  entity: string;
+  description: string;
+  sourceSystemsSupported: Array<'shopify' | 'legacy_csv' | 'edi' | 'manual' | 'ai_mapped'>;
+  fields: Record<string, CanonicalFieldDefinition>;
+  lastUpdated: string;
+}

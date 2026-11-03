@@ -3,9 +3,105 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CanonicalOrder, CanonicalLineItem } from './canonical';
+import { CanonicalOrder, CanonicalLineItem, CanonicalSchemaDefinition } from './canonical';
 
 export class UniversalGateway {
+  
+  // 0. Latest Canonical Schema Definition for Universal Gateway
+  static getCanonicalSchemaDefinition(): CanonicalSchemaDefinition {
+    return {
+      version: '2.5.0-canonical',
+      entity: 'CanonicalOrder',
+      description: 'Normalized universal order definition for multi-channel commerce, double-entry ERP posting, and visual template parameter binding',
+      lastUpdated: '2026-11-02T13:30:00.000Z',
+      sourceSystemsSupported: ['shopify', 'legacy_csv', 'edi', 'manual', 'ai_mapped'],
+      fields: {
+        sourceSystem: {
+          field: 'sourceSystem',
+          type: 'enum',
+          description: 'Origin ingestion channel adapter name',
+          example: 'shopify',
+          required: true,
+          enumValues: ['shopify', 'legacy_csv', 'edi', 'manual', 'ai_mapped'],
+        },
+        sourceOrderId: {
+          field: 'sourceOrderId',
+          type: 'string',
+          description: 'Unique external order/invoice identifier from originating source system',
+          example: 'SH-84920',
+          required: true,
+        },
+        customerEmail: {
+          field: 'customerEmail',
+          type: 'string',
+          description: 'Validated customer primary contact email address',
+          example: 'customer@store.com',
+          required: true,
+        },
+        totalAmount: {
+          field: 'totalAmount',
+          type: 'number',
+          unit: 'cents (USD)',
+          description: 'Grand total payable transaction amount in cents to eliminate floating-point rounding errors',
+          example: 17480,
+          required: true,
+        },
+        taxAmount: {
+          field: 'taxAmount',
+          type: 'number',
+          unit: 'cents (USD)',
+          description: 'Total calculated sales, VAT, or GST tax in cents',
+          example: 1490,
+          required: true,
+        },
+        createdAt: {
+          field: 'createdAt',
+          type: 'date',
+          description: 'Standardized ISO-8601 creation timestamp normalized across all channels',
+          example: '2026-06-25T11:20:00.000Z',
+          required: true,
+        },
+        items: {
+          field: 'items',
+          type: 'array',
+          description: 'Normalized line items breakdown array',
+          example: '2 line items',
+          required: true,
+          subFields: {
+            sku: {
+              field: 'sku',
+              type: 'string',
+              description: 'Stock Keeping Unit unique product code',
+              example: 'VNTG-TEE-BLK',
+              required: true,
+            },
+            quantity: {
+              field: 'quantity',
+              type: 'number',
+              description: 'Item unit purchase count',
+              example: 2,
+              required: true,
+            },
+            unitPrice: {
+              field: 'unitPrice',
+              type: 'number',
+              unit: 'cents (USD)',
+              description: 'Unit item price in cents',
+              example: 3500,
+              required: true,
+            },
+            currency: {
+              field: 'currency',
+              type: 'string',
+              description: 'ISO-4217 three-letter currency code',
+              example: 'USD',
+              required: true,
+            },
+          },
+        },
+      },
+    };
+  }
   
   // 1. Adapter for Modern Webhooks (e.g., Shopify)
   static fromShopifyWebhook(payload: any): CanonicalOrder {

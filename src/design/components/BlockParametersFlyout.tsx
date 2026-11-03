@@ -30,6 +30,8 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  Database,
+  RefreshCw,
 } from 'lucide-react';
 import {
   BlockInstance,
@@ -38,6 +40,11 @@ import {
   BlockStyleClipboardItem,
   STYLE_CLIPBOARD_STORAGE_KEY,
 } from '../types';
+import {
+  getStoredCanonicalSchema,
+  syncCanonicalSchemaWithGateway,
+  getAvailableCanonicalDataTokens,
+} from '../engine/canonicalSchemaSync';
 
 interface BlockParametersFlyoutProps {
   isOpen: boolean;
@@ -61,6 +68,7 @@ interface BlockParametersFlyoutProps {
     onAction?: () => void;
   }) => void;
   onSaveCustomCode?: (blockId: string, customHtml: string, customCss: string) => void;
+  onOpenCanonicalSync?: () => void;
 }
 
 const COLOR_SWATCHES = [
@@ -206,9 +214,49 @@ export const BlockParametersFlyout: React.FC<BlockParametersFlyoutProps> = ({
   theme,
   showToast,
   onSaveCustomCode,
+  onOpenCanonicalSync,
 }) => {
   const [bgTab, setBgTab] = useState<'color' | 'gradient' | 'image'>('color');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [canonicalSchema, setCanonicalSchema] = useState(() => getStoredCanonicalSchema());
+  const [isSyncingSchema, setIsSyncingSchema] = useState(false);
+  const [isCanonicalSectionOpen, setIsCanonicalSectionOpen] = useState(true);
+
+  const handleSyncGatewaySchema = async () => {
+    setIsSyncingSchema(true);
+    try {
+      const res = await syncCanonicalSchemaWithGateway();
+      setCanonicalSchema(res.schema);
+      if (showToast) {
+        showToast({
+          title: 'Gateway Schema Synced',
+          description: `Updated internal schema types to match Universal Gateway v${res.schema.version} (${res.fieldsCount} fields).`,
+        });
+      }
+    } catch (e: any) {
+      if (showToast) {
+        showToast({
+          title: 'Sync Error',
+          description: e.message || 'Failed to sync with Gateway.',
+        });
+      }
+    } finally {
+      setIsSyncingSchema(false);
+    }
+  };
+
+  const handleInsertCanonicalToken = (token: string, targetField: string = 'subtitle') => {
+    if (!block || !onUpdateContent) return;
+    const currentVal = block.content[targetField] || '';
+    const newVal = currentVal ? `${currentVal} ${token}` : token;
+    onUpdateContent(block.id, { [targetField]: newVal });
+    if (showToast) {
+      showToast({
+        title: 'Token Inserted',
+        description: `Bound ${token} into block ${targetField}.`,
+      });
+    }
+  };
 
   // Specialized Style Clipboard State (persists in localStorage)
   const [styleClipboard, setStyleClipboard] = useState<BlockStyleClipboardItem | null>(() => {
@@ -607,6 +655,110 @@ export const BlockParametersFlyout: React.FC<BlockParametersFlyoutProps> = ({
 
       {/* 2. SCROLLABLE PARAMETERS LIST */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 select-none text-xs">
+        {/* SECTION 0: CANONICAL SCHEMA & GATEWAY DATA BINDINGS */}
+        <div
+          className={`p-3.5 rounded-2xl border shadow-xs space-y-3 transition-colors ${
+            isDark ? 'bg-cyan-950/20 border-cyan-800/60' : 'bg-cyan-50/60 border-cyan-200'
+          }`}
+        >
+          <div className="flex items-center justify-between pb-1 border-b border-cyan-500/20">
+            <div className="flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="font-bold text-[11px] uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
+                Canonical Schema &amp; Gateway
+              </span>
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+                v{canonicalSchema.version}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsCanonicalSectionOpen((prev) => !prev)}
+              className="text-slate-400 hover:text-slate-200 p-0.5 cursor-pointer"
+            >
+              {isCanonicalSectionOpen ? (
+                <ChevronUp className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+
+          {isCanonicalSectionOpen && (
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] text-slate-400">
+                  Universal Gateway live schema definition:
+                </span>
+
+                {/* Automated Sync Button inside Flyout */}
+                <button
+                  type="button"
+                  id="flyout-sync-canonical-schema-btn"
+                  data-testid="flyout-sync-canonical-schema-btn"
+                  onClick={handleSyncGatewaySchema}
+                  disabled={isSyncingSchema}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1.5 transition cursor-pointer active:scale-95 border ${
+                    isSyncingSchema
+                      ? 'bg-cyan-500/30 text-cyan-300 border-cyan-400 cursor-wait'
+                      : isDark
+                      ? 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border-cyan-500/40'
+                      : 'bg-cyan-100 hover:bg-cyan-200 text-cyan-800 border-cyan-300'
+                  }`}
+                  title="Pull latest Canonical Schema definition from Universal Gateway"
+                >
+                  <RefreshCw className={`w-3 h-3 ${isSyncingSchema ? 'animate-spin' : ''}`} />
+                  <span>{isSyncingSchema ? 'Syncing...' : 'Sync Gateway'}</span>
+                </button>
+              </div>
+
+              {/* Quick-Bind Tokens List */}
+              <div className="space-y-1.5">
+                <div className="text-[10px] font-mono uppercase text-slate-400 font-semibold">
+                  Click to bind token to block content:
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { token: '{{order.sourceOrderId}}', label: 'Order ID' },
+                    { token: '{{order.customerEmail}}', label: 'Customer' },
+                    { token: '{{order.totalAmountFormatted}}', label: 'Total $' },
+                    { token: '{{order.taxAmountFormatted}}', label: 'Tax $' },
+                    { token: '{{order.items.length}}', label: 'Items #' },
+                    { token: '{{order.sourceSystem}}', label: 'Source' },
+                  ].map((item) => (
+                    <button
+                      key={item.token}
+                      type="button"
+                      onClick={() => handleInsertCanonicalToken(item.token, 'subtitle')}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-mono border transition flex items-center gap-1 cursor-pointer ${
+                        isDark
+                          ? 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-cyan-300 hover:text-white'
+                          : 'bg-white hover:bg-slate-100 border-slate-200 text-cyan-700'
+                      }`}
+                      title={`Insert ${item.token} into subtitle parameter`}
+                    >
+                      <span className="font-bold">{item.label}</span>
+                      <span className="text-[9px] text-slate-400 font-normal">{item.token}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {onOpenCanonicalSync && (
+                <button
+                  type="button"
+                  onClick={onOpenCanonicalSync}
+                  className="w-full py-1 text-center text-[10px] font-mono text-cyan-400 hover:underline flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>View Full Schema Field Tree &amp; Adapters</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* SECTION A: BLOCK ELEMENTS / TOGGLE SWITCHES (Mobirise Signature Feature) */}
         <div
           className={`p-3.5 rounded-2xl border shadow-xs space-y-3 ${

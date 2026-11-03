@@ -286,9 +286,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-md shadow-slate-900/20 border border-slate-800">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
-            </div>
+            <img
+              src="/assets/cloudboyx_logo_header.png"
+              alt="CloudboyX"
+              className="h-10 w-auto max-w-[140px] object-contain rounded-lg shadow-xs shrink-0 select-none"
+            />
             <div>
               <div className="flex items-center gap-1.5">
                 <span

@@ -22,7 +22,7 @@ export const CloudboyXLogo: React.FC<CloudboyXLogoProps> = ({
       {/* Official CloudboyX Logo (New Cloud & 3D 'X' Mark) - replaces the previous blue square */}
       <div className="shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
         <img
-          src="/assets/aistudio/4000cb__1__92a1d8de.png"
+          src="/assets/cloudboyx_logo_header.png"
           alt="CloudboyX Logo"
           className="h-9 sm:h-10 md:h-11 w-auto max-w-[130px] object-contain rounded-lg shadow-xs"
           style={{ height: size ? Math.max(size, 34) : 40 }}

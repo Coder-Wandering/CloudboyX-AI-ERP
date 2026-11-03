@@ -61,7 +61,7 @@ const DEFAULT_WHITE_LABEL: WhiteLabelConfig = {
   brandName: "CloudboyX",
   slogan: "You dream it, we deliver it.",
   iconType: "cloudboy",
-  logoUrl: "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?auto=format&fit=crop&w=120&q=80",
+  logoUrl: "/assets/cloudboyx_logo_header.png",
   supportEmail: "support@cloudboy.io",
   supportUrl: "https://support.mapshield.io/rules-and-regulations",
   supportPhone: "+1 (800) 901-2099",

@@ -205,4 +205,21 @@ describe('Canonical Schema Normalization Logic', () => {
       }).toThrow();
     });
   });
+
+  describe('UniversalGateway.getCanonicalSchemaDefinition & Sync', () => {
+    it('should return authoritative CanonicalSchemaDefinition v2.5.0-canonical', () => {
+      const schema = UniversalGateway.getCanonicalSchemaDefinition();
+      expect(schema.version).toBe('2.5.0-canonical');
+      expect(schema.entity).toBe('CanonicalOrder');
+      expect(schema.sourceSystemsSupported).toContain('shopify');
+      expect(schema.sourceSystemsSupported).toContain('legacy_csv');
+      expect(schema.sourceSystemsSupported).toContain('edi');
+      expect(schema.fields).toHaveProperty('sourceOrderId');
+      expect(schema.fields).toHaveProperty('totalAmount');
+      expect(schema.fields.totalAmount.unit).toBe('cents (USD)');
+      expect(schema.fields).toHaveProperty('items');
+      expect(schema.fields.items.subFields).toHaveProperty('sku');
+    });
+  });
 });
+

@@ -33,6 +33,8 @@ import {
   Maximize2,
   Minimize2,
   RotateCcw,
+  Database,
+  RefreshCw,
 } from 'lucide-react';
 import { ViewportMode, BlockInstance } from '../types';
 import { Breakpoint, BREAKPOINT_LABELS, BREAKPOINT_ORDER } from '../engine/bootstrapCascade';
@@ -82,6 +84,9 @@ interface EditorHeaderProps {
   zoomScale?: number;
   onQuickReset?: () => void;
   initialTemplateName?: string;
+  onOpenCanonicalSync?: () => void;
+  isSchemaSyncing?: boolean;
+  onSyncCanonicalSchema?: () => void;
 }
 
 function formatHeaderSaveTime(timestamp: number, currentNow: number): string {
@@ -155,6 +160,9 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   zoomScale = 1,
   onQuickReset,
   initialTemplateName = 'Starter Template',
+  onOpenCanonicalSync,
+  isSchemaSyncing = false,
+  onSyncCanonicalSchema,
 }) => {
   const { user, isDemoUnlocked, activeRole, permissions, agencyBranding, logOut } = useAuth();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -253,15 +261,14 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
               <img
                 src={agencyBranding.agencyLogoUrl}
                 alt={agencyBranding.agencyName}
-                className="h-6 max-w-[90px] object-contain"
+                className="h-6 max-w-[90px] object-contain rounded"
               />
             ) : (
-              <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-white font-black text-xs tracking-tighter shadow-2xs shrink-0"
-                style={{ backgroundColor: agencyBranding.primaryBrandColor || '#2222FF' }}
-              >
-                {agencyBranding.agencyName.charAt(0) || 'C'}
-              </div>
+              <img
+                src="/assets/cloudboyx_logo_header.png"
+                alt={agencyBranding.agencyName || 'CloudboyX'}
+                className="h-6 w-auto max-w-[90px] object-contain rounded shrink-0"
+              />
             )}
             <span className="font-bold text-xs tracking-tight hidden sm:inline truncate max-w-[120px]">
               {agencyBranding.agencyName || 'CloudboyX'}
@@ -277,12 +284,19 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                   : 'bg-white border-slate-200 text-slate-800'
               }`}
             >
-              <div className="px-2.5 py-1.5 border-b border-slate-200/60 dark:border-slate-800 mb-1">
-                <div className="text-xs font-bold truncate">
-                  {agencyBranding.agencyName || 'CloudboyX Studio'}
-                </div>
-                <div className="text-[11px] text-slate-400">
-                  Bootstrap 5.3 Visual Workspace
+              <div className="px-2.5 py-2 border-b border-slate-200/60 dark:border-slate-800 mb-1 flex items-center gap-2.5">
+                <img
+                  src={agencyBranding.agencyLogoUrl || '/assets/cloudboyx_logo_header.png'}
+                  alt="CloudboyX Logo"
+                  className="h-7 w-auto max-w-[70px] object-contain rounded shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold truncate">
+                    {agencyBranding.agencyName || 'CloudboyX Studio'}
+                  </div>
+                  <div className="text-[11px] text-slate-400">
+                    Bootstrap 5.3 Visual Workspace
+                  </div>
                 </div>
               </div>
 
@@ -538,6 +552,32 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             >
               <History className="w-3.5 h-3.5 text-blue-500" />
               <span>History</span>
+            </button>
+          )}
+
+          {/* Automated Canonical Schema Sync Button */}
+          {(onOpenCanonicalSync || onSyncCanonicalSchema) && (
+            <button
+              type="button"
+              id="btn-sync-canonical-schema"
+              data-testid="btn-sync-canonical-schema"
+              onClick={onSyncCanonicalSchema || onOpenCanonicalSync}
+              disabled={isSchemaSyncing}
+              className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold border transition cursor-pointer select-none active:scale-95 ${
+                isSchemaSyncing
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 cursor-wait'
+                  : isDark
+                  ? 'bg-slate-900/80 hover:bg-slate-800 text-cyan-300 hover:text-white border-slate-800 hover:border-cyan-500/50 shadow-2xs'
+                  : 'bg-white hover:bg-cyan-50 text-cyan-700 hover:text-cyan-900 border-slate-200 shadow-2xs hover:border-cyan-300'
+              }`}
+              title="Automated Sync: Pull latest Canonical Schema definition from Universal Gateway and update block parameters"
+              aria-label="Automated Sync with Universal Gateway Canonical Schema"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isSchemaSyncing ? 'animate-spin' : ''}`} />
+              <span className="hidden xl:inline">Sync Schema</span>
+              <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+                Gateway
+              </span>
             </button>
           )}
 

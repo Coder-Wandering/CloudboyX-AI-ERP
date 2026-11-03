@@ -53,6 +53,14 @@ import {
 } from './utils/revisionHistory';
 import { ProjectRevision } from './types';
 import { ClipboardList, X } from 'lucide-react';
+import { ChromeSectionDivider } from './components/ChromeSectionDivider';
+import { CanonicalSchemaSyncModal } from './components/CanonicalSchemaSyncModal';
+import {
+  getStoredCanonicalSchema,
+  syncCanonicalSchemaWithGateway,
+  getLastCanonicalSyncTime,
+} from './engine/canonicalSchemaSync';
+import { CanonicalSchemaDefinition } from '../canonical';
 
 const STORAGE_KEY = 'bootstrap5_visual_editor_project';
 
@@ -368,6 +376,16 @@ export default function App({
     }
   });
 
+  // Canonical Schema Synchronization State from Universal Gateway
+  const [canonicalSchema, setCanonicalSchema] = useState<CanonicalSchemaDefinition>(() =>
+    getStoredCanonicalSchema()
+  );
+  const [isSchemaSyncing, setIsSchemaSyncing] = useState<boolean>(false);
+  const [isCanonicalSyncModalOpen, setIsCanonicalSyncModalOpen] = useState<boolean>(false);
+  const [lastCanonicalSyncTime, setLastCanonicalSyncTime] = useState<string | null>(() =>
+    getLastCanonicalSyncTime()
+  );
+
   // Listen for global and custom event triggers to open the Template Gallery
   useEffect(() => {
     const handleOpenGallery = () => setIsTemplateGalleryOpen(true);
@@ -585,6 +603,47 @@ export default function App({
       description: `Choose a component from the library to insert at slot #${index + 1}.`,
     });
   }, [showToast]);
+
+  // Automated Canonical Schema Synchronization from Gateway
+  const handleAutomatedCanonicalSync = useCallback(async () => {
+    setIsSchemaSyncing(true);
+    try {
+      const result = await syncCanonicalSchemaWithGateway();
+      setCanonicalSchema(result.schema);
+      setLastCanonicalSyncTime(result.syncedAt);
+      showToast({
+        title: 'Gateway Schema Synced',
+        description: `Automated sync updated ${result.fieldsCount} Canonical Schema attributes to v${result.schema.version}. Block parameters are now aligned with live Gateway types.`,
+      });
+    } catch (err: any) {
+      showToast({
+        title: 'Schema Sync Failed',
+        description: err.message || 'Could not pull Canonical Schema from Gateway.',
+      });
+    } finally {
+      setIsSchemaSyncing(false);
+    }
+  }, [showToast]);
+
+  const handleApplyCanonicalBindings = useCallback((blockId: string, bindings: Record<string, string>) => {
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === blockId
+          ? {
+              ...b,
+              content: {
+                ...b.content,
+                ...bindings,
+                _schemaBindings: {
+                  ...((b.content as any)._schemaBindings || {}),
+                  ...bindings,
+                },
+              },
+            }
+          : b
+      )
+    );
+  }, []);
 
   // Restore shared project from URL hash if present
   useEffect(() => {
@@ -1810,6 +1869,19 @@ export default function App({
         zoomScale={zoomScale}
         lastModified={lastModified}
         isSaving={isSaving}
+        onOpenCanonicalSync={() => setIsCanonicalSyncModalOpen(true)}
+        isSchemaSyncing={isSchemaSyncing}
+        onSyncCanonicalSchema={handleAutomatedCanonicalSync}
+      />
+
+      {/* Responsive Section Divider between Top Header Controls and Breadcrumb Navigation Bar */}
+      <ChromeSectionDivider
+        themeMode={themeMode}
+        activeBreakpoint={activeBreakpoint}
+        isSchemaSyncing={isSchemaSyncing}
+        lastSyncTime={lastCanonicalSyncTime}
+        onSyncSchema={handleAutomatedCanonicalSync}
+        schemaVersion={canonicalSchema.version}
       />
 
       {/* Breadcrumb Navigation Bar below Header */}
@@ -1988,6 +2060,7 @@ export default function App({
         theme={theme}
         showToast={showToast}
         onSaveCustomCode={handleSaveBlockCustomCode}
+        onOpenCanonicalSync={() => setIsCanonicalSyncModalOpen(true)}
       />
 
       {/* CloudboyX Connected Custom Modules Modal */}
@@ -2185,6 +2258,22 @@ export default function App({
         onCopyBlockStyle={handleCopyBlockStyle}
         onPasteBlockStyle={handlePasteBlockStyle}
         onCopyBlockJson={handleCopyBlockJson}
+        onOpenCanonicalSync={() => setIsCanonicalSyncModalOpen(true)}
+      />
+
+      {/* Canonical Schema Synchronization Modal from Universal Gateway */}
+      <CanonicalSchemaSyncModal
+        isOpen={isCanonicalSyncModalOpen}
+        onClose={() => setIsCanonicalSyncModalOpen(false)}
+        currentSchema={canonicalSchema}
+        onSchemaUpdated={(newSchema) => {
+          setCanonicalSchema(newSchema);
+          setLastCanonicalSyncTime(new Date().toISOString());
+        }}
+        themeMode={themeMode}
+        selectedBlock={blocks.find((b) => b.id === (parametersBlockId || selectedBlockId)) || null}
+        onApplyBindingsToBlock={handleApplyCanonicalBindings}
+        showToast={showToast}
       />
 
       {/* Floating Clipboard / Action Toast Notification */}
