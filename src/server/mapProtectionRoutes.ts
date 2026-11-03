@@ -2,6 +2,15 @@ import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 import express from "express";
 import path from "path";
 import dns from "dns";
+import fs from "fs";
+import { 
+  EXPANDED_PRODUCTS, 
+  EXPANDED_POLICIES, 
+  EXPANDED_PARTNERS, 
+  EXPANDED_SCANS, 
+  EXPANDED_AUDIT_LOGS, 
+  EXPANDED_NOTIFICATIONS 
+} from "../data/expandedSeedData";
 
 // Fix Node dns issues with localhost occasionally
 dns.setDefaultResultOrder('ipv4first');
@@ -133,273 +142,105 @@ async function generateContentWithRetry(params: any, maxAttempts = 3, initialDel
 
 
 
-// In-memory data store for products
-let products = [
-  { id: "1", name: "Apex Pro Mechanical Keyboard", sku: "APEX-PRO-MK1", mapPrice: 199.99, mapThresholdPercent: 85, customMapThresholdPercent: 85, description: "Professional mechanical keyboard with magnetic switches.", imageUrl: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=300&auto=format&fit=crop&q=80" },
-  { id: "2", name: "SoundWave Active ANC Headphones", sku: "SW-ANC-70", mapPrice: 299.99, mapThresholdPercent: 80, customMapThresholdPercent: 80, description: "High-end active noise cancelling headphones.", imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&auto=format&fit=crop&q=80" },
-  { id: "3", name: "ProFocus 4K Ultra Webcam", sku: "PF-4K-WEB", mapPrice: 149.99, mapThresholdPercent: 90, customMapThresholdPercent: 90, description: "Professional 4K streaming and business webcam.", imageUrl: "https://images.unsplash.com/photo-1588702547919-26089e690ecd?w=300&auto=format&fit=crop&q=80" },
-  { id: "4", name: "QuantumGlide Pro Gaming Mouse", sku: "QG-PRO-MS", mapPrice: 89.99, mapThresholdPercent: 75, customMapThresholdPercent: 75, description: "Ultra-lightweight wireless gaming mouse with 24k DPI.", imageUrl: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=300&auto=format&fit=crop&q=80" },
-  { id: "5", name: "AeroForm Ergonomic Seat Cushion", sku: "AF-ERGO-PAD", mapPrice: 49.99, mapThresholdPercent: 80, customMapThresholdPercent: 80, description: "Memory foam ergonomic cushion for work chairs.", imageUrl: "https://images.unsplash.com/photo-1580481072645-022f9a6d1270?w=300&auto=format&fit=crop&q=80" }
-];
+// Persistent file paths for dual environment modes (retained across GitHub exports and new server deployments)
+const MAP_TEST_STATE_FILE = path.join(process.cwd(), "map_state.json");
+const MAP_REAL_STATE_FILE = path.join(process.cwd(), "map_real_state.json");
+const ENV_MODE_FILE = path.join(process.cwd(), "env_mode.json");
 
-// In-memory MAP Policies list
-let mapPolicies = [
-  { id: "pol-1", name: "Standard Strict MAP Clause", description: "Zero advertised discounts allowed below product's specific MAP threshold.", allowedDiscountPercent: 0 },
-  { id: "pol-2", name: "Tier-1 Partner 5% Allowance", description: "Permits up to a 5% promotional buffer for top-tier retail partners.", allowedDiscountPercent: 5 },
-  { id: "pol-3", name: "Seasonal Black Friday 15% Co-op", description: "Seasonal clearance window allowing up to 15% markdown buffer.", allowedDiscountPercent: 15 },
-  { id: "pol-4", name: "Restricted SKU Regulation", description: "Absolute zero-tolerance protection; violating leads to instant automatic distribution freeze.", allowedDiscountPercent: 0 }
-];
-
-// In-memory partners
-let partners: any[] = [
-  { 
-    id: "p1", 
-    name: "TechDelight Electronics", 
-    domain: "bestbuy.com", 
-    contactEmail: "compliance@techdelight.com",
-    contactPerson: "Sarah Jenkins",
-    contactPhone: "+1 (555) 234-5678",
-    associatedPolicies: ["pol-1"],
-    associatedProducts: ["1", "2", "3"],
-    complianceStatus: "compliant",
-    onboardingDate: "2026-03-12T10:00:00.000Z",
-    notes: "A major electronics retailer compliant with our standard core catalog policies.",
-    mapThresholdPercent: 0,
-    riskSensitivity: "critical"
-  },
-  { 
-    id: "p2", 
-    name: "GizmoMart Online", 
-    domain: "amazon.com", 
-    contactEmail: "partner-relations@gizmomart.com",
-    contactPerson: "David Miller",
-    contactPhone: "+1 (555) 876-5432",
-    associatedPolicies: ["pol-2"],
-    associatedProducts: ["1", "3", "4"],
-    complianceStatus: "violating",
-    onboardingDate: "2026-04-05T14:30:00.000Z",
-    notes: "Frequently triggers low automated pricing due to backend repricing scrapers.",
-    mapThresholdPercent: 5,
-    riskSensitivity: "medium"
-  },
-  { 
-    id: "p3", 
-    name: "NewEgg Partner World", 
-    domain: "walmart.com", 
-    contactEmail: "merchant@walmart-partner.com",
-    contactPerson: "Amanda Ross",
-    contactPhone: "+1 (555) 345-6789",
-    associatedPolicies: ["pol-1", "pol-3"],
-    associatedProducts: ["2", "5"],
-    complianceStatus: "compliant",
-    onboardingDate: "2026-05-18T09:15:00.000Z",
-    notes: "Associated with the seasonal holiday promotion pricing policies.",
-    mapThresholdPercent: 10,
-    riskSensitivity: "low"
-  },
-  { 
-    id: "p4", 
-    name: "PixelPerfect Supplies", 
-    domain: "target.com", 
-    contactEmail: "procurement@pixelperfect.com",
-    contactPerson: "Robert Chen",
-    contactPhone: "+1 (555) 456-7890",
-    associatedPolicies: ["pol-4"],
-    associatedProducts: ["1", "4"],
-    complianceStatus: "pending",
-    onboardingDate: "2026-06-01T11:00:00.000Z",
-    notes: "Strictly limited to Apex Pro series with restricted SKU policies.",
-    mapThresholdPercent: 2,
-    riskSensitivity: "high"
-  },
-  { 
-    id: "p5", 
-    name: "DiscountDepot Shop", 
-    domain: "ebay.com", 
-    contactEmail: "compliance@discountdepot.com",
-    contactPerson: "Marcus Vance",
-    contactPhone: "+1 (555) 567-8901",
-    associatedPolicies: ["pol-2"],
-    associatedProducts: ["1", "2", "3", "4", "5"],
-    complianceStatus: "warning",
-    onboardingDate: "2026-06-15T16:45:00.000Z",
-    notes: "Unregulated third-party marketplace seller, currently monitored for multi-sku leak vectors.",
-    mapThresholdPercent: 5,
-    riskSensitivity: "medium"
+let activeEnvMode: "test" | "real" = "test";
+try {
+  if (fs.existsSync(ENV_MODE_FILE)) {
+    const raw = fs.readFileSync(ENV_MODE_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed.mode === "real" || parsed.mode === "test") {
+      activeEnvMode = parsed.mode;
+    }
   }
-];
+} catch (e) {
+  console.warn("Could not read env_mode.json, defaulting to test sandbox mode");
+}
 
-// In-memory historic scans
-let scanHistory: any[] = [
-  {
-    id: "scan-mock-1",
-    productId: "1",
-    productName: "Apex Pro Mechanical Keyboard",
-    mapPrice: 199.99,
-    status: "completed",
-    startedAt: new Date(Date.now() - 3600000 * 24).toISOString(), // 24 hours ago
-    finishedAt: new Date(Date.now() - 3600000 * 23.9).toISOString(),
-    items: [
-      { id: "item-1", partnerId: "p1", partnerName: "TechDelight Electronics", partnerDomain: "bestbuy.com", detectedPrice: 199.99, detectedUrl: "https://www.bestbuy.com/apex-pro-keyboard", snippet: "Buy Apex Pro Mechanical Keyboard now for only $199.99 with free delivery.", status: "compliant" },
-      { id: "item-2", partnerId: "p2", partnerName: "GizmoMart Online", partnerDomain: "amazon.com", detectedPrice: 179.99, detectedUrl: "https://www.amazon.com/apex-pro-keyboard", snippet: "APEX-PRO-MK1 professional keyboard, sale price: $179.99. In Stock.", status: "violating" },
-      { id: "item-3", partnerId: "p3", partnerName: "NewEgg Partner World", partnerDomain: "walmart.com", detectedPrice: 199.99, detectedUrl: "https://www.walmart.com/apex-pro-mk1", snippet: "In stock. Price is $199.99.", status: "compliant" },
-      { id: "item-4", partnerId: "p4", partnerName: "PixelPerfect Supplies", partnerDomain: "target.com", detectedPrice: null, detectedUrl: null, snippet: null, status: "not_found" }
-    ]
-  },
-  {
-    id: "scan-mock-1-old",
-    productId: "1",
-    productName: "Apex Pro Mechanical Keyboard",
-    mapPrice: 199.99,
-    status: "completed",
-    startedAt: new Date(Date.now() - 3600000 * 48).toISOString(), // 48 hours ago
-    finishedAt: new Date(Date.now() - 3600000 * 47.9).toISOString(),
-    items: [
-      { id: "item-1-old", partnerId: "p1", partnerName: "TechDelight Electronics", partnerDomain: "bestbuy.com", detectedPrice: 199.99, detectedUrl: "https://www.bestbuy.com/apex-pro-keyboard", snippet: "Buy Apex Pro Mechanical Keyboard now for only $199.99 with free delivery.", status: "compliant" },
-      { id: "item-2-old", partnerId: "p2", partnerName: "GizmoMart Online", partnerDomain: "amazon.com", detectedPrice: 169.99, detectedUrl: "https://www.amazon.com/apex-pro-keyboard", snippet: "Apex Pro is available now for $169.99 special discount online.", status: "violating" }
-    ]
-  },
-  {
-    id: "scan-mock-2",
-    productId: "3",
-    productName: "ProFocus 4K Ultra Webcam",
-    mapPrice: 149.99,
-    status: "completed",
-    startedAt: new Date(Date.now() - 3600000 * 4).toISOString(), // 4 hours ago
-    finishedAt: new Date(Date.now() - 3600000 * 3.9).toISOString(),
-    items: [
-      { id: "item-5", partnerId: "p1", partnerName: "TechDelight Electronics", partnerDomain: "bestbuy.com", detectedPrice: 149.99, detectedUrl: "https://www.bestbuy.com/profocus-4k", snippet: "ProFocus 4K on sale. List: $149.99.", status: "compliant" },
-      { id: "item-6", partnerId: "p2", partnerName: "GizmoMart Online", partnerDomain: "amazon.com", detectedPrice: 139.99, detectedUrl: "https://www.amazon.com/profocus-4k-webcam", snippet: "New ProFocus 4K Ultra Webcam. Special: 139.99.", status: "violating" }
-    ]
-  }
-];
+// In-memory data stores for Test Sandbox (retained expanded AI Studio dataset)
+let products: any[] = [...EXPANDED_PRODUCTS];
+let mapPolicies: any[] = [...EXPANDED_POLICIES];
+let partners: any[] = [...EXPANDED_PARTNERS];
+let scanHistory: any[] = [...EXPANDED_SCANS];
+let auditLogs: any[] = [...EXPANDED_AUDIT_LOGS];
+let notifications: any[] = [...EXPANDED_NOTIFICATIONS];
 
-// In-memory audit logs store
-let auditLogs: any[] = [
-  {
-    id: "log-seed-1",
-    productId: "1",
-    sku: "APEX-PRO-MK1",
-    type: "compliance_update",
-    message: "Compliance scan completed: 1 price violation flagged on amazon.com (Lowest price found: $179.99).",
-    timestamp: new Date(Date.now() - 3600000 * 23.9).toISOString(),
-    details: "bestbuy.com (compliant), amazon.com (violating), walmart.com (compliant), target.com (not_found)",
-    user: "Automated Protection Engine"
-  },
-  {
-    id: "log-seed-2",
-    productId: "1",
-    sku: "APEX-PRO-MK1",
-    type: "price_change",
-    message: "MAP Threshold updated from $189.99 to $199.99.",
-    timestamp: new Date(Date.now() - 3600000 * 36).toISOString(),
-    oldPrice: 189.99,
-    newPrice: 199.99,
-    user: "System Operations Admin"
-  },
-  {
-    id: "log-seed-3",
-    productId: "1",
-    sku: "APEX-PRO-MK1",
-    type: "registry",
-    message: "SKU registered with initial MAP threshold $189.99.",
-    timestamp: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
-    user: "System Operations Admin"
-  },
-  {
-    id: "log-seed-4",
-    productId: "2",
-    sku: "SW-ANC-70",
-    type: "compliance_update",
-    message: "Compliance scan completed: SKU is 100% compliant across all partner sites.",
-    timestamp: new Date(Date.now() - 3600000 * 48).toISOString(),
-    details: "All monitored partner channels listing at or above $299.99",
-    user: "Automated Protection Engine"
-  },
-  {
-    id: "log-seed-5",
-    productId: "2",
-    sku: "SW-ANC-70",
-    type: "registry",
-    message: "SKU registered with initial MAP threshold $299.99.",
-    timestamp: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
-    user: "System Operations Admin"
-  },
-  {
-    id: "log-seed-6",
-    productId: "3",
-    sku: "PF-4K-WEB",
-    type: "compliance_update",
-    message: "Compliance scan completed: 1 price violation flagged on amazon.com (Lowest price found: $139.99).",
-    timestamp: new Date(Date.now() - 3600000 * 3.9).toISOString(),
-    details: "bestbuy.com (compliant), amazon.com (violating)",
-    user: "Automated Protection Engine"
-  },
-  {
-    id: "log-seed-7",
-    productId: "3",
-    sku: "PF-4K-WEB",
-    type: "registry",
-    message: "SKU registered with initial MAP threshold $149.99.",
-    timestamp: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
-    user: "System Operations Admin"
-  },
-  {
-    id: "log-seed-8",
-    productId: "4",
-    sku: "QG-PRO-MS",
-    type: "registry",
-    message: "SKU registered with initial MAP threshold $89.99.",
-    timestamp: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-    user: "System Operations Admin"
-  },
-  {
-    id: "log-seed-9",
-    productId: "5",
-    sku: "AF-ERGO-PAD",
-    type: "registry",
-    message: "SKU registered with initial MAP threshold $49.99.",
-    user: "System Operations Admin"
-  }
-];
+// In-memory data stores for Real / Production Mode (clean corporate slate)
+let realProducts: any[] = [];
+let realMapPolicies: any[] = [...EXPANDED_POLICIES];
+let realPartners: any[] = [];
+let realScanHistory: any[] = [];
+let realAuditLogs: any[] = [];
+let realNotifications: any[] = [];
 
-// In-memory notifications log store for continuous MAP monitoring and alerts
-let notifications: any[] = [
-  {
-    id: "notif-seed-1",
-    productId: "1",
-    productName: "Apex Pro Mechanical Keyboard",
-    sku: "APEX-PRO-MK1",
-    partnerId: "p2",
-    partnerName: "GizmoMart Online",
-    partnerDomain: "amazon.com",
-    mapPrice: 199.99,
-    detectedPrice: 179.99,
-    sentAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-    recipientEmail: "partner-relations@gizmomart.com",
-    recipientType: "partner",
-    subject: "URGENT: Minimum Advertised Price (MAP) Violation Notice - APEX-PRO-MK1",
-    body: "Dear Store Operations Team,\n\nThis formal communication serves as an official notice that your current advertised pricing for Apex Pro Mechanical Keyboard is in direct breach of our established Minimum Advertised Price (MAP) Program.\n\n* Monitored Channel: GizmoMart Online (amazon.com)\n* Monitored URL: https://www.amazon.com/apex-pro-keyboard\n* Detected Price: $179.99\n* Established MAP Limit: $199.99\n* Discrepancy Amount: -$20.00\n\nRequired Curative Action:\nYou are required to adjust your public advertised pricing on this listing within twenty-four (24) business hours to avoid distribution suspension.",
-    status: "delivered"
-  },
-  {
-    id: "notif-seed-2",
-    productId: "1",
-    productName: "Apex Pro Mechanical Keyboard",
-    sku: "APEX-PRO-MK1",
-    partnerId: "p2",
-    partnerName: "GizmoMart Online",
-    partnerDomain: "amazon.com",
-    mapPrice: 199.99,
-    detectedPrice: 179.99,
-    sentAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-    recipientEmail: "compliance@mapshield.com",
-    recipientType: "admin",
-    subject: "CRITICAL ALERT: MAP Compliance Breach Flagged",
-    body: "Continuous e-commerce scanner has detected a MAP pricing breach on amazon.com for product Apex Pro Mechanical Keyboard.\n\n* Reseller: GizmoMart Online\n* Price Detected: $179.99\n* MAP Policy Limit: $199.99\n\nEnforcement Action: An automated Cease & Desist warning letter was dispatched to partner-relations@gizmomart.com with a 24-hour curative window. Compliance score downgraded.",
-    status: "delivered"
+// Save active state to disk so exports to GitHub retain all data
+export function saveMapStateToFile() {
+  try {
+    const testState = {
+      activeMode: "test",
+      products,
+      policies: mapPolicies,
+      partners,
+      scans: scanHistory,
+      auditLogs,
+      notifications
+    };
+    fs.writeFileSync(MAP_TEST_STATE_FILE, JSON.stringify(testState, null, 2), "utf8");
+
+    const realState = {
+      activeMode: "real",
+      products: realProducts,
+      policies: realMapPolicies,
+      partners: realPartners,
+      scans: realScanHistory,
+      auditLogs: realAuditLogs,
+      notifications: realNotifications
+    };
+    fs.writeFileSync(MAP_REAL_STATE_FILE, JSON.stringify(realState, null, 2), "utf8");
+  } catch (err) {
+    console.error("Failed to write map state to disk:", err);
   }
-];
+}
+
+// Load state from disk on startup
+export function loadMapStateFromFile() {
+  try {
+    if (fs.existsSync(MAP_TEST_STATE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(MAP_TEST_STATE_FILE, "utf8"));
+      if (Array.isArray(data.products) && data.products.length > 0) products = data.products;
+      if (Array.isArray(data.policies) && data.policies.length > 0) mapPolicies = data.policies;
+      if (Array.isArray(data.partners) && data.partners.length > 0) partners = data.partners;
+      if (Array.isArray(data.scans) && data.scans.length > 0) scanHistory = data.scans;
+      if (Array.isArray(data.auditLogs) && data.auditLogs.length > 0) auditLogs = data.auditLogs;
+      if (Array.isArray(data.notifications) && data.notifications.length > 0) notifications = data.notifications;
+      console.log(`✓ Restored MAP Test Sandbox data from disk: ${products.length} products, ${partners.length} partners, ${scanHistory.length} scans.`);
+    } else {
+      // First boot on a new machine: populate with full expanded seed data and write to disk
+      saveMapStateToFile();
+      console.log("✓ Hydrated expanded seed data into map_state.json for GitHub export retention.");
+    }
+
+    if (fs.existsSync(MAP_REAL_STATE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(MAP_REAL_STATE_FILE, "utf8"));
+      if (Array.isArray(data.products)) realProducts = data.products;
+      if (Array.isArray(data.policies)) realMapPolicies = data.policies;
+      if (Array.isArray(data.partners)) realPartners = data.partners;
+      if (Array.isArray(data.scans)) realScanHistory = data.scans;
+      if (Array.isArray(data.auditLogs)) realAuditLogs = data.auditLogs;
+      if (Array.isArray(data.notifications)) realNotifications = data.notifications;
+    } else {
+      saveMapStateToFile();
+    }
+  } catch (err) {
+    console.error("Error loading map state from disk:", err);
+  }
+}
+
+// Initialize on boot
+loadMapStateFromFile();
 
 // Configuration and state for the continuous background monitoring daemon
 let monitoringConfig = {
@@ -547,19 +388,92 @@ function performSweepAndGenerateAlerts() {
 
 
 export function registerMapProtectionRoutes(app: express.Application) {
-app.get("/api/products", (req, res) => {
-  res.json(products);
-});
+  // Helper to resolve current environment mode (test sandbox vs real production)
+  function getMode(req: express.Request): "test" | "real" {
+    const headerMode = req.headers["x-environment-mode"] as string;
+    const queryMode = req.query.mode as string;
+    if (headerMode === "real" || headerMode === "test") return headerMode;
+    if (queryMode === "real" || queryMode === "test") return queryMode;
+    return activeEnvMode;
+  }
 
-// Notifications and continuous monitoring scheduling endpoints
-app.get("/api/notifications", (req, res) => {
-  res.json(notifications);
-});
+  function getStores(req: express.Request) {
+    const isReal = getMode(req) === "real";
+    return {
+      isReal,
+      getProducts: () => (isReal ? realProducts : products),
+      setProducts: (arr: any[]) => { if (isReal) realProducts = arr; else products = arr; saveMapStateToFile(); },
+      getPolicies: () => (isReal ? realMapPolicies : mapPolicies),
+      setPolicies: (arr: any[]) => { if (isReal) realMapPolicies = arr; else mapPolicies = arr; saveMapStateToFile(); },
+      getPartners: () => (isReal ? realPartners : partners),
+      setPartners: (arr: any[]) => { if (isReal) realPartners = arr; else partners = arr; saveMapStateToFile(); },
+      getScans: () => (isReal ? realScanHistory : scanHistory),
+      setScans: (arr: any[]) => { if (isReal) realScanHistory = arr; else scanHistory = arr; saveMapStateToFile(); },
+      getLogs: () => (isReal ? realAuditLogs : auditLogs),
+      setLogs: (arr: any[]) => { if (isReal) realAuditLogs = arr; else auditLogs = arr; saveMapStateToFile(); },
+      getNotifs: () => (isReal ? realNotifications : notifications),
+      setNotifs: (arr: any[]) => { if (isReal) realNotifications = arr; else notifications = arr; saveMapStateToFile(); }
+    };
+  }
 
-app.post("/api/notifications/clear", (req, res) => {
-  notifications = [];
-  res.json({ success: true });
-});
+  // Environment Mode management endpoints
+  app.get("/api/env/mode", (req, res) => {
+    res.json({
+      success: true,
+      mode: activeEnvMode,
+      description: activeEnvMode === "test"
+        ? "Test Sandbox Active (retaining expanded AI Studio test data)"
+        : "Live Production Mode Active (clean corporate workspace)"
+    });
+  });
+
+  app.post("/api/env/mode", (req, res) => {
+    const { mode } = req.body;
+    if (mode === "test" || mode === "real") {
+      activeEnvMode = mode;
+      try {
+        fs.writeFileSync(ENV_MODE_FILE, JSON.stringify({ mode: activeEnvMode }, null, 2), "utf8");
+      } catch {}
+      console.log(`[Environment] Switched active environment mode to: ${activeEnvMode}`);
+      return res.json({ success: true, mode: activeEnvMode });
+    }
+    return res.status(400).json({ success: false, error: "Invalid mode. Use 'test' or 'real'." });
+  });
+
+  app.post("/api/env/reset-test", (req, res) => {
+    products = [...EXPANDED_PRODUCTS];
+    mapPolicies = [...EXPANDED_POLICIES];
+    partners = [...EXPANDED_PARTNERS];
+    scanHistory = [...EXPANDED_SCANS];
+    auditLogs = [...EXPANDED_AUDIT_LOGS];
+    notifications = [...EXPANDED_NOTIFICATIONS];
+    saveMapStateToFile();
+    console.log("✓ Restored MAP Test Sandbox data to full expanded master seed.");
+    res.json({
+      success: true,
+      message: "Test sandbox dataset successfully restored to pristine expanded seed.",
+      productsCount: products.length,
+      partnersCount: partners.length,
+      scansCount: scanHistory.length
+    });
+  });
+
+  app.get("/api/products", (req, res) => {
+    const { getProducts } = getStores(req);
+    res.json(getProducts());
+  });
+
+  // Notifications and continuous monitoring scheduling endpoints
+  app.get("/api/notifications", (req, res) => {
+    const { getNotifs } = getStores(req);
+    res.json(getNotifs());
+  });
+
+  app.post("/api/notifications/clear", (req, res) => {
+    const { setNotifs } = getStores(req);
+    setNotifs([]);
+    res.json({ success: true });
+  });
 
 app.post("/api/notifications/send-warning", (req, res) => {
   const { productId, partnerId, partnerName, partnerDomain, mapPrice, detectedPrice, recipientEmail, subject, body } = req.body;
@@ -684,6 +598,7 @@ app.post("/api/products", (req, res) => {
         user: "System Operations Admin"
       });
     }
+    saveMapStateToFile();
     return res.status(201).json(addedProducts);
   }
 
@@ -721,6 +636,7 @@ app.post("/api/products", (req, res) => {
     user: "System Operations Admin"
   });
 
+  saveMapStateToFile();
   res.status(201).json(newProduct);
 });
 
@@ -795,6 +711,7 @@ app.put("/api/products/:id", (req, res) => {
     });
   }
 
+  saveMapStateToFile();
   res.json(updatedProduct);
 });
 
@@ -813,6 +730,7 @@ app.delete("/api/products/:id", (req, res) => {
       user: "System Operations Admin"
     });
   }
+  saveMapStateToFile();
   res.json({ success: true });
 });
 
@@ -874,6 +792,7 @@ app.post("/api/partners", (req, res) => {
     snoozeRule: snoozeRule || null
   };
   partners.push(newPartner);
+  saveMapStateToFile();
   res.status(201).json(newPartner);
 });
 
@@ -954,11 +873,13 @@ app.put("/api/partners/:id", (req, res) => {
     riskSensitivity: riskSensitivity !== undefined ? riskSensitivity : partners[idx].riskSensitivity,
     snoozeRule: snoozeRule !== undefined ? snoozeRule : (partners[idx].snoozeRule || null)
   };
+  saveMapStateToFile();
   res.json(partners[idx]);
 });
 
 app.delete("/api/partners/:id", (req, res) => {
   partners = partners.filter(p => p.id !== req.params.id);
+  saveMapStateToFile();
   res.json({ success: true });
 });
 

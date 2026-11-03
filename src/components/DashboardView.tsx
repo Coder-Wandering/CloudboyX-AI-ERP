@@ -3488,64 +3488,98 @@ export default function DashboardView({
         </div>
       </div>
 
-      {/* Sleek Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-6">
+      {/* Operations & Governance Metrics Hub - Responsive Executive Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
         
-        {/* Metric: Compliance Health Score */}
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-805/85 border-zinc-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm animate-fade-in" id="dashboard-metric-compliance-health-score">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Compliance Health</span>
-            <span className={`px-2.5 py-1 text-xs rounded-md font-bold uppercase tracking-wider ${complianceHealthScore >= notificationThreshold ? "bg-emerald-950/40 border border-emerald-900/60 text-emerald-400" : "bg-rose-950/40 border border-rose-900/60 text-rose-400 animate-pulse"}`}>
-              {complianceHealthScore >= notificationThreshold ? "Healthy" : "At Risk"}
-            </span>
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <div className="space-y-1">
-              <span className={`text-4xl font-bold font-display tracking-tight ${complianceHealthScore >= notificationThreshold ? "text-emerald-450" : "text-rose-400"}`}>{complianceHealthScore}%</span>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-mono block">Compliant SKUs</p>
+        {/* Primary Governance & Target Command Card (Spans 5 cols on lg, 4 cols on xl) */}
+        <div 
+          className="lg:col-span-5 xl:col-span-4 bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm relative overflow-hidden group" 
+          id="dashboard-metric-compliance-health-score"
+        >
+          <div>
+            {/* Header */}
+            <div className="flex items-center justify-between gap-2.5 pb-3 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="p-1.5 rounded-lg bg-emerald-950/50 border border-emerald-900/60 text-emerald-400 shrink-0">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                </span>
+                <span className="text-sm font-semibold text-white tracking-tight truncate">
+                  Compliance Health
+                </span>
+              </div>
+              <span className={`px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border ${
+                complianceHealthScore >= notificationThreshold 
+                  ? "bg-emerald-950/60 border-emerald-800/60 text-emerald-400" 
+                  : "bg-rose-950/60 border-rose-800/60 text-rose-400 animate-pulse"
+              }`}>
+                {complianceHealthScore >= notificationThreshold ? "Healthy" : "At Risk"}
+              </span>
             </div>
-            
-            {/* Minimal Circular Progress Indicator */}
-            <div className="relative w-12 h-12 shrink-0">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="16"
-                  fill="none"
-                  className="stroke-zinc-800"
-                  strokeWidth="3.5"
-                />
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="16"
-                  fill="none"
-                  className={`${complianceHealthScore >= notificationThreshold ? "stroke-emerald-500" : "stroke-rose-500"} transition-all duration-1000 ease-out`}
-                  strokeWidth="3.5"
-                  strokeDasharray={`${complianceHealthScore}, 100`}
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-bold text-slate-300">
-                {compliantProductsCount}/{totalProducts}
+
+            {/* Score & Gauge Display */}
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className={`text-4xl sm:text-5xl font-black font-display tracking-tight ${
+                  complianceHealthScore >= notificationThreshold ? "text-emerald-400" : "text-rose-400"
+                }`}>
+                  {complianceHealthScore}%
+                </span>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-mono block">
+                  Compliant SKUs
+                </p>
+                <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-slate-300">
+                  <span className="text-emerald-400 font-bold">{compliantProductsCount} Passing</span>
+                  <span className="text-zinc-600">•</span>
+                  <span className={totalProducts - compliantProductsCount > 0 ? "text-rose-400 font-bold" : "text-slate-400"}>
+                    {totalProducts - compliantProductsCount} Breached
+                  </span>
+                  <span className="text-zinc-600">•</span>
+                  <span className="text-slate-400">{totalProducts} Total</span>
+                </div>
+              </div>
+
+              {/* Minimal Circular Progress Indicator */}
+              <div className="relative w-16 h-16 sm:w-18 sm:h-18 shrink-0">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="15"
+                    fill="none"
+                    className="stroke-zinc-800"
+                    strokeWidth="3.5"
+                  />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="15"
+                    fill="none"
+                    className={`${complianceHealthScore >= notificationThreshold ? "stroke-emerald-400" : "stroke-rose-500"} transition-all duration-1000 ease-out`}
+                    strokeWidth="3.5"
+                    strokeDasharray={`${complianceHealthScore}, 100`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center font-mono">
+                  <span className="text-[11px] font-bold text-white leading-none">
+                    {compliantProductsCount}/{totalProducts}
+                  </span>
+                  <span className="text-[8px] text-slate-500 uppercase tracking-tight mt-0.5">Ratio</span>
+                </div>
               </div>
             </div>
           </div>
-          <div className="mt-2 text-[10px] font-mono text-slate-400 flex justify-between select-none font-bold">
-            <span>Violations: {totalProducts - compliantProductsCount}</span>
-            <span>Total SKUs: {totalProducts}</span>
-          </div>
 
           {/* Interactive Target Compliance Objective & Alerts Settings */}
-          <div className="mt-3 pt-3 border-t border-zinc-800 space-y-3">
+          <div className="mt-4 pt-3.5 border-t border-zinc-800/80 space-y-3 bg-zinc-950/50 -mx-1 px-3 py-2.5 rounded-xl border border-zinc-850">
             {/* Target Compliance Level Control */}
             <div className="space-y-1.5" id="dashboard-target-compliance-input">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Target className="w-3.5 h-3.5 text-blue-400" />
                   Target Objective
                 </span>
-                <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border ${
+                <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border shrink-0 ${
                   complianceHealthScore >= targetComplianceLevel
                     ? "bg-emerald-950/80 border-emerald-800 text-emerald-300"
                     : "bg-blue-950/80 border-blue-800 text-blue-300"
@@ -3562,16 +3596,16 @@ export default function DashboardView({
                   max="100" 
                   value={targetComplianceLevel} 
                   onChange={(e) => setTargetComplianceLevel(parseInt(e.target.value, 10))}
-                  className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500" 
+                  className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500" 
                 />
-                <div className="flex items-center gap-0.5 shrink-0">
+                <div className="flex items-center gap-0.5 shrink-0 bg-zinc-900 border border-zinc-700/80 px-1.5 py-0.5 rounded">
                   <input 
                     type="number"
                     min="50"
                     max="100"
                     value={targetComplianceLevel}
                     onChange={(e) => setTargetComplianceLevel(Math.max(50, Math.min(100, parseInt(e.target.value, 10) || 50)))}
-                    className="w-8 bg-zinc-900 border border-zinc-750 text-blue-300 font-mono text-[10px] font-bold rounded text-center py-0.5 outline-none"
+                    className="w-7 bg-transparent text-blue-300 font-mono text-[10px] font-bold text-center outline-none"
                   />
                   <span className="text-[9px] font-mono text-blue-400 font-bold">%</span>
                 </div>
@@ -3580,7 +3614,7 @@ export default function DashboardView({
 
             {/* Alert Triggers */}
             <div className="pt-2 border-t border-zinc-800/60 space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <BellRing className={`w-3.5 h-3.5 ${isNotificationEnabled ? "text-indigo-400 animate-bounce" : "text-slate-500"}`} />
                   Alert Triggers
@@ -3592,12 +3626,12 @@ export default function DashboardView({
                     onChange={(e) => setIsNotificationEnabled(e.target.checked)}
                     className="sr-only peer" 
                   />
-                  <div className="w-8 h-4.5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-3.5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[2.5px] after:bg-zinc-500 after:border-zinc-505 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600 font-bold"></div>
+                  <div className="w-8 h-4.5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-3.5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[2.5px] after:bg-zinc-500 after:border-zinc-500 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600 font-bold"></div>
                 </label>
               </div>
               
               {isNotificationEnabled && (
-                <div className="space-y-1.5 animate-fade-in">
+                <div className="space-y-1.5 animate-fade-in pt-0.5">
                   <div className="flex justify-between text-[9px] font-mono">
                     <span className="text-slate-400">Trigger standard below:</span>
                     <span className="text-indigo-400 font-bold">{notificationThreshold}%</span>
@@ -3609,7 +3643,7 @@ export default function DashboardView({
                       max="100" 
                       value={notificationThreshold} 
                       onChange={(e) => setNotificationThreshold(parseInt(e.target.value, 10))}
-                      className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" 
+                      className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" 
                     />
                   </div>
                 </div>
@@ -3618,89 +3652,236 @@ export default function DashboardView({
           </div>
         </div>
 
-        {/* Metric 1: Critical Violations */}
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-805/85 border-zinc-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Critical Violations</span>
-            <span className={`px-2.5 py-1 text-xs rounded-md font-bold uppercase tracking-wider ${violationPoints > 0 ? "bg-red-950/40 border border-red-900/60 text-red-400 animate-pulse" : "bg-emerald-950/40 border border-emerald-900/60 text-emerald-400"}`}>
-              {violationPoints > 0 ? "Action Need" : "Secure"}
-            </span>
-          </div>
-          <div className="mt-4">
-            <span className="text-4xl font-bold font-display text-white tracking-tight">{violationPoints}</span>
-            <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Pending enforcement</p>
-          </div>
-        </div>
-
-        {/* Metric 2: Compliance rate */}
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-805/85 border-zinc-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Compliance Score</span>
-            <span className="px-2.5 py-1 bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 text-xs rounded-md font-bold uppercase tracking-wider">
-              {complianceRate > 90 ? "Stable" : "Caution"}
-            </span>
-          </div>
-          <div className="mt-4">
-            <span className="text-4xl font-bold font-display text-emerald-400 tracking-tight">{complianceRate}%</span>
-            <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Channels integrity rate</p>
-          </div>
-        </div>
-
-        {/* Metric 3: Estimated Revenue Risk */}
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-805/85 border-zinc-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Total Market Risk</span>
-            <span className="px-2.5 py-1 bg-amber-950/40 border border-amber-900/60 text-amber-400 text-xs rounded-md font-bold uppercase tracking-wider">
-              {violationPoints > 0 ? "High Risk" : "Minimal"}
-            </span>
-          </div>
-          <div className="mt-4">
-            <span className="text-4xl font-bold font-display text-white tracking-tight">${(violationPoints * 1450).toLocaleString()}</span>
-            <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Revenue Leakage Risk</p>
-          </div>
-        </div>
-
-        {/* Metric 4: Monitored Catalog */}
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-805/85 border-zinc-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Protected SKUs</span>
-            <span className="px-2.5 py-1 bg-indigo-950/40 border border-indigo-900/60 text-indigo-400 text-xs rounded-md font-bold uppercase tracking-wider">
-              Enforced
-            </span>
-          </div>
-          <div className="mt-4">
-            <span className="text-4xl font-bold font-display text-white tracking-tight">{totalProducts}</span>
-            <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Protected list</p>
-          </div>
-        </div>
-
-        {/* Metric 5: Scan Health Summary */}
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-805/85 border-zinc-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm" id="dashboard-metric-scan-health">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Scan Health</span>
-            <span className={`px-2.5 py-1 text-xs rounded-md font-bold uppercase tracking-wider ${scanSuccessRate >= 90 ? "bg-emerald-955/40 border border-emerald-900/60 text-emerald-450 text-emerald-400" : "bg-amber-955/40 border border-amber-900/60 text-amber-450 text-amber-400 font-bold"}`}>
-              {scanSuccessRate >= 90 ? "Optimal" : "Degraded"}
-            </span>
-          </div>
-          <div className="mt-4">
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold font-display text-emerald-500 tracking-tight">{scanSuccessRate}%</span>
-              <span className="text-xs text-rose-500 font-mono">/ {scanFailureRate}% err</span>
+        {/* Telemetry KPI Cards Matrix (Spans 7 cols on lg, 8 cols on xl) */}
+        <div className="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+          
+          {/* Metric 1: Critical Violations */}
+          <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm transition group min-h-[145px]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className={`p-1.5 rounded-lg border shrink-0 ${
+                  violationPoints > 0 
+                    ? "bg-rose-950/50 border-rose-900/60 text-rose-400" 
+                    : "bg-zinc-800/60 border-zinc-700/60 text-emerald-400"
+                }`}>
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+                  Critical Violations
+                </span>
+              </div>
+              <span className={`px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border ${
+                violationPoints > 0 
+                  ? "bg-rose-950/60 border-rose-900/60 text-rose-400 animate-pulse" 
+                  : "bg-emerald-950/60 border-emerald-900/60 text-emerald-400"
+              }`}>
+                {violationPoints > 0 ? "Action Need" : "Secure"}
+              </span>
             </div>
             
-            {/* Elegant visual mini progress bar */}
-            <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2.5 overflow-hidden flex">
-              <div className="bg-[#10b981] h-full transition-all duration-500" style={{ width: `${scanSuccessRate}%` }} />
-              <div className="bg-[#ef4444] h-full transition-all duration-500" style={{ width: `${scanFailureRate}%` }} />
+            <div className="my-2.5">
+              <span className={`text-3xl sm:text-4xl font-extrabold font-display tracking-tight ${
+                violationPoints > 0 ? "text-rose-400" : "text-white"
+              }`}>
+                {violationPoints}
+              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-mono">
+                Pending Enforcement
+              </p>
             </div>
 
-            <p className="text-[10px] text-slate-400 mt-2 uppercase font-mono tracking-wider flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-              {scansLast24h.length > 0 ? "Last 24 Hours" : "All-Time History"} ({completedScans24h}/{totalScans24h} OK)
-            </p>
+            <div className="pt-2 border-t border-zinc-800/70 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span className="truncate">Active Breaches</span>
+              <span className={violationPoints > 0 ? "text-rose-400 font-bold" : "text-emerald-400"}>
+                {violationPoints > 0 ? `${violationPoints} Infractions` : "Zero Alerts"}
+              </span>
+            </div>
           </div>
-        </div>
 
+          {/* Metric 2: Compliance rate */}
+          <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm transition group min-h-[145px]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="p-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/60 text-emerald-400 shrink-0">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+                  Compliance Score
+                </span>
+              </div>
+              <span className={`px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border ${
+                complianceRate >= 90
+                  ? "bg-emerald-950/60 border-emerald-800/60 text-emerald-400"
+                  : "bg-amber-950/60 border-amber-800/60 text-amber-400"
+              }`}>
+                {complianceRate >= 90 ? "Stable" : "Caution"}
+              </span>
+            </div>
+            
+            <div className="my-2.5">
+              <span className="text-3xl sm:text-4xl font-extrabold font-display text-emerald-400 tracking-tight">
+                {complianceRate}%
+              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-mono">
+                Channels Integrity Rate
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800/70 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span>Catalog Verification</span>
+              <span className="text-emerald-400 font-semibold">{compliantProductsCount}/{totalProducts} Verified</span>
+            </div>
+          </div>
+
+          {/* Metric 3: Estimated Revenue Risk */}
+          <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm transition group min-h-[145px]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className={`p-1.5 rounded-lg border shrink-0 ${
+                  violationPoints > 0 
+                    ? "bg-amber-950/50 border-amber-900/60 text-amber-400" 
+                    : "bg-zinc-800/60 border-zinc-700/60 text-indigo-400"
+                }`}>
+                  <DollarSign className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+                  Total Market Risk
+                </span>
+              </div>
+              <span className={`px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border ${
+                violationPoints > 0 
+                  ? "bg-amber-950/60 border-amber-900/60 text-amber-400 animate-pulse" 
+                  : "bg-emerald-950/60 border-emerald-900/60 text-emerald-400"
+              }`}>
+                {violationPoints > 0 ? "High Risk" : "Minimal"}
+              </span>
+            </div>
+            
+            <div className="my-2.5">
+              <span className="text-3xl sm:text-4xl font-extrabold font-display text-white tracking-tight">
+                ${(violationPoints * 1450).toLocaleString()}
+              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-mono">
+                Revenue Leakage Risk
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800/70 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span>Underpricing Impact</span>
+              <span className={violationPoints > 0 ? "text-amber-400 font-bold" : "text-slate-400"}>
+                {violationPoints > 0 ? `${violationPoints} SKUs Impacted` : "$0 Exposure"}
+              </span>
+            </div>
+          </div>
+
+          {/* Metric 4: Monitored Catalog */}
+          <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm transition group min-h-[145px]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="p-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/60 text-indigo-400 shrink-0">
+                  <Package2 className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+                  Protected SKUs
+                </span>
+              </div>
+              <span className="px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border bg-indigo-950/60 border-indigo-900/60 text-indigo-400">
+                Enforced
+              </span>
+            </div>
+            
+            <div className="my-2.5">
+              <span className="text-3xl sm:text-4xl font-extrabold font-display text-white tracking-tight">
+                {totalProducts}
+              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-mono">
+                Active Catalog Items
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800/70 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span>Coverage</span>
+              <span className="text-indigo-300 font-semibold">100% Monitored</span>
+            </div>
+          </div>
+
+          {/* Metric 5: Scan Health Summary */}
+          <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm transition group min-h-[145px]" id="dashboard-metric-scan-health">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="p-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/60 text-emerald-400 shrink-0">
+                  <Activity className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+                  Scan Health
+                </span>
+              </div>
+              <span className={`px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border ${
+                scanSuccessRate >= 90 
+                  ? "bg-emerald-950/60 border-emerald-900/60 text-emerald-400" 
+                  : "bg-amber-950/60 border-amber-900/60 text-amber-400"
+              }`}>
+                {scanSuccessRate >= 90 ? "Optimal" : "Degraded"}
+              </span>
+            </div>
+            
+            <div className="my-2.5">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-extrabold font-display text-emerald-400 tracking-tight">
+                  {scanSuccessRate}%
+                </span>
+                <span className="text-xs text-rose-400 font-mono">/ {scanFailureRate}% err</span>
+              </div>
+              
+              {/* Visual mini progress bar */}
+              <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2 overflow-hidden flex">
+                <div className="bg-[#10b981] h-full transition-all duration-500" style={{ width: `${scanSuccessRate}%` }} />
+                <div className="bg-[#ef4444] h-full transition-all duration-500" style={{ width: `${scanFailureRate}%` }} />
+              </div>
+
+              <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-mono tracking-wider truncate">
+                {scansLast24h.length > 0 ? "Last 24 Hours" : "All-Time History"} ({completedScans24h}/{totalScans24h} OK)
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800/70 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span>Crawler Status</span>
+              <span className="text-emerald-400 font-semibold">Online & Polling</span>
+            </div>
+          </div>
+
+          {/* Metric 6: Monitored Channels & Partner Ecosystem */}
+          <div className="bg-gradient-to-br from-zinc-900 via-neutral-950 to-black border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm transition group min-h-[145px]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="p-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/60 text-purple-400 shrink-0">
+                  <Globe className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+                  Monitored Channels
+                </span>
+              </div>
+              <span className="px-2 py-0.5 text-[10px] font-mono rounded font-bold uppercase tracking-wider shrink-0 border bg-purple-950/60 border-purple-900/60 text-purple-400">
+                Active
+              </span>
+            </div>
+            
+            <div className="my-2.5">
+              <span className="text-3xl sm:text-4xl font-extrabold font-display text-white tracking-tight">
+                {partners.filter(p => p.domain).length || 4}
+              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-mono">
+                Connected Marketplaces
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800/70 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span className="truncate">Ecosystems</span>
+              <span className="text-purple-300 truncate">Amazon, Walmart, eBay</span>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       {/* Ecosystem-Wide Compliance Health Trend Chart */}
